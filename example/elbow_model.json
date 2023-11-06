@@ -1,0 +1,92 @@
+{
+	"body" : 
+	[
+		{
+			"body_name" : "upperarm",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : [0.0,0.0,0.0],
+			"rotation_angle" : 30.0,
+			"rotation_axis_relative_parent_coordinate" : [0.0,1.0,0.0],
+			"shape" : 
+			{
+				"a" : 0,
+				"b" : 0,
+				"c" : 0,
+				"length" : 0.3477,
+				"radius" : 0.045,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "elbow",
+			"body_parent_name" : "upperarm",
+			"position_relative_parent_coordinate" : [0.0,0.0,-0.17385],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : [0.0,1.0,0.0],
+			"shape" : 
+			{
+				"a" : 0.043,
+				"b" : 0.045,
+				"c" : 0.038,
+				"length" : 0,
+				"radius" : 0,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "forearm",
+			"body_parent_name" : "elbow",
+			"position_relative_parent_coordinate" : [0.0,0.0,-0.142],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : [0.0,1.0,0.0],
+			"shape" : 
+			{
+				"a" : 0,
+				"b" : 0,
+				"c" : 0,
+				"length" : 0.284,
+				"radius" : 0.038,
+				"shape_name" : "ellipsoid"
+			}
+		}
+	],
+	"ipoptsetting" : 
+	{
+		"hessian_approximation" : "limited-memory",
+		"linear_solver" : "mumps",
+		"max_iter" : 1000,
+		"print_level" : 0,
+		"tol" : 0.001
+	},
+	"muscle" : 
+	[
+		{
+			"insertion_relative_body" : "forearm",
+			"muscle_name" : "triceps",
+			"node_number" : 21,
+			"origin_relative_body" : "upperarm",
+			"rho_insertion" : [0.0456,0.0,0.1278],
+			"rho_origin" : [0.045,0.0,0.121695]
+		},
+		{
+			"insertion_relative_body" : "forearm",
+			"muscle_name" : "biceps",
+			"node_number" : 21,
+			"origin_relative_body" : "upperarm",
+			"rho_insertion" : [0.0,0.038,0.0852],
+			"rho_origin" : [-0.045,0.0,0.13908]
+		}
+	],
+	"name" : "elbow_model",
+	"postprocessing" : 
+	{
+		"tol" : 0.01
+	},
+	"solve_problem" : 
+	{
+		"rotate_axis" : [0.0,1.0,0.0],
+		"rotate_body" : "elbow",
+		"rotationangle" : 90.0,
+		"rotationangle_eachstep" : 4.5
+	}
+}

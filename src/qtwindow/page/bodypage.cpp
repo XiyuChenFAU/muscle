@@ -1,0 +1,291 @@
+/*
+
+Copyright (C) 2023-2031 Friedrich-Alexander-Universität Erlangen-Nürnberg
+27.10.2023
+Xiyu Chen
+
+*/
+
+#include "bodypage.h"
+#include "../setmodelwindow.h"
+
+
+bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
+    QWidget(parent),
+    setmodelwin(setmodelwin)
+{
+    std::string bodyname="";
+    std::string parentbodyname="fix_space";
+    std::string rotationaxis_x="";
+    std::string rotationaxis_y="";
+    std::string rotationaxis_z="";
+    std::string init_rotationangle="";
+    std::string positionaxis_x="";
+    std::string positionaxis_y="";
+    std::string positionaxis_z="";
+
+    std::string shape_name="";
+    std::string a_stringvalue="0";
+    std::string b_stringvalue="0";
+    std::string c_stringvalue="0";
+    std::string length_stringvalue="0";
+    std::string radius_stringvalue="0";
+
+    QFrame* rectangle = new QFrame(this);
+    rectangle->setGeometry(0, 100, setmodelwin->width(), setmodelwin->width()+1000);
+    rectangle->setStyleSheet("background-color: #CCCCCC;");
+
+    int bodynum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
+    plusbutton= new QPushButton("+", this);
+    plusbutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
+    connect(plusbutton, &QPushButton::clicked, this, &bodypage::plusbuttonsetting);
+
+    newbodybutton= new QPushButton("new", this);
+    newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
+    newbodybutton->setGeometry(0, 50, 70, 50);
+    connect(newbodybutton, &QPushButton::clicked, this, &bodypage::newbodybuttonsetting);
+
+    if(bodynum){ 
+        for(int i=0;i<bodynum;i++){
+            QPushButton* bodybutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+            bodybutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
+            bodybutton->setGeometry(i*70, 50, 70, 50);
+            bodybuttons.push_back(bodybutton);
+        }
+        plusbutton->setGeometry(bodynum*70, 50, 50, 50);
+        bodybuttons[0]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
+        
+        bodyname=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getname();
+        parentbodyname=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getparent()->getname();
+        bodybasic* bodybasicfirstbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getbodybasic();
+        std::vector<double> naxisfirstbody=bodybasicfirstbody->getnaxis();
+        rotationaxis_x=doubletostring(naxisfirstbody[0]);
+        rotationaxis_y=doubletostring(naxisfirstbody[1]);
+        rotationaxis_z=doubletostring(naxisfirstbody[2]);
+        init_rotationangle=doubletostring(bodybasicfirstbody->getrotationangle());
+        std::vector<double> rhobodyfirstbody=bodybasicfirstbody->getrhobody();
+        positionaxis_x=doubletostring(rhobodyfirstbody[0]);
+        positionaxis_y=doubletostring(rhobodyfirstbody[1]);
+        positionaxis_z=doubletostring(rhobodyfirstbody[2]);
+
+        shape* shapefirstbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getshape();
+        shape_name=shapefirstbody->getshapename();
+        a_stringvalue=doubletostring(shapefirstbody->geta());
+        b_stringvalue=doubletostring(shapefirstbody->getb());
+        c_stringvalue=doubletostring(shapefirstbody->getc());
+        length_stringvalue=doubletostring(shapefirstbody->getlength());
+        radius_stringvalue=doubletostring(shapefirstbody->getradius());
+
+        newbodybutton->setVisible(false);
+    }
+    else{
+        plusbutton->setGeometry(70, 50, 50, 50);
+        
+    }
+
+    for (int i = 0; i < bodybuttons.size(); i++) {
+        connect(bodybuttons[i], &QPushButton::clicked, this, [this, i]() {
+            showbodysetting(i);
+        });
+    }
+
+
+    int allfontsize=15;
+    //bodybasie
+    setlabel("Basic information", 10, 110, 20);
+    body_nameEdit=settextandlabel("arm name",bodyname, 10, 150, 450, 30, allfontsize);
+    parentbody_nameEdit = settextandlabel("parent arm name",parentbodyname, 10, 230, 450, 30, allfontsize);
+    setlabel("rotation axis refers to the parent coordinate", 10, 310, allfontsize);
+    rotationaxisx = settextandlabel("axis x",rotationaxis_x, 10, 335, 140, 30, allfontsize);
+    rotationaxisy = settextandlabel("axis y",rotationaxis_y, 165, 335, 140, 30, allfontsize);
+    rotationaxisz = settextandlabel("axis z",rotationaxis_z, 320, 335, 140, 30, allfontsize);
+    initrotationangle = settextandlabel("rotation angle",init_rotationangle, 10, 415, 140, 30, allfontsize);
+    setlabel("position refers to the parent coordinate", 10, 495, allfontsize);
+    positionaxisx = settextandlabel("axis x",positionaxis_x, 10, 520, 140, 30, allfontsize);
+    positionaxisy = settextandlabel("axis y",positionaxis_y, 165, 520, 140, 30, allfontsize);
+    positionaxisz = settextandlabel("axis z",positionaxis_z, 320, 520, 140, 30, allfontsize);
+
+    //shape
+    setlabel("Shape information", 660, 110, 20);
+    shape_nameEdit=settextandlabel("shape name",shape_name, 660, 150, 450, 30, allfontsize);
+    aEdit=settextandlabel("a",a_stringvalue, 660, 224, 450, 30, allfontsize);
+    bEdit=settextandlabel("b",b_stringvalue, 660, 298, 450, 30, allfontsize);
+    cEdit=settextandlabel("c",c_stringvalue, 660, 372, 450, 30, allfontsize);
+    lengthEdit=settextandlabel("length",length_stringvalue, 660, 446, 450, 30, allfontsize);
+    radiusEdit=settextandlabel("radius",radius_stringvalue, 660, 520, 450, 30, allfontsize);
+
+    //save button
+    savebutton = new QPushButton("Save", this);
+    savebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
+    savebutton->setGeometry(1010, 600, 100, 50);
+    connect(savebutton, &QPushButton::clicked, this, &bodypage::savebuttonsetting);
+
+    //delete button
+    deletebutton = new QPushButton("Delete body", this);
+    deletebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
+    deletebutton->setGeometry(660, 600, 100, 50);
+    connect(deletebutton, &QPushButton::clicked, this, &bodypage::deletebuttonsetting);
+}
+
+QLineEdit* bodypage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
+    QLineEdit* body_nameEdit = new QLineEdit(this);
+    QFont body_nameEditfont = body_nameEdit->font();
+    body_nameEditfont.setPointSize(fontsize); 
+    body_nameEdit->setFont(body_nameEditfont);
+    body_nameEdit->setGeometry(x, y, textwidth, textheight);
+    body_nameEdit->setText(QString::fromStdString(textdefault));
+    body_nameEdit->setStyleSheet("QLineEdit { color: black; }");
+    return body_nameEdit;
+}
+void bodypage::setlabel(const std::string& labelname, int x, int y ,int fontsize) {
+    QLabel *body_namelabel = new QLabel(this);
+    QFont body_namefont = body_namelabel->font();
+    body_namefont.setPointSize(fontsize); 
+    body_namelabel->setFont(body_namefont);
+    body_namelabel->setText(QString::fromStdString(labelname)); 
+    body_namelabel->move(x, y);
+    body_namelabel->setStyleSheet("QLabel { color : black; background-color : #CCCCCC; }");
+}
+
+QLineEdit* bodypage::settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize) {
+    setlabel(labelname, x, y, fontsize);
+    QLineEdit* body_nameEdit = settext(textdefault, x, y+25, textwidth, textheight, fontsize);
+    return body_nameEdit;
+}
+
+std::string bodypage::doubletostring(double num) {
+    std::ostringstream stream;
+    stream << num;
+    std::string numStr = stream.str();
+    return numStr;
+}
+
+double bodypage::stringtodouble(std::string numStr) {
+    double num;
+    std::istringstream stream(numStr);
+    stream >> num;
+    return num;
+}
+
+void bodypage::errorbox(std::string errormessage){
+    QMessageBox errorMessage;
+    errorMessage.setWindowTitle("error");
+    errorMessage.setText(QString::fromStdString(errormessage));
+    errorMessage.setIcon(QMessageBox::Critical);
+    errorMessage.addButton("Yes", QMessageBox::AcceptRole);
+    errorMessage.exec();
+}
+
+void bodypage::setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename){
+    body_nameEdit->setText(QString::fromStdString(bodyname));
+    parentbody_nameEdit->setText(QString::fromStdString(parentbodyname));
+    rotationaxisx->setText(QString::fromStdString(doubletostring(naxis[0])));
+    rotationaxisy->setText(QString::fromStdString(doubletostring(naxis[1])));
+    rotationaxisz->setText(QString::fromStdString(doubletostring(naxis[2])));
+    initrotationangle->setText(QString::fromStdString(doubletostring(rotationangle)));
+    positionaxisx->setText(QString::fromStdString(doubletostring(rhobody[0])));
+    positionaxisy->setText(QString::fromStdString(doubletostring(rhobody[1])));
+    positionaxisz->setText(QString::fromStdString(doubletostring(rhobody[2])));
+    shape_nameEdit->setText(QString::fromStdString(shapename));
+    aEdit->setText(QString::fromStdString(doubletostring(a)));
+    bEdit->setText(QString::fromStdString(doubletostring(b)));
+    cEdit->setText(QString::fromStdString(doubletostring(c)));
+    lengthEdit->setText(QString::fromStdString(doubletostring(length)));
+    radiusEdit->setText(QString::fromStdString(doubletostring(radius)));
+}
+
+void bodypage::plusbuttonsetting(){
+    if(!newbodybutton->isVisible()){
+        newbodybutton->setVisible(true);
+        newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
+        newbodybutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70, 50, 70, 50);
+        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70+70, 50, 50, 50);
+        setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "");
+        for(int i=0;i<bodybuttons.size();i++){
+            bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
+        }
+    }
+}
+
+void bodypage::savebuttonsetting(){
+    body* findparentbody=setmodelwin->getRunmodel()->getModel()->getparm()->findbody(parentbody_nameEdit->text().toStdString());
+    if(findparentbody==nullptr){
+        errorbox("please check parent body name, parent does not exist");
+    }
+    else{
+        std::vector<double> naxisvalue={rotationaxisx->text().toDouble(),rotationaxisy->text().toDouble(),rotationaxisz->text().toDouble()};
+        std::vector<double> rhobodyvalue={positionaxisx->text().toDouble(),positionaxisy->text().toDouble(),positionaxisz->text().toDouble()};
+        setmodelwin->getRunmodel()->getModel()->getparm()->addbody(body_nameEdit->text().toStdString(), parentbody_nameEdit->text().toStdString(), naxisvalue, initrotationangle->text().toDouble(), rhobodyvalue, aEdit->text().toDouble(), bEdit->text().toDouble(), cEdit->text().toDouble(), lengthEdit->text().toDouble(), radiusEdit->text().toDouble(), shape_nameEdit->text().toStdString());
+        if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()>bodybuttons.size()){
+            newbodybutton->setVisible(false);
+            for(int i=0;i<bodybuttons.size();i++){
+                bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
+            }
+            std::string bodynewbuttonname=body_nameEdit->text().toStdString();
+            QPushButton* bodyaddnewbutton= new QPushButton(QString::fromStdString(bodynewbuttonname), this);
+            bodyaddnewbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
+            bodyaddnewbutton->setGeometry(bodybuttons.size()*70, 50, 70, 50);
+            bodyaddnewbutton->setVisible(true);
+            plusbutton->setGeometry(bodybuttons.size()*70+70, 50, 70, 50);
+            bodybuttons.push_back(bodyaddnewbutton);
+        }
+    }
+}
+
+void bodypage::deletebuttonsetting(){
+    Parm* parm=setmodelwin->getRunmodel()->getModel()->getparm();
+    int index= parm->deletebody(body_nameEdit->text().toStdString());
+    if(index<0){
+        errorbox("not such body");
+    }
+    else{
+        if(newbodybutton->isVisible()){
+            newbodybutton->setGeometry(parm->getn_bodies()*70, 50, 70, 50);
+            plusbutton->setGeometry(parm->getn_bodies()*70+70, 50, 50, 50);
+        }
+        else{
+            plusbutton->setGeometry(parm->getn_bodies()*70, 50, 50, 50);
+        }
+        delete bodybuttons[index];
+        bodybuttons.erase(bodybuttons.begin() + index);
+        for(int i=0;i<bodybuttons.size();i++){
+            bodybuttons[i]->setGeometry(i*70, 50, 70, 50);
+            connect(bodybuttons[i], &QPushButton::clicked, this, [this, i]() {
+            showbodysetting(i);
+        });
+        }
+        if(parm->getn_bodies()>0){
+            showbodysetting(0);
+        }
+        else{
+            newbodybutton->setVisible(true);
+            newbodybutton->setGeometry(0, 50, 70, 50);
+            plusbutton->setGeometry(70, 50, 50, 50);
+        }
+                
+    }
+}
+
+void bodypage::newbodybuttonsetting(){
+    for(int i=0;i<bodybuttons.size();i++){
+        bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
+    }
+    newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
+    setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "");
+}
+
+void bodypage::showbodysetting(int index){
+    body* Body=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
+    setalltextedit(Body->getname(), Body->getparent()->getname(), Body->getbodybasic()->getnaxis(), Body->getbodybasic()->getrotationangle(), Body->getbodybasic()->getrhobody(), Body->getshape()->geta(), Body->getshape()->getb(), Body->getshape()->getc(), Body->getshape()->getlength(), Body->getshape()->getradius(), Body->getshape()->getshapename());
+    for(int i=0;i<bodybuttons.size();i++){
+        if(index==i){
+            bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
+        }
+        else{
+            bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
+        }
+    }
+    if(newbodybutton->isVisible()){
+        newbodybutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
+    }
+}

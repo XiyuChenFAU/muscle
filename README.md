@@ -29,7 +29,7 @@ export Qt5_DIR="your_qt5_install_directory"/Qt5.14.2/5.14.2/clang_64/lib/cmake/Q
 ### For Windows:
 set environment variable name Qt5_DIR and value D:\path\to\qt5\msvc2017_64\lib\cmake\Qt5. Not set in the environmental path
 
-# Download and install ipopt
+# Download and install swig
 
 ## For mac
 brew install swig

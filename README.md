@@ -67,8 +67,8 @@ When you do "mkdir build", please sure it contains the CMakeLists.txtin the curr
 * cd build
 * cmake -DWITH_PYTHON=ON -DWITH_IPOPT=ON -DCMAKE_C_COMPILER="C:/path/to/gcc/bin/gcc.exe" -DCMAKE_CXX_COMPILER="C:/path/to/g++/bin/g++.exe" -G "MinGW Makefiles" -DIPOPT_LIBRARIES:FILEPATH="C:/path/to/ipopt/lib/ipopt.dll.lib" -DIPOPT_INCLUDE_DIRS:PATH="C:/path/to/ipopt/include/coin-or" -DSWIG_EXECUTABLE="C:/path/to/swig/swig.exe" ..
 * cmake --build . --config Release
-* sudo make install
-<div style="display:none">
+* cmake --install .
+
 
 # make this project
 * mkdir
@@ -76,5 +76,3 @@ When you do "mkdir build", please sure it contains the CMakeLists.txtin the curr
 * cmake ..
 * make
 
-cmake -DWITH_PYTHON=ON -DWITH_IPOPT=ON -DCMAKE_C_COMPILER="D:/chenxiyu/teaching/MinGw/mingw64/bin/gcc.exe" -DCMAKE_CXX_COMPILER="D:/chenxiyu/teaching/MinGw/mingw64/bin/g++.exe" -G "MinGW Makefiles" -DIPOPT_LIBRARIES:FILEPATH="D:/chenxiyu/muscle/ipopt/Ipopt-3.13.3-win64-msvs2019-mdd/Ipopt-3.13.3-win64-msvs2019-mdd/lib/ipopt.dll.lib" -DIPOPT_INCLUDE_DIRS:PATH="D:/chenxiyu/muscle/ipopt/Ipopt-3.13.3-win64-msvs2019-mdd/Ipopt-3.13.3-win64-msvs2019-md/include/coin-or" -DSWIG_EXECUTABLE="D:/chenxiyu/muscle/swig/swigwin-4.1.1/swigwin-4.1.1/swig.exe" ..
-</div>

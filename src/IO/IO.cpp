@@ -237,43 +237,61 @@ void IO::writebody_stateToFile(model* Model, const std::string& folderPath){
     file5 << "\n";
     //writevalue
     for(int i =0;i<Model->getparm()->getn_bodies();i++){
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\ta\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\ta\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             file5 << allbody[i+1]->getshape()->geta() << "\t";
         }
         file5 << "\n";
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\tb\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\tb\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             file5 << allbody[i+1]->getshape()->getb() << "\t";
         }
         file5 << "\n";
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\tc\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\tc\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             file5 << allbody[i+1]->getshape()->getc() << "\t";
         }
         file5 << "\n";
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\taxis1\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\trotationaxis1\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             std::vector<std::vector<double>> axisanglevalue=allbody[i+1]->getbodybasic()->getaxisangle_ref();
             file5 << axisanglevalue[j][0] << "\t";
         }
         file5 << "\n";
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\taxis2\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\trotationaxis2\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             std::vector<std::vector<double>> axisanglevalue=allbody[i+1]->getbodybasic()->getaxisangle_ref();
             file5 << axisanglevalue[j][1] << "\t";
         }
         file5 << "\n";
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\taxis3\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\trotationaxis3\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             std::vector<std::vector<double>> axisanglevalue=allbody[i+1]->getbodybasic()->getaxisangle_ref();
             file5 << axisanglevalue[j][2] << "\t";
         }
         file5 << "\n";
-        file5 << allbody[i+1]->getname() << "\t" << "bodystate\tangle\t";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\trotationangle\t";
         for (int j=0;j<allbody[i+1]->getbodybasic()->getaxisangle_ref().size();j++) {
             std::vector<std::vector<double>> axisanglevalue=allbody[i+1]->getbodybasic()->getaxisangle_ref();
             file5 << axisanglevalue[j][3] << "\t";
+        }
+        file5 << "\n";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\ttranslationaxis1\t";
+        for (int j=0;j<allbody[i+1]->getbodybasic()->getq().size();j++) {
+            std::vector<std::vector<double>> transationq=allbody[i+1]->getbodybasic()->getq();
+            file5 << transationq[j][0] << "\t";
+        }
+        file5 << "\n";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\ttranslationaxis2\t";
+        for (int j=0;j<allbody[i+1]->getbodybasic()->getq().size();j++) {
+            std::vector<std::vector<double>> transationq=allbody[i+1]->getbodybasic()->getq();
+            file5 << transationq[j][1] << "\t";
+        }
+        file5 << "\n";
+        file5 << allbody[i+1]->getname() << "\t" << allbody[i+1]->getshape()->getshapename()<<"\ttranslationaxis3\t";
+        for (int j=0;j<allbody[i+1]->getbodybasic()->getq().size();j++) {
+            std::vector<std::vector<double>> transationq=allbody[i+1]->getbodybasic()->getq();
+            file5 << transationq[j][2] << "\t";
         }
         file5 << "\n";
     }

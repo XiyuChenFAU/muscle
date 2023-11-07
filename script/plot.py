@@ -47,7 +47,7 @@ def plot_ellipsoid(ax, a, b, c, axis, rotationangle, translate, colorval, stride
     ax.plot_wireframe(x, y, z, linewidth=0.3, color=colorval, cstride=stride)
     #ax.plot_surface(x, y, z, color=colorval) #suface
 
-def plot_elliptical_cylinder(a, b, c, axis, rotationangle, translate, colorval):
+def plot_elliptical_cylinder(ax,a, b, c, axis, rotationangle, translate, colorval, stride):
     # Generate points for the elliptical cylinder
     u = np.linspace(0, 2 * np.pi, 100)
     v = np.linspace(-c, c, 100)

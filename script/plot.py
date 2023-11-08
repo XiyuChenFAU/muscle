@@ -8,6 +8,16 @@ import random
 import sys
 from PIL import Image
 
+colors = [
+    "red", "green", "blue", "yellow", "orange", "purple", "pink", "brown", "cyan", "magenta",
+    "lime", "indigo", "violet", "gold", "silver", "gray", "black", "white", "navy", "maroon",
+    "olive", "teal", "aqua", "fuchsia", "limegreen", "darkred", "darkorange", "darkgreen",
+    "darkblue", "darkviolet", "darkmagenta", "darkcyan", "darkyellow", "darkpink", "darkbrown",
+    "lightgray", "lightred", "lightorange", "lightgreen", "lightblue", "lightmagenta",
+    "lightcyan", "lightyellow", "lightpink", "lightbrown", "lightviolet", "lightaqua",
+    "lightgold", "lightlime", "lightolive", "lightteal"
+]
+
 def rotate_vector(vector, axis, angle):
     # Normalize the axis vector
     axis = axis / np.linalg.norm(axis)
@@ -47,7 +57,7 @@ def plot_ellipsoid(ax, a, b, c, axis, rotationangle, translate, colorval, stride
     ax.plot_wireframe(x, y, z, linewidth=0.3, color=colorval, cstride=stride)
     #ax.plot_surface(x, y, z, color=colorval) #suface
 
-def plot_elliptical_cylinder(ax,a, b, c, axis, rotationangle, translate, colorval, stride):
+def plot_elliptical_cylinder(a, b, c, axis, rotationangle, translate, colorval):
     # Generate points for the elliptical cylinder
     u = np.linspace(0, 2 * np.pi, 100)
     v = np.linspace(-c, c, 100)
@@ -148,11 +158,11 @@ def normalfig(data, linename, x, ylabelname, title):
     for i in range(len(data)):
         if 'length' in title:
             sum = np.sum(np.array(data[i]), axis=0)
-            plt.plot(x, sum, label=linename[i])
+            plt.plot(x, sum, label=linename[i],color=colors[i%len(colors)])
             if 'length' == title:
-                plt.plot(x[1:], sum[1:]-sum[:-1], linestyle='--', label=linename[i]+" difference")
+                plt.plot(x[1:], sum[1:]-sum[:-1], linestyle='--', label=linename[i]+" difference",color=colors[i%len(colors)])
         else:
-            plt.plot(x, data[i], label=linename[i])
+            plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
 
     plt.xticks(x, rotation=45)
     plt.xlabel('angle')
@@ -210,10 +220,6 @@ def penatrationplot(data, x, y, musclepair):
 def bodyrotateplot(allmuscledata, allmuscledatagamma, shapename,foldername,scale=1.0):
     gammaarray=np.array(allmuscledatagamma)
     stride = 50  # Adjust the stride value to control the sparsity of lines
-    colors=[]
-    for i in range(len(allmuscledata)):
-        color = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-        colors.append(color)
 
     for i in range(len(allmuscledata[0][0])):
         figurename=foldername+'/bodyfigure'+str(i)
@@ -223,9 +229,9 @@ def bodyrotateplot(allmuscledata, allmuscledatagamma, shapename,foldername,scale
             axis=[allmuscledata[j][3][i],allmuscledata[j][4][i],allmuscledata[j][5][i]]
             translate=[allmuscledata[j][7][i],allmuscledata[j][8][i],allmuscledata[j][9][i]]
             if shapename[j]=="ellipsoid":
-                plot_ellipsoid(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[j],stride)
+                plot_ellipsoid(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[j%len(colors)],stride)
             if shapename[j]=="cylinder":
-                plot_elliptical_cylinder(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[j],stride)
+                plot_elliptical_cylinder(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[j%len(colors)],stride)
         for j in range(len(gammaarray)):
             gammaj=gammaarray[j][:,i].reshape(-1,3)
             ax.plot(gammaj[:,0], gammaj[:,1], gammaj[:,2], marker='o', linestyle='-')

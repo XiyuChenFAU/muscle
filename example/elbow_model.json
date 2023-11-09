@@ -82,11 +82,12 @@
 	{
 		"tol" : 0.01
 	},
-	"solve_problem" : 
+	"solver":0,
+	"joint" : 
 	{
 		"rotate_axis" : [0.0,1.0,0.0],
 		"rotate_body" : "elbow",
 		"rotationangle" : 90.0,
-		"rotationangle_eachstep" : 4.5
+		"stepnum" : 20
 	}
 }

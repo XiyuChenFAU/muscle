@@ -13,13 +13,8 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     QWidget(parent),
     setmodelwin(setmodelwin)
 {
-    std::string rotatebodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotatebody();
-    std::vector<double> rotationaxis=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getnaxis();
-    std::string rotationaxis_x=doubletostring(rotationaxis[0]);
-    std::string rotationaxis_y=doubletostring(rotationaxis[1]);
-    std::string rotationaxis_z=doubletostring(rotationaxis[2]);
-    std::string rotationanglestring=doubletostring(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotationangle());
-    std::string rotationanglestepstring=doubletostring(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotationanglestep());
+    std::string modelname_string=setmodelwin->getRunmodel()->getModel()->getmodelname();
+    std::string savepath_string=setmodelwin->getRunmodel()->getio()->getfolderpath();
 
     std::string tolpostprocessing=doubletostring(setmodelwin->getRunmodel()->getModel()->getPostprocessing()->gettol());
 
@@ -34,19 +29,39 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     rectangle->setStyleSheet("background-color: #CCCCCC;");
 
     int allfontsize=15;
-    //solve problem
-    setlabel("Solve problem", 10, 110,20);
-    rotatebodyEdit=settextandlabel("rotate body name",rotatebodyname, 10, 150, 450, 30, allfontsize);
-    setlabel("rotation axis", 10, 240, allfontsize);
-    rotationaxis_xEdit = settextandlabel("axis x",rotationaxis_x, 10, 270, 140, 30, allfontsize);
-    rotationaxis_yEdit = settextandlabel("axis y",rotationaxis_y, 165, 270, 140, 30, allfontsize);
-    rotationaxis_zEdit = settextandlabel("axis z",rotationaxis_z, 320, 270, 140, 30, allfontsize);
-    rotationangleEdit = settextandlabel("rotation angle",rotationanglestring, 10, 360, 450, 30, allfontsize);
-    rotationanglestepEdit = settextandlabel("rotation angle per step",rotationanglestepstring, 10, 450, 450, 30, allfontsize);
+    //model setting
+    setlabel("Model setting", 10, 110,20);
+    modelnameEdit=settextandlabel("model name",modelname_string, 10, 150, 450, 30, allfontsize);
+    savepathEdit = settextandlabel("result save path",savepath_string, 10, 230, 450, 30, allfontsize);
+    selectFolderButton = new QPushButton("select folder", this);
+    selectFolderButton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
+    selectFolderButton->setGeometry(360, 290, 100, 50);
+    connect(selectFolderButton, &QPushButton::clicked, this, &solvesettingpage::openFolderDialog);
 
-    //post processing setting
-    setlabel("Post processing setting", 10, 545,20);
-    tolpostprocessingEdit=settextandlabel("contact threshold",tolpostprocessing, 10, 595, 450, 30, allfontsize);
+    setlabel("solver setting", 10, 360,20);
+
+    buttonGroup1 = new QButtonGroup;
+
+    QRadioButton* radioButton1_1 = new QRadioButton("no objective", this);
+    radioButtons.push_back(radioButton1_1);
+    radioButtons[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons[0]->setGeometry(10, 400, 450, 30);
+    QRadioButton* radioButton1_2 = new QRadioButton("minimize node distance", this);
+    radioButtons.push_back(radioButton1_2);
+    radioButtons[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons[1]->setGeometry(10, 450, 450, 30);
+    QRadioButton* radioButton1_3 = new QRadioButton("minimize node distance with weight", this);
+    radioButtons.push_back(radioButton1_3);
+    radioButtons[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons[2]->setGeometry(10, 500, 450, 30);
+
+    int solversetting = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getsolversetting();
+    radioButtons[solversetting]->setChecked(true);
+
+    buttonGroup1->addButton(radioButtons[0], 0);
+    buttonGroup1->addButton(radioButtons[1], 1);
+    buttonGroup1->addButton(radioButtons[2], 2); 
+    connect(buttonGroup1, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked);
 
     //Casadi setting
     setlabel("Casadi setting", 660, 110,20);
@@ -56,10 +71,14 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     print_levelEdit=settextandlabel("print level",print_level_string, 660, 390, 450, 30, allfontsize);
     hessian_approximationEdit=settextandlabel("hessian approximation",hessian_approximation_string, 660, 470, 450, 30, allfontsize);
 
+    //post processing setting
+    setlabel("Post processing setting", 660, 550,20);
+    tolpostprocessingEdit=settextandlabel("contact threshold",tolpostprocessing, 660, 600, 450, 30, allfontsize);
+
     //save button
-    QPushButton *savebutton = new QPushButton("Save", this);
+    savebutton = new QPushButton("Save", this);
     savebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    savebutton->setGeometry(1010, 600, 100, 50);
+    savebutton->setGeometry(1010, 730, 100, 50);
     connect(savebutton, &QPushButton::clicked, this, &solvesettingpage::savesetting);
 
 }
@@ -69,12 +88,8 @@ solvesettingpage::~solvesettingpage(){
         delete qlabels[i];
     }
     
-    delete rotatebodyEdit;
-    delete rotationaxis_xEdit;
-    delete rotationaxis_yEdit;
-    delete rotationaxis_zEdit;
-    delete rotationangleEdit;
-    delete rotationanglestepEdit;
+    delete modelnameEdit;
+    delete savepathEdit;
 
     delete tolpostprocessingEdit;
 
@@ -84,6 +99,13 @@ solvesettingpage::~solvesettingpage(){
     delete print_levelEdit;
     delete hessian_approximationEdit;
     delete rectangle;
+    delete selectFolderButton;
+    delete savebutton;
+    for(int i=0;i<radioButtons.size();i++){
+        delete radioButtons[i];
+    }
+    delete buttonGroup1;
+
 }
 
 QLineEdit* solvesettingpage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -128,13 +150,13 @@ double solvesettingpage::stringtodouble(std::string numStr) {
 }
 
 void solvesettingpage::savesetting(){
-    body* findbody=setmodelwin->getRunmodel()->getModel()->getparm()->findbody(rotatebodyEdit->text().toStdString());
-    if(findbody==nullptr){
-        errorbox("please check rotate body name, it does not exist");
+    if(modelnameEdit->text().toStdString()==""){
+        errorbox("model name can not be empty");
     }
     else{
-        std::vector<double> naxisvalue={rotationaxis_xEdit->text().toDouble(),rotationaxis_yEdit->text().toDouble(),rotationaxis_zEdit->text().toDouble()};
-        setmodelwin->getRunmodel()->getModel()->getSolveeq()->setproblemtosolve(rotatebodyEdit->text().toStdString(), naxisvalue, rotationangleEdit->text().toDouble(), rotationanglestepEdit->text().toDouble());
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->setsolversetting(selectedValue);
+        setmodelwin->getRunmodel()->getModel()->setmodelname(modelnameEdit->text().toStdString());
+        setmodelwin->getRunmodel()->getio()->setfolderpath(savepathEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setipoptoption(tolEdit->text().toDouble(),max_iterEdit->text().toInt(),linear_solverEdit->text().toStdString(),print_levelEdit->text().toInt(),hessian_approximationEdit->text().toStdString());
     }
@@ -147,4 +169,13 @@ void solvesettingpage::errorbox(std::string errormessage){
     errorMessage.setIcon(QMessageBox::Critical);
     errorMessage.addButton("Yes", QMessageBox::AcceptRole);
     errorMessage.exec();
+}
+
+void solvesettingpage::openFolderDialog() {
+    QString folderPath = QFileDialog::getExistingDirectory(this, "select folder", QDir::homePath());
+    savepathEdit->setText(folderPath);
+}
+
+void solvesettingpage::handleButtonClicked(int value){
+    selectedValue = value;
 }

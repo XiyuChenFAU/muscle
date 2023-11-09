@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent):
     runButton->setGeometry(350, 330, 100, 50);
     connect(runButton, SIGNAL(clicked()), this, SLOT(runModel()));
 }
-
+/*
 MainWindow::MainWindow(runmodel* Runmodel,QWidget *parent):
     Runmodel(Runmodel),
     QMainWindow(parent)
@@ -56,10 +56,17 @@ MainWindow::MainWindow(runmodel* Runmodel,QWidget *parent):
     runButton->setGeometry(350, 320, 100, 50);
     connect(runButton, SIGNAL(clicked()), this, SLOT(runModel()));
 }
+*/
 
 MainWindow::~MainWindow()
 {
-    
+    delete selectJsonButton;
+    delete runButton;
+    delete jsonFilePathLineEdit;
+    delete newmodelEdit;
+    for(int i=0;i<qlabels.size();i++){
+        delete qlabels[i];
+    }
 }
 
 void MainWindow::selectJsonFile() {
@@ -74,6 +81,7 @@ void MainWindow::runModel() {
     std::string newmodelnamestring = newmodelname.toStdString();
     if(jsonFilePathStdString!=""){
         Runmodel->setrunmodel(jsonFilePathStdString,1);
+        if(setmodelWindow!=nullptr){delete setmodelWindow;}
         setmodelWindow=new setmodelwindow(Runmodel);
         setmodelWindow->show();
         this->close();
@@ -81,6 +89,7 @@ void MainWindow::runModel() {
 
     if(newmodelnamestring!=""){
         Runmodel->setrunmodel(newmodelnamestring);
+        if(setmodelWindow!=nullptr){delete setmodelWindow;}
         setmodelWindow=new setmodelwindow(Runmodel);
         setmodelWindow->show();
         this->close();
@@ -99,6 +108,7 @@ void MainWindow::setlabel(const std::string& labelname, int x, int y) {
     body_namelabel->setText(QString::fromStdString(labelname)); 
     body_namelabel->move(x, y);
     body_namelabel->setStyleSheet("QLabel { color : black; background-color : #CCCCCC; }");
+    qlabels.push_back(body_namelabel);
 }
 
 QTextEdit* MainWindow::settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight) {

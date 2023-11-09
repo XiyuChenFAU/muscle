@@ -34,10 +34,10 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
     }
 }
 
-void IO::writemusclebodyresultToFileAll(model* Model, const std::string& folderPath){
+void IO::writemusclebodyresultToFileAll(model* Model){
 
     //create folder
-    std::string folderoutput=folderPath+"output_"+Model->getmodelname();
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -88,19 +88,19 @@ void IO::writemusclebodyresultToFileAll(model* Model, const std::string& folderP
     file3.close();
 }
 
-void IO::writeanalyzeresultToFileAll(model* Model, const std::string& folderPath){
+void IO::writeanalyzeresultToFileAll(model* Model){
 
-    writephiToFile(Model, folderPath);
-    writelengthToFile(Model, folderPath);
-    writeforcenodeToFile(Model, folderPath);
-    writetotalforceToFile(Model, folderPath);
-    writebody_stateToFile(Model, folderPath);
+    writephiToFile(Model);
+    writelengthToFile(Model);
+    writeforcenodeToFile(Model);
+    writetotalforceToFile(Model);
+    writebody_stateToFile(Model);
 }
 
-void IO::writephiToFile(model* Model, const std::string& folderPath){
+void IO::writephiToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderPath+"output_"+Model->getmodelname();
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -128,10 +128,10 @@ void IO::writephiToFile(model* Model, const std::string& folderPath){
     file1.close();
 }
 
-void IO::writelengthToFile(model* Model, const std::string& folderPath){
+void IO::writelengthToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderPath+"output_"+Model->getmodelname();
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -155,10 +155,10 @@ void IO::writelengthToFile(model* Model, const std::string& folderPath){
     file2.close();
 }
 
-void IO::writeforcenodeToFile(model* Model, const std::string& folderPath){
+void IO::writeforcenodeToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderPath+"output_"+Model->getmodelname();
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -182,10 +182,10 @@ void IO::writeforcenodeToFile(model* Model, const std::string& folderPath){
     file3.close();
 }
 
-void IO::writetotalforceToFile(model* Model, const std::string& folderPath){
+void IO::writetotalforceToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderPath+"output_"+Model->getmodelname();
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -216,10 +216,10 @@ void IO::writetotalforceToFile(model* Model, const std::string& folderPath){
 }
 
 
-void IO::writebody_stateToFile(model* Model, const std::string& folderPath){
+void IO::writebody_stateToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderPath+"output_"+Model->getmodelname();
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -298,7 +298,7 @@ void IO::writebody_stateToFile(model* Model, const std::string& folderPath){
     file5.close();
 }
 
-void IO::writejson(model* Model, const std::string& folderPath){
+void IO::writejson(model* Model){
 
     Json::Value root;
     root["name"] = Model->getmodelname();
@@ -363,16 +363,18 @@ void IO::writejson(model* Model, const std::string& folderPath){
     ipopt["hessian_approximation"]=Model->getSolveeq()->getipopt()->gethessian_approximation();
     root["ipoptsetting"] = ipopt;
 
-    Json::Value solver;
-    solver["rotate_body"]=Model->getSolveeq()->getrotatebody();
+    Json::Value solvejoint;
+    solvejoint["rotate_body"]=Model->getSolveeq()->getrotatebody();
     Json::Value axis(Json::arrayValue);
     for (const auto& value : Model->getSolveeq()->getnaxis()) {
         axis.append(value);
     }
-    solver["rotate_axis"]=axis;
-    solver["rotationangle"]=Model->getSolveeq()->getrotationangle();
-    solver["rotationangle_eachstep"]=Model->getSolveeq()->getrotationanglestep();
-    root["solve_problem"] = solver;
+    solvejoint["rotate_axis"]=axis;
+    solvejoint["rotationangle"]=Model->getSolveeq()->getrotationangle();
+    solvejoint["stepnum"]=Model->getSolveeq()->getstepnum();
+    root["joint"] = solvejoint;
+
+    root["solver"] = Model->getSolveeq()->getsolversetting();
 
     Json::Value postprocessing;
     postprocessing["tol"]=Model->getPostprocessing()->gettol();
@@ -381,13 +383,32 @@ void IO::writejson(model* Model, const std::string& folderPath){
     // change json object to string
     Json::StreamWriterBuilder writer;
     std::string jsonString = Json::writeString(writer, root);
-    std::string filename = folderPath+Model->getmodelname()+".json";
+    std::string filename = folderpath+"output_"+Model->getmodelname()+"/"+Model->getmodelname()+".json";
     std::ofstream file(filename);
     file << jsonString;
     file.close();
 }
 
-model* IO::readmodel(std::string jsonfilename){
+void IO::setfolderpath(const std::string& folderpathvalue){
+    folderpath=folderpathvalue;
+    if (!folderpath.empty()) {
+        for (char &c : folderpath) {
+            if (c == '\\') {
+                c = '/';
+            }
+        }
+
+        if (folderpath.back() != '/') {
+            folderpath += '/';
+        }
+    }
+}
+
+std::string IO::getfolderpath(){
+    return folderpath;
+}
+
+model* IO::readmodel(const std::string&  jsonfilename){
 
     std::ifstream file(jsonfilename);
     if (!file.is_open()) {
@@ -463,7 +484,7 @@ model* IO::readmodel(std::string jsonfilename){
     Model->getSolveeq()->setipoptoption(tolvalue,max_itervalue,linear_solvervalue,print_levelvalue,hessian_approximationvalue);
 
     //solve_problem
-    const Json::Value& solveproblem = root["solve_problem"];
+    const Json::Value& solveproblem = root["joint"];
     std::string rotatebody=solveproblem["rotate_body"].asString();
     std::vector<double> naxis_solve;
     const Json::Value& naxis_solveArray = solveproblem["rotate_axis"];
@@ -471,8 +492,11 @@ model* IO::readmodel(std::string jsonfilename){
         naxis_solve.push_back(value.asDouble());
     }
     double rotationangle=solveproblem["rotationangle"].asDouble();
-    double rotationanglestep=solveproblem["rotationangle_eachstep"].asDouble();
-    Model->getSolveeq()->setproblemtosolve(rotatebody,naxis_solve,rotationangle,rotationanglestep);
+    int stepnum=solveproblem["stepnum"].asInt();
+    Model->getSolveeq()->setproblemtosolve(rotatebody,naxis_solve,rotationangle,stepnum);
+    const Json::Value& solver = root["solver"];
+    int solvervalue=solver.asInt();
+    Model->getSolveeq()->setsolversetting(solvervalue);
 
     //postprocessing
     const Json::Value& postprocessingvalue = root["postprocessing"];

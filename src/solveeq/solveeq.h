@@ -20,11 +20,14 @@ public:
     IPOPT* getipopt();
     std::vector<double> getrotationmodel();
     void setipoptoption(double tolvalue,int max_itervalue,const std::string& linear_solvervalue,int print_levelvalue,const std::string& hessian_approximationvalue);
-    void setproblemtosolve(std::string rotatebodyvalue, std::vector<double> naxisvalue, double rotationanglevalue, double rotationanglestepvalue);
+    void setproblemtosolve(std::string rotatebodyvalue, std::vector<double> naxisvalue, double rotationanglevalue, double stepnumvalue);
+    void setsolversetting(int solversettingvalue);
     std::string getrotatebody();
     std::vector<double> getnaxis();
     double getrotationangle();
     double getrotationanglestep();
+    int getstepnum();
+    int getsolversetting();
     void solvesignorinirotate(Parm* parm);
     void solvesignorini(Parm* parm);
     
@@ -37,6 +40,8 @@ private:
     std::vector<double> naxis;
     double rotationangle;
     double rotationanglestep;
+    int stepnum;
+    int solversetting;
 };
 
 #endif // SOLVEEQ_H

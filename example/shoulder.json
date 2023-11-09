@@ -33,7 +33,7 @@
 			"position_relative_parent_coordinate" : 
 			[
 				-0.043572,
-				0.002594,
+				-0.002594,
 				0.084431
 			],
 			"rotation_angle" : 105.1717,
@@ -94,7 +94,8 @@
 	{
 		"tol" : 0.001
 	},
-	"solve_problem" : 
+	"solver":0,
+	"joint" : 
 	{
 		"rotate_axis" : 
 		[
@@ -104,6 +105,6 @@
 		],
 		"rotate_body" : "",
 		"rotationangle" : 0.0,
-		"rotationangle_eachstep" : 0.0
+		"stepnum" : 0
 	}
 }

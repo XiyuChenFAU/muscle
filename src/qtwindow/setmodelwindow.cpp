@@ -40,6 +40,13 @@ setmodelwindow::setmodelwindow(runmodel* Runmodel,QWidget *parent):
     addleftbutton(musclebutton);
 
     //set solve setting
+    Jointpage = new jointpage(this);
+    Jointpage->setGeometry(100, 0, this->width() - 100, this->height());
+    stackedWidget->addWidget(Jointpage);
+    QPushButton *jointbutton = new QPushButton("Joint setting", this);
+    addleftbutton(jointbutton);
+
+    //set solve setting
     Solvesettingpage = new solvesettingpage(this);
     Solvesettingpage->setGeometry(100, 0, this->width() - 100, this->height());
     stackedWidget->addWidget(Solvesettingpage);
@@ -85,6 +92,7 @@ setmodelwindow::~setmodelwindow()
     delete Bodypage ;
     delete Musclepage ;
     delete Solvesettingpage ;
+    delete Jointpage;
     delete Runprogrampage ;
     delete stackedWidget;
     delete Runmodel;
@@ -111,7 +119,7 @@ void setmodelwindow::showpage(int index){
 
 void setmodelwindow::showbackmodelpage(){
     this->close();
-    MainWindow *mainWin = new MainWindow(Runmodel);
+    MainWindow *mainWin = new MainWindow();
     mainWin->show();
 }
 

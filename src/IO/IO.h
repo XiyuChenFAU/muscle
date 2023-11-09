@@ -22,18 +22,21 @@ class IO {
 public:
     IO();
     ~IO();
-    void writemusclebodyresultToFileAll(model* Model, const std::string& folderPath = "");
-    void writeanalyzeresultToFileAll(model* Model, const std::string& folderPath = "");
-    void writejson(model* Model, const std::string& folderPath="");
-    model* readmodel(std::string jsonfilename);
+    void writemusclebodyresultToFileAll(model* Model);
+    void writeanalyzeresultToFileAll(model* Model);
+    void writejson(model* Model);
+    void setfolderpath(const std::string& folderpath);
+    std::string getfolderpath();
+    model* readmodel(const std::string& jsonfilename);
 
 private:
     void write2DvalueToFile(const std::vector<std::vector<double>>& value, std::ofstream& file, const std::string& name, const std::string& typenamevalue);
-    void writephiToFile(model* Model, const std::string& folderPath);
-    void writelengthToFile(model* Model, const std::string& folderPath);
-    void writeforcenodeToFile(model* Model, const std::string& folderPath);
-    void writetotalforceToFile(model* Model, const std::string& folderPath);
-    void writebody_stateToFile(model* Model, const std::string& folderPath);
+    void writephiToFile(model* Model);
+    void writelengthToFile(model* Model);
+    void writeforcenodeToFile(model* Model);
+    void writetotalforceToFile(model* Model);
+    void writebody_stateToFile(model* Model);
+    std::string folderpath="";
 };
 
 #endif // IO_H

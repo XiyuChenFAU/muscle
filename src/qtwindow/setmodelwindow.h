@@ -12,6 +12,7 @@ Xiyu Chen
 #include <QWidget>
 #include "page/bodypage.h"
 #include "page/musclepage.h"
+#include "page/jointpage.h"
 #include "page/solvesettingpage.h"
 #include "page/runprogrampage.h"
 #include "page/postprocessingpage.h"
@@ -44,6 +45,7 @@ private:
     bodypage *Bodypage = nullptr;
     musclepage *Musclepage = nullptr;
     solvesettingpage *Solvesettingpage = nullptr;
+    jointpage *Jointpage = nullptr;
     runprogrampage *Runprogrampage = nullptr;
     postprocessingpage *Postprocessingpage = nullptr;
 };

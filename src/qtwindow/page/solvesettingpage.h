@@ -16,6 +16,9 @@ Xiyu Chen
 #include <QPushButton>
 #include <QMessageBox>
 #include "../../run_model.h"
+#include <QFileDialog> 
+#include <QRadioButton>
+#include <QButtonGroup>
 
 class setmodelwindow;
 
@@ -36,12 +39,8 @@ public:
 private:
     std::vector<QLabel*> qlabels;
     setmodelwindow *setmodelwin=nullptr;
-    QLineEdit *rotatebodyEdit=nullptr;
-    QLineEdit *rotationaxis_xEdit=nullptr;
-    QLineEdit *rotationaxis_yEdit=nullptr;
-    QLineEdit *rotationaxis_zEdit=nullptr;
-    QLineEdit *rotationangleEdit=nullptr;
-    QLineEdit *rotationanglestepEdit=nullptr;
+    QLineEdit *modelnameEdit=nullptr;
+    QLineEdit *savepathEdit=nullptr;
 
     QLineEdit *tolpostprocessingEdit=nullptr;
 
@@ -51,9 +50,17 @@ private:
     QLineEdit *print_levelEdit=nullptr;
     QLineEdit *hessian_approximationEdit=nullptr;
     QFrame* rectangle =nullptr;
+    QPushButton *selectFolderButton=nullptr;
+    QPushButton *savebutton =nullptr;
+
+    std::vector<QRadioButton *> radioButtons;
+    QButtonGroup *buttonGroup1 = nullptr;
+    int selectedValue = 0;
 
 private slots:
     void savesetting();
+    void openFolderDialog();
+    void handleButtonClicked(int value);
 };
 
 #endif // SOLVESETTINGPAGE_H

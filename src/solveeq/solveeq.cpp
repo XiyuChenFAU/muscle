@@ -11,7 +11,8 @@ Xiyu Chen
 solveeq::solveeq(){
     ipopt=new IPOPT();
     Constraint=new constraint();
-    setproblemtosolve("", {0.0,0.0,0.0}, 0.0, 0.0);
+    setproblemtosolve("", {0.0,0.0,0.0}, 0.0, 0);
+    setsolversetting(0);
 }
     
 solveeq::~solveeq(){
@@ -35,11 +36,21 @@ void solveeq::setipoptoption(double tolvalue,int max_itervalue,const std::string
     ipopt->sethessian_approximation(hessian_approximationvalue);
 }
 
-void solveeq::setproblemtosolve(std::string rotatebodyvalue, std::vector<double> naxisvalue, double rotationanglevalue, double rotationanglestepvalue){
+void solveeq::setproblemtosolve(std::string rotatebodyvalue, std::vector<double> naxisvalue, double rotationanglevalue, double stepnumvalue){
     rotatebody=rotatebodyvalue;
     naxis=naxisvalue;
     rotationangle=rotationanglevalue;
-    rotationanglestep=rotationanglestepvalue;
+    stepnum=stepnumvalue;
+    if(stepnum==0){
+        rotationanglestep=0.0;
+    }
+    else{
+        rotationanglestep=rotationangle/stepnum;
+    }
+}
+
+void solveeq::setsolversetting(int solversettingvalue){
+    solversetting=solversettingvalue;
 }
 
 std::string solveeq::getrotatebody(){
@@ -56,6 +67,14 @@ double solveeq::getrotationangle(){
     
 double solveeq::getrotationanglestep(){
     return rotationanglestep;
+}
+
+int solveeq::getstepnum(){
+    return stepnum;
+}
+
+int solveeq::getsolversetting(){
+    return solversetting;
 }
 
 void solveeq::solvesignorinirotate(Parm* parm){
@@ -92,7 +111,7 @@ void solveeq::solvesignorinirotate(Parm* parm){
 }
 
 void solveeq::solvesignorini(Parm* parm){
-    int loopnum = std::round(rotationangle/rotationanglestep)+1;
+    int loopnum = stepnum+1;
     std::vector<double> rotation;
     for(int i=0;i<loopnum;i++){
         rotation.push_back(rotationanglestep*i);

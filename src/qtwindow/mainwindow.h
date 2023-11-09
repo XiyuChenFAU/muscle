@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    MainWindow(runmodel* Runmodel,QWidget *parent = nullptr);
+    //MainWindow(runmodel* Runmodel,QWidget *parent = nullptr);
     ~MainWindow();
     QTextEdit* settext(const std::string& textdefault, int x, int y, int textwidth, int textheight);
     void setlabel(const std::string& labelname, int x, int y);
@@ -32,6 +32,7 @@ private:
     QTextEdit* newmodelEdit=nullptr;
     setmodelwindow* setmodelWindow=nullptr;
     runmodel* Runmodel=nullptr;
+    std::vector<QLabel*> qlabels;
 
 private slots:
     void selectJsonFile();

@@ -20,7 +20,7 @@ IPOPT::~IPOPT() {
 }
 
 void IPOPT::SetInitialipopt() {
-    tol = 1e-3;
+    tol = 1e-8;
     max_iter = 1000;
     linear_solver = "mumps";
     print_level = 5;

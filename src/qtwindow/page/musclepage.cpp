@@ -23,7 +23,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     std::string rhoistring_axis_x="0";
     std::string rhoistring_axis_y="0";
     std::string rhoistring_axis_z="0";
-    QFrame* rectanglemain = new QFrame(this);
+    rectanglemain = new QFrame(this);
     rectanglemain->setGeometry(0, 100, setmodelwin->width(), setmodelwin->width()+1000);
     rectanglemain->setStyleSheet("background-color: #CCCCCC;");
 
@@ -103,6 +103,33 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     connect(deletebutton, &QPushButton::clicked, this, &musclepage::deletebuttonsetting);
 }
 
+musclepage::~musclepage(){
+    for(int i=0;i<musclebuttons.size();i++){
+        delete musclebuttons[i];
+    }
+    for(int i=0;i<qlabels.size();i++){
+        delete qlabels[i];
+    }
+    delete savebutton;
+    delete deletebutton;
+    delete newmusclebutton;
+    delete plusbutton;
+
+    delete musclenameEdit;
+    delete nodenumEdit;
+
+    delete rhoobodyEdit;
+    delete rhooaxisxEdit;
+    delete rhooaxisyEdit;
+    delete rhooaxiszEdit;
+
+    delete rhoibodyEdit;
+    delete rhoiaxisxEdit;
+    delete rhoiaxisyEdit;
+    delete rhoiaxiszEdit;
+    delete rectanglemain;
+}
+
 QLineEdit* musclepage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
     QLineEdit* body_nameEdit = new QLineEdit(this);
     QFont body_nameEditfont = body_nameEdit->font();
@@ -121,6 +148,7 @@ void musclepage::setlabel(const std::string& labelname, int x, int y ,int fontsi
     body_namelabel->setText(QString::fromStdString(labelname)); 
     body_namelabel->move(x, y);
     body_namelabel->setStyleSheet("QLabel { color : black; background-color : #CCCCCC; }");
+    qlabels.push_back(body_namelabel);
 }
 
 QLineEdit* musclepage::settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize) {
@@ -208,6 +236,10 @@ void musclepage::savebuttonsetting(){
             muscleaddnewbutton->setVisible(true);
             plusbutton->setGeometry(musclebuttons.size()*70+70, 50, 70, 50);
             musclebuttons.push_back(muscleaddnewbutton);
+            int buttonsize=setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()-1;
+            connect(musclebuttons[buttonsize], &QPushButton::clicked, this, [this, buttonsize]() {
+                showmusclesetting(buttonsize);
+            });
         }
     }
 }

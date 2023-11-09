@@ -25,6 +25,7 @@ class musclepage : public QWidget
 
 public:
     musclepage(setmodelwindow *setmodelwin,QWidget *parent = nullptr);
+    ~musclepage();
     QLineEdit* settext(const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
     void setlabel(const std::string& labelname, int x, int y, int fontsize);
     QLineEdit* settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
@@ -37,6 +38,7 @@ public:
 
 
 private:
+    std::vector<QLabel*> qlabels;
     std::vector<QPushButton*> musclebuttons;
     QPushButton* savebutton=nullptr;
     QPushButton* deletebutton=nullptr;
@@ -55,6 +57,7 @@ private:
     QLineEdit *rhoiaxisxEdit=nullptr;
     QLineEdit *rhoiaxisyEdit=nullptr;
     QLineEdit *rhoiaxiszEdit=nullptr;
+    QFrame* rectanglemain;
 
 private slots:
     void plusbuttonsetting();

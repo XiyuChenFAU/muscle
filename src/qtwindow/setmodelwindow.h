@@ -40,6 +40,12 @@ private:
     std::vector<QPushButton*> buttons;
     QStackedWidget *stackedWidget=nullptr;
     runmodel* Runmodel=nullptr;
+    QFrame* rectangle= nullptr;
+    bodypage *Bodypage = nullptr;
+    musclepage *Musclepage = nullptr;
+    solvesettingpage *Solvesettingpage = nullptr;
+    runprogrampage *Runprogrampage = nullptr;
+    postprocessingpage *Postprocessingpage = nullptr;
 };
 
 #endif // SETMODELWINDOW_H

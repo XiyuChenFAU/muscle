@@ -29,7 +29,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     std::string print_level_string = std::to_string(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getipopt()->getprint_level());
     std::string hessian_approximation_string = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getipopt()->gethessian_approximation();
 
-    QFrame* rectangle = new QFrame(this);
+    rectangle = new QFrame(this);
     rectangle->setGeometry(0, 100, setmodelwin->width(), setmodelwin->width()+1000);
     rectangle->setStyleSheet("background-color: #CCCCCC;");
 
@@ -64,6 +64,28 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
 
 }
 
+solvesettingpage::~solvesettingpage(){
+    for(int i=0;i<qlabels.size();i++){
+        delete qlabels[i];
+    }
+    
+    delete rotatebodyEdit;
+    delete rotationaxis_xEdit;
+    delete rotationaxis_yEdit;
+    delete rotationaxis_zEdit;
+    delete rotationangleEdit;
+    delete rotationanglestepEdit;
+
+    delete tolpostprocessingEdit;
+
+    delete tolEdit;
+    delete max_iterEdit;
+    delete linear_solverEdit;
+    delete print_levelEdit;
+    delete hessian_approximationEdit;
+    delete rectangle;
+}
+
 QLineEdit* solvesettingpage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
     QLineEdit* body_nameEdit = new QLineEdit(this);
     QFont body_nameEditfont = body_nameEdit->font();
@@ -82,6 +104,7 @@ void solvesettingpage::setlabel(const std::string& labelname, int x, int y ,int 
     body_namelabel->setText(QString::fromStdString(labelname)); 
     body_namelabel->move(x, y);
     body_namelabel->setStyleSheet("QLabel { color : black; background-color : #CCCCCC; }");
+    qlabels.push_back(body_namelabel);
 }
 
 QLineEdit* solvesettingpage::settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize) {

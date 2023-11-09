@@ -25,6 +25,7 @@ class bodypage : public QWidget
 
 public:
     bodypage(setmodelwindow *setmodelwin, QWidget *parent = nullptr);
+    ~bodypage();
     QLineEdit* settext(const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
     void setlabel(const std::string& labelname, int x, int y, int fontsize);
     QLineEdit* settextandlabel(const std::string& labelname,const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
@@ -35,27 +36,29 @@ public:
     void setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename);
 
 private:
+    std::vector<QLabel*> qlabels;
     std::vector<QPushButton*> bodybuttons;
     QPushButton* savebutton=nullptr;
     QPushButton* deletebutton=nullptr;
     QPushButton* newbodybutton=nullptr;
     QPushButton* plusbutton=nullptr;
     setmodelwindow *setmodelwin=nullptr;
-    QLineEdit *body_nameEdit;
-    QLineEdit *parentbody_nameEdit;
-    QLineEdit *rotationaxisx;
-    QLineEdit *rotationaxisy;
-    QLineEdit *rotationaxisz;
-    QLineEdit *initrotationangle;
-    QLineEdit *positionaxisx;
-    QLineEdit *positionaxisy;
-    QLineEdit *positionaxisz;
-    QLineEdit *shape_nameEdit;
-    QLineEdit *aEdit;
-    QLineEdit *bEdit;
-    QLineEdit *cEdit;
-    QLineEdit *lengthEdit;
-    QLineEdit *radiusEdit;
+    QLineEdit *body_nameEdit=nullptr;
+    QLineEdit *parentbody_nameEdit=nullptr;
+    QLineEdit *rotationaxisx=nullptr;
+    QLineEdit *rotationaxisy=nullptr;
+    QLineEdit *rotationaxisz=nullptr;
+    QLineEdit *initrotationangle=nullptr;
+    QLineEdit *positionaxisx=nullptr;
+    QLineEdit *positionaxisy=nullptr;
+    QLineEdit *positionaxisz=nullptr;
+    QLineEdit *shape_nameEdit=nullptr;
+    QLineEdit *aEdit=nullptr;
+    QLineEdit *bEdit=nullptr;
+    QLineEdit *cEdit=nullptr;
+    QLineEdit *lengthEdit=nullptr;
+    QLineEdit *radiusEdit=nullptr;
+    QFrame* rectangle=nullptr;
 
 private slots:
     void plusbuttonsetting();

@@ -24,9 +24,11 @@ class postprocessingpage : public QWidget
 
 public:
     postprocessingpage(setmodelwindow *setmodelwin, QWidget *parent = nullptr);
+    ~postprocessingpage();
 
 private:
     setmodelwindow *setmodelwin=nullptr;
+    QFrame* rectangle=nullptr;
 };
 
 #endif // POSTPROCESSINGPAGE_H

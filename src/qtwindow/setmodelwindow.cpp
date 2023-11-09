@@ -20,12 +20,12 @@ setmodelwindow::setmodelwindow(runmodel* Runmodel,QWidget *parent):
     setStyleSheet("background-color: white;");
     stackedWidget = new QStackedWidget(this);
     
-    QFrame* rectangle = new QFrame(this);
+    rectangle = new QFrame(this);
     rectangle->setGeometry(0, 0, 100, this->height()+1000);
     rectangle->setStyleSheet("background-color: gray;");
     
     //set body page
-    bodypage *Bodypage = new bodypage(this);
+    Bodypage = new bodypage(this);
     Bodypage->setGeometry(100, 0, this->width() - 100, this->height());
     stackedWidget->addWidget(Bodypage);
     QPushButton *bodybutton = new QPushButton("Armbody", this);
@@ -33,28 +33,28 @@ setmodelwindow::setmodelwindow(runmodel* Runmodel,QWidget *parent):
 
 
     //set muscle page
-    musclepage *Musclepage = new musclepage(this);
+    Musclepage = new musclepage(this);
     Musclepage->setGeometry(100, 0, this->width() - 100, this->height());
     stackedWidget->addWidget(Musclepage);
     QPushButton *musclebutton = new QPushButton("Muscle", this);
     addleftbutton(musclebutton);
 
     //set solve setting
-    solvesettingpage *Solvesettingpage = new solvesettingpage(this);
+    Solvesettingpage = new solvesettingpage(this);
     Solvesettingpage->setGeometry(100, 0, this->width() - 100, this->height());
     stackedWidget->addWidget(Solvesettingpage);
     QPushButton *solvesettingbutton = new QPushButton("Solve setting", this);
     addleftbutton(solvesettingbutton);
 
     //set run page
-    runprogrampage *Runprogrampage = new runprogrampage(this);
+    Runprogrampage = new runprogrampage(this);
     Runprogrampage->setGeometry(100, 0, this->width() - 100, this->height());
     stackedWidget->addWidget(Runprogrampage);
     QPushButton *runprogrambutton = new QPushButton("Run", this);
     addleftbutton(runprogrambutton);
 
     //set post process
-    postprocessingpage *Postprocessingpage = new postprocessingpage(this);
+    Postprocessingpage = new postprocessingpage(this);
     Postprocessingpage->setGeometry(100, 0, this->width() - 100, this->height());
     stackedWidget->addWidget(Postprocessingpage);
     QPushButton *postprocessingbutton = new QPushButton("Post process", this);
@@ -78,6 +78,15 @@ setmodelwindow::setmodelwindow(runmodel* Runmodel,QWidget *parent):
 
 setmodelwindow::~setmodelwindow()
 {
+    for(int i=0;i<buttons.size();i++){
+        delete buttons[i];
+    }
+    delete rectangle;
+    delete Bodypage ;
+    delete Musclepage ;
+    delete Solvesettingpage ;
+    delete Runprogrampage ;
+    delete stackedWidget;
     delete Runmodel;
 }
 

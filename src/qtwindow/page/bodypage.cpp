@@ -31,7 +31,7 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
     std::string length_stringvalue="0";
     std::string radius_stringvalue="0";
 
-    QFrame* rectangle = new QFrame(this);
+    rectangle = new QFrame(this);
     rectangle->setGeometry(0, 100, setmodelwin->width(), setmodelwin->width()+1000);
     rectangle->setStyleSheet("background-color: #CCCCCC;");
 
@@ -127,6 +127,35 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
     connect(deletebutton, &QPushButton::clicked, this, &bodypage::deletebuttonsetting);
 }
 
+bodypage::~bodypage(){
+    for(int i=0;i<bodybuttons.size();i++){
+        delete bodybuttons[i];
+    }
+    for(int i=0;i<qlabels.size();i++){
+        delete qlabels[i];
+    }
+    delete savebutton;
+    delete deletebutton;
+    delete newbodybutton;
+    delete plusbutton;
+    delete body_nameEdit;
+    delete parentbody_nameEdit;
+    delete rotationaxisx;
+    delete rotationaxisy;
+    delete rotationaxisz;
+    delete initrotationangle;
+    delete positionaxisx;
+    delete positionaxisy;
+    delete positionaxisz;
+    delete shape_nameEdit;
+    delete aEdit;
+    delete bEdit;
+    delete cEdit;
+    delete lengthEdit;
+    delete radiusEdit;
+    delete rectangle;
+}
+
 QLineEdit* bodypage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
     QLineEdit* body_nameEdit = new QLineEdit(this);
     QFont body_nameEditfont = body_nameEdit->font();
@@ -145,6 +174,7 @@ void bodypage::setlabel(const std::string& labelname, int x, int y ,int fontsize
     body_namelabel->setText(QString::fromStdString(labelname)); 
     body_namelabel->move(x, y);
     body_namelabel->setStyleSheet("QLabel { color : black; background-color : #CCCCCC; }");
+    qlabels.push_back(body_namelabel);
 }
 
 QLineEdit* bodypage::settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize) {
@@ -228,6 +258,10 @@ void bodypage::savebuttonsetting(){
             bodyaddnewbutton->setVisible(true);
             plusbutton->setGeometry(bodybuttons.size()*70+70, 50, 70, 50);
             bodybuttons.push_back(bodyaddnewbutton);
+            int buttonsize=setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()-1;
+                connect(bodybuttons[buttonsize], &QPushButton::clicked, this, [this, buttonsize]() {
+                    showbodysetting(buttonsize);
+            });
         }
     }
 }

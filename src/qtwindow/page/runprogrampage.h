@@ -62,10 +62,13 @@ private:
     QLineEdit* scaleedit=nullptr;
     QPushButton *scaleeditbutton=nullptr;
 
-    Qt3DExtras::Qt3DWindow* m_view;
     std::vector<Qt3DCore::QEntity*> allentities;
     std::vector<Qt3DCore::QEntity*> allmuscleentities;
-    QLabel* runtimelabel;
+    QLabel* runtimelabel = nullptr;
+    QWidget *container = nullptr;
+    std::vector<QLabel *> genrallabels;
+    Qt3DRender::QCamera *cameraEntity = nullptr;
+    Qt3DExtras::Qt3DWindow *view = nullptr;
 
     std::vector<QColor*> colors;
     double zoomsize=5.0;

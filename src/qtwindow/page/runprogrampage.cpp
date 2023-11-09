@@ -67,11 +67,12 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     connect(slider, &QSlider::valueChanged, this, &runprogrampage::updateSquareSize);
     sliders.push_back(slider);
     QLabel* labelzeroa=setlabel("initial", 10, 155 ,15);
+    genrallabels.push_back(labelzeroa);
     labels.push_back(setlabel(doubletostring(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotationangle()), 1000, 155 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
 
 
-    Qt3DExtras::Qt3DWindow *view = new Qt3DExtras::Qt3DWindow();
+    view = new Qt3DExtras::Qt3DWindow();
 
     // root entity
     Qt3DCore::QEntity *rootEntity = new Qt3DCore::QEntity();
@@ -86,7 +87,7 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     light->setLinearAttenuation(0.1);
 
     // create camera
-    Qt3DRender::QCamera *cameraEntity = view->camera();
+    cameraEntity = view->camera();
     cameraEntity->lens()->setPerspectiveProjection(45.0f, 16.0/9.0, 0.1f, 1000.0f);
     cameraEntity->setPosition(QVector3D(0, 0, 10));
     cameraEntity->setUpVector(QVector3D(0, 1, 0));
@@ -96,7 +97,7 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     view->setRootEntity(rootEntity);
 
     // set Qt3D into QWidget
-    QWidget *container = QWidget::createWindowContainer(view, this);
+    container = QWidget::createWindowContainer(view, this);
     container->setMinimumSize(1500, 900); 
     container->setFocusPolicy(Qt::StrongFocus);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -133,6 +134,27 @@ runprogrampage::~runprogrampage()
     for(int i=0;i<allmuscleentities.size();i++){
         delete allmuscleentities[i];
     }
+
+    delete runButton;
+    delete exportbutton;
+
+    for(int i=0;i<sliders.size();i++){
+        delete sliders[i];
+    }
+    for(int i=0;i<labels.size();i++){
+        delete labels[i];
+    }
+
+    delete scaleedit;
+    delete scaleeditbutton;
+    delete runtimelabel;
+
+    for(int i=0;i<genrallabels.size();i++){
+        delete genrallabels[i];
+    }
+    delete cameraEntity;
+    delete view;
+    delete container ;
 }
 
 void runprogrampage::deleteentitiesnotroot(){
@@ -200,8 +222,8 @@ void runprogrampage::drawcylinderbody(int index, int rotationindex){
     std::vector<std::vector<double>> currentq=currentbody->getbodybasic()->getq();
     // Create a mesh for the ellipsoid
     Qt3DExtras::QCylinderMesh *shapeMesh = new Qt3DExtras::QCylinderMesh();
-    shapeMesh->setRadius(1.0);
-    shapeMesh->setLength(2.0);
+    shapeMesh->setRadius(currentbody->getshape()->geta());
+    shapeMesh->setLength(2.0*currentbody->getshape()->getc());
 
     // Create a material for the ellipsoid (e.g., set its color or texture)
     Qt3DExtras::QPhongMaterial *shapeMaterial = new Qt3DExtras::QPhongMaterial();
@@ -210,7 +232,7 @@ void runprogrampage::drawcylinderbody(int index, int rotationindex){
     Qt3DCore::QTransform *transform = new Qt3DCore::QTransform();
     transform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(currentbodyaxisangle_ref[rotationindex][0],currentbodyaxisangle_ref[rotationindex][1],currentbodyaxisangle_ref[rotationindex][2]), currentbodyaxisangle_ref[rotationindex][3]));
     transform->setTranslation(QVector3D(currentq[rotationindex][0]*zoomsize,currentq[rotationindex][1]*zoomsize,currentq[rotationindex][2]*zoomsize));
-    transform->setScale3D(QVector3D(currentbody->getshape()->geta(), currentbody->getshape()->getb(), currentbody->getshape()->getc())); 
+    transform->setScale3D(QVector3D(1.0, currentbody->getshape()->getb()/currentbody->getshape()->geta(), 1.0)); 
     allentities[index+1]->addComponent(shapeMesh);
     allentities[index+1]->addComponent(shapeMaterial);
     allentities[index+1]->addComponent(transform);

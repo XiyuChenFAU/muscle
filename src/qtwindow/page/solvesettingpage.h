@@ -25,6 +25,7 @@ class solvesettingpage : public QWidget
 
 public:
     solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent = nullptr);
+    ~solvesettingpage();
     QLineEdit* settext(const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
     void setlabel(const std::string& labelname, int x, int y, int fontsize);
     QLineEdit* settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
@@ -33,6 +34,7 @@ public:
     void errorbox(std::string errormessage);
 
 private:
+    std::vector<QLabel*> qlabels;
     setmodelwindow *setmodelwin=nullptr;
     QLineEdit *rotatebodyEdit=nullptr;
     QLineEdit *rotationaxis_xEdit=nullptr;
@@ -48,6 +50,7 @@ private:
     QLineEdit *linear_solverEdit=nullptr;
     QLineEdit *print_levelEdit=nullptr;
     QLineEdit *hessian_approximationEdit=nullptr;
+    QFrame* rectangle =nullptr;
 
 private slots:
     void savesetting();

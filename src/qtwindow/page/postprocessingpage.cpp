@@ -13,7 +13,11 @@ postprocessingpage::postprocessingpage(setmodelwindow *setmodelwin, QWidget *par
     QWidget(parent),
     setmodelwin(setmodelwin)
 {
-    QFrame* rectangle = new QFrame(this);
+    rectangle = new QFrame(this);
     rectangle->setGeometry(0, 100, setmodelwin->width(), setmodelwin->width()+1000);
     rectangle->setStyleSheet("background-color: #CCCCCC;");
+}
+
+postprocessingpage::~postprocessingpage(){
+    delete rectangle;
 }

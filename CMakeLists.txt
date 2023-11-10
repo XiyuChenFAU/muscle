@@ -36,6 +36,8 @@ file(GLOB SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/parm/muscle/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/constraint/*.h"
     "${PROJECT_SOURCE_DIR}/src/constraint/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/objective/*.h"
+    "${PROJECT_SOURCE_DIR}/src/objective/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/solveeq/*.h"
     "${PROJECT_SOURCE_DIR}/src/solveeq/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/postprocessing/*.h"

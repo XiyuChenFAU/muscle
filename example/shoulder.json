@@ -92,9 +92,9 @@
 	"name" : "shoulder",
 	"postprocessing" : 
 	{
-		"tol" : 0.001
+		"tol" : 0.00000001
 	},
-	"solver":0,
+	"solvercase":0,
 	"joint" : 
 	{
 		"rotate_axis" : 

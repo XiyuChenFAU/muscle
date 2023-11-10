@@ -10,6 +10,7 @@ Xiyu Chen
 #define SOLVEEQ_H
 
 #include "../constraint/constraint.h"
+#include "../objective/objective.h"
 #include "../parm/parm.h"
 #include "ipopt.h"
 
@@ -21,13 +22,12 @@ public:
     std::vector<double> getrotationmodel();
     void setipoptoption(double tolvalue,int max_itervalue,const std::string& linear_solvervalue,int print_levelvalue,const std::string& hessian_approximationvalue);
     void setproblemtosolve(std::string rotatebodyvalue, std::vector<double> naxisvalue, double rotationanglevalue, double stepnumvalue);
-    void setsolversetting(int solversettingvalue);
     std::string getrotatebody();
     std::vector<double> getnaxis();
     double getrotationangle();
     double getrotationanglestep();
     int getstepnum();
-    int getsolversetting();
+    objective* getObjective();
     void solvesignorinirotate(Parm* parm);
     void solvesignorini(Parm* parm);
     
@@ -35,13 +35,13 @@ public:
 private:
     IPOPT* ipopt=nullptr;
     constraint* Constraint=nullptr;
+    objective* Objective=nullptr;
     std::vector<double> rotationmodel;
     std::string rotatebody;
     std::vector<double> naxis;
     double rotationangle;
     double rotationanglestep;
     int stepnum;
-    int solversetting;
 };
 
 #endif // SOLVEEQ_H

@@ -29,12 +29,14 @@ public:
     void setid(int idvalue);
     void setparent(body* parentbody);
     void setchild(body* childbody);
+    void setchildall(const std::vector<body*>& childbody);
     void setshape(int addnew);
     void setshape(double a, double b, double c, const std::string& shapename, int addnew);
     void setshape(double length, double radius, const std::string& shapename, int addnew);
     void setbodybasic(const std::vector<double>& q0, int addnew);
     void setbodybasic(const std::vector<double>& q0, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, int addnew);
     void setbodybasic(const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, int addnew);
+    void updatebodybasic();
 
 private:
 

@@ -55,7 +55,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     radioButtons[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
     radioButtons[2]->setGeometry(10, 500, 450, 30);
 
-    int solversetting = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getsolversetting();
+    int solversetting = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getcasenum();
     radioButtons[solversetting]->setChecked(true);
 
     buttonGroup1->addButton(radioButtons[0], 0);
@@ -154,7 +154,7 @@ void solvesettingpage::savesetting(){
         errorbox("model name can not be empty");
     }
     else{
-        setmodelwin->getRunmodel()->getModel()->getSolveeq()->setsolversetting(selectedValue);
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->setcasenum(selectedValue);
         setmodelwin->getRunmodel()->getModel()->setmodelname(modelnameEdit->text().toStdString());
         setmodelwin->getRunmodel()->getio()->setfolderpath(savepathEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());

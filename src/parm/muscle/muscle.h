@@ -52,6 +52,7 @@ public:
     void setinitialeta(int bodynum);
 
     void print2Dvalue(const std::vector<std::vector<double>>& value);
+    void resetforrecalc();
 
 
 private:

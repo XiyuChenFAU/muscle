@@ -165,6 +165,7 @@ void runprogrampage::deleteentitiesnotroot(){
 
 void runprogrampage::runModelFunction()
 {
+    setmodelwin->getRunmodel()->getModel()->getparm()->resetallforrecalc();
     double runtime=setmodelwin->getRunmodel()->runprogram();
     runtimelabel->setText(QString::fromStdString(doubletostring(runtime)+" s")); 
 }

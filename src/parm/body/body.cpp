@@ -55,31 +55,38 @@ void body::setid(int idvalue){
 }
 
 void body::setparent(body* parentbody){
-    if(parent!=nullptr){
-        std::vector<body*> oldparentallchild=parent->getchild();
-        for (int i=0;i<oldparentallchild.size();i++) {
-            if(oldparentallchild[i]->getname()==name){
-                parent->getchild().erase(parent->getchild().begin() + i); 
+    if(parent!=parentbody){
+        if(parent!=nullptr){
+            std::vector<body*> oldparentallchild=parent->getchild();
+            for (int i=0;i<oldparentallchild.size();i++) {
+                if(oldparentallchild[i]->getname()==name){
+                    oldparentallchild.erase(oldparentallchild.begin() + i); 
+                    parent->setchildall(oldparentallchild);
+                    break;
+                }
+            }
+        }
+        parent=parentbody;
+        std::vector<body*> parentallchild=parent->getchild();
+        int setthischild=1;
+        for(int i=0;i<parentallchild.size();i++){
+            if(parentallchild[i]==this){
+                setthischild=0;
                 break;
             }
         }
-    }
-    parent=parentbody;
-    std::vector<body*> parentallchild=parent->getchild();
-    int setthischild=1;
-    for(int i=0;i<parentallchild.size();i++){
-        if(parentallchild[i]==this){
-            setthischild=0;
-            break;
+        if(setthischild){
+            parent->setchild(this);
         }
-    }
-    if(setthischild){
-        parent->setchild(this);
     }
 }
 
 void body::setchild(body* childbody){
     child.push_back(childbody);
+}
+
+void body::setchildall(const std::vector<body*>& childbody){
+    child=childbody;
 }
 
 void body::setshape(int addnew){
@@ -135,5 +142,9 @@ void body::setbodybasic(const std::vector<double>& naxis, double rotationangle, 
     else{
         BodyBasic->setbodybasic(parent->getbodybasic()->getposition(), parent->getbodybasic()->getaxis(), naxis, rotationangle, rhobody);
     }
+}
+
+void body::updatebodybasic(){
+    BodyBasic->updatebodybasic(parent->getbodybasic()->getposition(), parent->getbodybasic()->getaxis());
 }
 

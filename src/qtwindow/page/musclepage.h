@@ -16,6 +16,8 @@ Xiyu Chen
 #include <QPushButton>
 #include <QMessageBox>
 #include "../../run_model.h"
+#include <QRadioButton>
+#include <QButtonGroup>
 
 class setmodelwindow;
 
@@ -58,6 +60,12 @@ private:
     QLineEdit *rhoiaxisyEdit=nullptr;
     QLineEdit *rhoiaxiszEdit=nullptr;
     QFrame* rectanglemain;
+    std::vector<QRadioButton *> radioButtonso;
+    QButtonGroup *buttonGroupo = nullptr;
+    std::vector<QRadioButton *> radioButtonsi;
+    QButtonGroup *buttonGroupi = nullptr;
+    int selectedValueo=-1;
+    int selectedValuei=-1;
 
 private slots:
     void plusbuttonsetting();
@@ -65,7 +73,8 @@ private slots:
     void deletebuttonsetting();
     void newmusclebuttonsetting();
     void showmusclesetting(int index);
-
+    void handleButtonClickedo(int value);
+    void handleButtonClickedi(int value);
 };
 
 #endif // MUSCLEPAGE_H

@@ -22,6 +22,7 @@ public:
     void setbodybasic(const std::vector<double>& q0);
     void setbodybasic(const std::vector<double>& q0, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue);
     void setbodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue);
+    void updatebodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis);
     ~bodybasic();
     std::vector<double> getposition();
     std::vector<std::vector<double>> getaxis();
@@ -41,6 +42,7 @@ public:
     void  nodalupdate(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisnew, double newangle);
     void PrintParameters(const std::vector<double>& q0);
     std::vector<double> matrix_to_axisangle_ref_fix_space();
+    void resetforrecalc();
 
 private:
     std::vector<double> position;

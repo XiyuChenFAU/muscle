@@ -91,7 +91,44 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
     std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
     n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
     std::vector<std::vector<double>> R=RodriguesMap(n_axis);
+    std::vector<double> qnewall;
+    std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
+    std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
+    position=phi_body;
+    std::vector<std::vector<double>> axisnew;
+    qnewall=pushback(qnewall, phi_body);
+    for(int i=0; i<3; i++){
+        std::vector<double> axisi = matrix33time31tog(R, lastbodyaxis[i]);
+        axisnew.push_back(axisi);
+        qnewall=pushback(qnewall, axisi);
+    }
+    axis=axisnew;
+    if(q.empty()){
+        q.push_back(qnewall);
+    }
+    else{
+        q[0]=qnewall;
+    }
+    if(allrotationangle.empty()){
+        allrotationangle.push_back(rotationangle);
+    }
+    else{
+        allrotationangle[0]=rotationangle;
+    }
+    rotatestatus=0;
+    if(axisangle_ref.empty()){
+        axisangle_ref.push_back(matrix_to_axisangle_ref_fix_space());
+    }
+    else{
+        axisangle_ref[0]=matrix_to_axisangle_ref_fix_space();
+    }
+    //PrintParameters(q[q.size()-1]);
+}
 
+void bodybasic::updatebodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis){
+    std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
+    n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
+    std::vector<std::vector<double>> R=RodriguesMap(n_axis);
     std::vector<double> qnewall;
     std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
     std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
@@ -250,4 +287,19 @@ std::vector<double> bodybasic::matrix_to_axisangle_ref_fix_space(){
     }
     naxis_ref.push_back(angle/M_PI*180);
     return naxis_ref;
+}
+
+void bodybasic::resetforrecalc(){    
+    if (q.size() > 1) {
+        rotationangle=initialsetting_angle;
+        naxis=initialsetting_naxis;
+        setpoistionaxis(q[0]);
+        q.erase(q.begin() + 1, q.end());
+    }
+    if (allrotationangle.size() > 1) {
+        allrotationangle.erase(allrotationangle.begin() + 1, allrotationangle.end());
+    }
+    if (axisangle_ref.size() > 1) {
+        axisangle_ref.erase(axisangle_ref.begin() + 1, axisangle_ref.end());
+    }
 }

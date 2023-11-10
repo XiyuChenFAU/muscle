@@ -237,16 +237,22 @@ body* muscle::findbody(const std::vector<body*>& allbody, const std::string& bod
 }
 
 void muscle::setinitialeta(int bodynum){
+    std::vector<double> etavector((nodenum-2)*bodynum, 0.0);
+    eta=rearrangeto2D(etavector,nodenum-2);
     if(etaall.empty()){
-        std::vector<double> etavector((nodenum-2)*bodynum, 0.0);
         etaall.push_back(etavector);
-        eta=rearrangeto2D(etavector,nodenum-2);
     }
+    else{
+        etaall[0]=etavector;
+    }
+    std::vector<double> muscleparm1;
+    muscleparm1.insert(muscleparm1.end(), gammaall[gammaall.size()-1].begin(), gammaall[gammaall.size()-1].end());
+    muscleparm1.insert(muscleparm1.end(), etaall[etaall.size()-1].begin(), etaall[etaall.size()-1].end());
     if(muscleparm.empty()){
-        std::vector<double> muscleparm1;
-        muscleparm1.insert(muscleparm1.end(), gammaall[gammaall.size()-1].begin(), gammaall[gammaall.size()-1].end());
-        muscleparm1.insert(muscleparm1.end(), etaall[etaall.size()-1].begin(), etaall[etaall.size()-1].end());
         muscleparm.push_back(muscleparm1);
+    }
+    else{
+        muscleparm[0]=muscleparm1;
     }
 }
 
@@ -257,6 +263,15 @@ void muscle::print2Dvalue(const std::vector<std::vector<double>>& value){
             std::cout<<value[i][j]<<", ";
         }
         std::cout<<std::endl;
+    }
+}
+
+void muscle::resetforrecalc(){
+    if (gammaall.size() > 1) {
+        gamma=rearrangeto2D(gammaall[0],nodenum);
+        gammaall.erase(gammaall.begin() + 1, gammaall.end());
+        etaall.erase(etaall.begin() + 1, etaall.end());
+        muscleparm.erase(muscleparm.begin() + 1, muscleparm.end());
     }
 }
 

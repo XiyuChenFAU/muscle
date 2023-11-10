@@ -374,7 +374,7 @@ void IO::writejson(model* Model){
     solvejoint["stepnum"]=Model->getSolveeq()->getstepnum();
     root["joint"] = solvejoint;
 
-    root["solver"] = Model->getSolveeq()->getsolversetting();
+    root["solvercase"] = Model->getSolveeq()->getObjective()->getcasenum();
 
     Json::Value postprocessing;
     postprocessing["tol"]=Model->getPostprocessing()->gettol();
@@ -494,9 +494,9 @@ model* IO::readmodel(const std::string&  jsonfilename){
     double rotationangle=solveproblem["rotationangle"].asDouble();
     int stepnum=solveproblem["stepnum"].asInt();
     Model->getSolveeq()->setproblemtosolve(rotatebody,naxis_solve,rotationangle,stepnum);
-    const Json::Value& solver = root["solver"];
-    int solvervalue=solver.asInt();
-    Model->getSolveeq()->setsolversetting(solvervalue);
+    const Json::Value& solver = root["solvercase"];
+    int solvercase=solver.asInt();
+    Model->getSolveeq()->getObjective()->setcasenum(solvercase);
 
     //postprocessing
     const Json::Value& postprocessingvalue = root["postprocessing"];

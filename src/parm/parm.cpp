@@ -83,6 +83,7 @@ void Parm::addbody(const std::string& bodyname, const std::vector<double>& q0){
             addnew=0;
             allbody[i]->setshape(addnew);
             allbody[i]->setbodybasic(q0,addnew);
+            updatechildbody(allbody[i]);
             break;
         }
     }
@@ -114,6 +115,7 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
             allbody[i]->setparent(parentbody);
             allbody[i]->setshape(a,b,c,shapename,addnew);
             allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew);
+            updatechildbody(allbody[i]);
             break;
         }
     }
@@ -138,6 +140,7 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
             allbody[i]->setparent(parentbody);
             allbody[i]->setshape(length,radius,shapename,addnew);
             allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew);
+            updatechildbody(allbody[i]);
             break;
         }
     }
@@ -152,6 +155,14 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
         n_bodies=n_bodies+1;
     }
     
+}
+
+void Parm::updatechildbody(body* Body){
+    std::vector<body*> allchild=Body->getchild();
+    for(int i=0;i<allchild.size();i++){
+        allchild[i]->updatebodybasic();
+        updatechildbody(allchild[i]);
+    }
 }
 
 void Parm::addmuscle(muscle* Muscle){
@@ -300,4 +311,13 @@ int Parm::deletemuscle(const std::string& musclename){
         }
     }
     return index;
+}
+
+void Parm::resetallforrecalc(){
+    for(int i=0;i<allbody.size();i++){
+        allbody[i]->getbodybasic()->resetforrecalc();
+    }
+    for(int i=0;i<n_muscles;i++){
+        allmuscle[i]->resetforrecalc();
+    }
 }

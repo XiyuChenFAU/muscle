@@ -32,6 +32,7 @@ public:
     void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename);
     void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, const std::string& shapename);
     void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double length, double radius, const std::string& shapename);
+    void updatechildbody(body* Body);
     void addmuscle(muscle* Muscle);
     void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,const std::string& global);
     void addmuscle(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum);
@@ -44,6 +45,7 @@ public:
     void setallmuscleinitialeta();
     int deletebody(const std::string& bodyname);
     int deletemuscle(const std::string& musclename);
+    void resetallforrecalc();
 
 private:
     int n_bodies;

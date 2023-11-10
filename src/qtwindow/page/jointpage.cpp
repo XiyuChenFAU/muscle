@@ -28,7 +28,7 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
 
     int allfontsize=15;
     //solve problem
-    setlabel("Solve problem", 10, 110,20);
+    setlabel("Joint information", 10, 110,20);
     rotatebodyEdit=settextandlabel("rotate body name",rotatebodyname, 10, 150, 450, 30, allfontsize);
     setlabel("rotation axis", 10, 240, allfontsize);
     rotationaxis_xEdit = settextandlabel("axis x",rotationaxis_x, 10, 270, 140, 30, allfontsize);

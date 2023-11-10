@@ -12,12 +12,13 @@ solveeq::solveeq(){
     ipopt=new IPOPT();
     Constraint=new constraint();
     setproblemtosolve("", {0.0,0.0,0.0}, 0.0, 0);
-    setsolversetting(0);
+    Objective=new objective();
 }
     
 solveeq::~solveeq(){
     delete ipopt;
     delete Constraint;
+    delete Objective;
 }
 
 IPOPT* solveeq::getipopt(){
@@ -49,10 +50,6 @@ void solveeq::setproblemtosolve(std::string rotatebodyvalue, std::vector<double>
     }
 }
 
-void solveeq::setsolversetting(int solversettingvalue){
-    solversetting=solversettingvalue;
-}
-
 std::string solveeq::getrotatebody(){
     return rotatebody;
 }
@@ -73,16 +70,18 @@ int solveeq::getstepnum(){
     return stepnum;
 }
 
-int solveeq::getsolversetting(){
-    return solversetting;
+objective* solveeq::getObjective(){
+    return Objective;
 }
 
 void solveeq::solvesignorinirotate(Parm* parm){
+    std::vector<std::vector<double>> jointnaxisall;
+    jointnaxisall.push_back(parm->findbody(rotatebody)->getbodybasic()->getposition());
     //variable
     int variablenum=parm->getvariable();
     SX x = SX::sym("x", variablenum);
     //minimum
-    SX f = 0;
+    SX f = Objective->getobjective(parm, x,jointnaxisall);
     //constraints
     std::vector<SX> allconstraint=Constraint->constraints(parm,x);
     SX g = vertcat(allconstraint);

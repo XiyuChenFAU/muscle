@@ -10,6 +10,32 @@ Xiyu Chen
 
 using namespace std;
 
+std::vector<std::vector<double>> rotationMatrix(const std::vector<double>& axis, double angle) {
+    double x = axis[0];
+    double y = axis[1];
+    double z = axis[2];
+
+    double c = std::cos(angle);
+    double s = std::sin(angle);
+    double t = 1 - c;
+
+    std::vector<std::vector<double>> matrix(3, std::vector<double>(3));
+
+    matrix[0][0] = t * x * x + c;
+    matrix[0][1] = t * x * y - s * z;
+    matrix[0][2] = t * x * z + s * y;
+
+    matrix[1][0] = t * x * y + s * z;
+    matrix[1][1] = t * y * y + c;
+    matrix[1][2] = t * y * z - s * x;
+
+    matrix[2][0] = t * x * z - s * y;
+    matrix[2][1] = t * y * z + s * x;
+    matrix[2][2] = t * z * z + c;
+
+    return matrix;
+}
+
 std::vector<double> localtoglobal(const std::vector<double>& position, const std::vector<std::vector<double>>& axis, const std::vector<double>& rho){
     return vector3plus(position, matrix33time31sepcol(axis, rho));
 }

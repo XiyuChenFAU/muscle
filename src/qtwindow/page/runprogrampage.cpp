@@ -343,6 +343,7 @@ std::string runprogrampage::doubletostring(double num) {
 
 void runprogrampage::updatevalue(){
     labels[0]->setText(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotatebody()));
+    std::cout<<setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotatebody()<<std::endl;
     labels[2]->setText(QString::fromStdString(doubletostring(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotationangle())));
     int loopnum;
     if(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getrotationanglestep()){

@@ -15,6 +15,7 @@ Xiyu Chen
 
 std::vector<double> localtoglobal(const std::vector<double>& position, const std::vector<std::vector<double>>& axis, const std::vector<double>& rho);
 
+std::vector<std::vector<double>> rotationMatrix(const std::vector<double>& axis, double angle);
 std::vector<std::vector<double>> CayleyMap(const std::vector<double>& eta);
 std::vector<std::vector<double>> HatVec(const std::vector<double>& n);
 std::vector<double> InverseHat(const std::vector<std::vector<double>>& hat);

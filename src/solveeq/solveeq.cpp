@@ -111,6 +111,9 @@ void solveeq::solvesignorinirotate(Parm* parm){
 
 void solveeq::solvesignorini(Parm* parm){
     int loopnum = stepnum+1;
+    if(stepnum==0){
+        loopnum=0;
+    }
     std::vector<double> rotation;
     for(int i=0;i<loopnum;i++){
         rotation.push_back(rotationanglestep*i);

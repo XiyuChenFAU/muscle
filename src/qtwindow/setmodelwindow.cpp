@@ -108,7 +108,7 @@ void setmodelwindow::showpage(int index){
     stackedWidget->setCurrentIndex(index);
     changebuttonstyle(index);
 
-    if (index == 3) {
+    if (index == 4) {
         QWidget *currentPage = stackedWidget->currentWidget();
         runprogrampage *page = qobject_cast<runprogrampage *>(currentPage);
         if (page) {

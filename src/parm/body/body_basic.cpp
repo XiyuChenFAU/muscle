@@ -88,9 +88,10 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
     rotationangle=rotationanglevalue;
     naxis=naxisvalue;
     rhobody=rhobodyvalue;
-    std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
-    n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
-    std::vector<std::vector<double>> R=RodriguesMap(n_axis);
+    //std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
+    //n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
+    //std::vector<std::vector<double>> R=RodriguesMap(n_axis);
+    std::vector<std::vector<double>> R=rotationMatrix(naxis, rotationangle/180.0*M_PI);
     std::vector<double> qnewall;
     std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
     std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
@@ -127,8 +128,9 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
 
 void bodybasic::updatebodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis){
     std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
-    n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
-    std::vector<std::vector<double>> R=RodriguesMap(n_axis);
+    //n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
+    //std::vector<std::vector<double>> R=RodriguesMap(n_axis);
+    std::vector<std::vector<double>> R=rotationMatrix(n_axis, rotationangle/180.0*M_PI);
     std::vector<double> qnewall;
     std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
     std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);

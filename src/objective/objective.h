@@ -24,6 +24,8 @@ public:
     ~objective();
     void setcasenum(int casenumvalue);
     int getcasenum();
+    SX getlengthdisdiff(Parm* parm, std::vector<std::vector<std::vector<SX>>> gammaallnode);
+    SX getnodelengthdisdiffall(Parm* parm, SX x, std::vector<std::vector<double>> jointposition);
 
     std::vector<SX> getnodedisdiff(Parm* parm, std::vector<std::vector<std::vector<SX>>> gammaallnode);
     std::vector<double> getmassmatrix(Parm* parm, std::vector<std::vector<double>> jointposition);

@@ -264,30 +264,30 @@ class Postprocess:
             with open(filename, 'r') as file:
                 lines = file.readlines()
             
-            if ('forcenode' in filename) or ('totalforce' in filename):
+            if ('forcenode' in filename.split("_")[-2]) or ('totalforce' in filename.split("_")[-2]):
                 muscles, angles, nodenum = self.extractxyaxis(lines, 0)
                 allmuscledata = self.arrangetolist(lines, muscles, filename, 0)
 
                 # plot
-                if 'forcenode' in filename:
+                if 'forcenode' in filename.split("_")[-2]:
                     for i in range(len(allmuscledata)):
                         self.pcolorfig(angles, nodenum, np.array(allmuscledata[i]), 'node number', muscles[i], 'forcenode_')
-                elif 'totalforce' in filename:
+                elif 'totalforce' in filename.split("_")[-2]:
                     self.normalfig(allmuscledata, muscles, angles, 'total force', 'totalforce')
             else:
                 muscles, angles, nodenum = self.extractxyaxis(lines, 1)
                 allmuscledata = self.arrangetolist(lines, muscles, filename, 1)
 
                 # plot
-                if 'length' in filename:
+                if 'length' in filename.split("_")[-2]:
                     self.normalfig(allmuscledata, muscles, angles, 'total deformation', 'length')
                     allmuscledata=np.array(allmuscledata)
                     self.normalfig(allmuscledata[:,:,1:]-allmuscledata[:,:,:-1], muscles, angles[1:], 'deformation diff', 'length_diff')
-                elif 'phi' in filename:
+                elif 'phi' in filename.split("_")[-2]:
                     for i in range(len(allmuscledata)):
                         self.pcolorfig(angles, nodenum, np.array(allmuscledata[i]), 'node number', muscles[i], 'phi_')
                     self.penatrationplot(allmuscledata, angles, nodenum, muscles)
-                elif 'bodystate' in filename:
+                elif 'bodystate' in filename.split("_")[-2]:
                     if not os.path.exists("animation"):
                         os.makedirs("animation")
                     shapename=self.getshapename(filename)

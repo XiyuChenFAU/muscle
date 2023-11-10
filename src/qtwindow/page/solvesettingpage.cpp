@@ -54,6 +54,10 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     radioButtons.push_back(radioButton1_3);
     radioButtons[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
     radioButtons[2]->setGeometry(10, 500, 450, 30);
+    QRadioButton* radioButton1_4 = new QRadioButton("minimize node distance with length change", this);
+    radioButtons.push_back(radioButton1_4);
+    radioButtons[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons[3]->setGeometry(10, 550, 450, 30);
 
     int solversetting = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getcasenum();
     radioButtons[solversetting]->setChecked(true);
@@ -61,6 +65,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     buttonGroup1->addButton(radioButtons[0], 0);
     buttonGroup1->addButton(radioButtons[1], 1);
     buttonGroup1->addButton(radioButtons[2], 2); 
+    buttonGroup1->addButton(radioButtons[3], 3); 
     connect(buttonGroup1, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked);
 
     //Casadi setting

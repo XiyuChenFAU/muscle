@@ -29,14 +29,23 @@ class Postprocess:
         axis = axis / np.linalg.norm(axis)
 
         # Calculate the rotation matrix
-        c = np.cos(angle)
-        s = np.sin(angle)
+        cos_theta = np.cos(angle)
+        sin_theta = np.sin(angle)
+        
+        # Compute the rotation matrix
         rotation_matrix = np.array([
-            [c + (1 - c) * axis[0] ** 2, (1 - c) * axis[0] * axis[1] - s * axis[2], (1 - c) * axis[0] * axis[2] + s * axis[1]],
-            [(1 - c) * axis[1] * axis[0] + s * axis[2], c + (1 - c) * axis[1] ** 2, (1 - c) * axis[1] * axis[2] - s * axis[0]],
-            [(1 - c) * axis[2] * axis[0] - s * axis[1], (1 - c) * axis[2] * axis[1] + s * axis[0], c + (1 - c) * axis[2] ** 2]
+            [cos_theta + axis[0]**2 * (1 - cos_theta),
+             axis[0] * axis[1] * (1 - cos_theta) - axis[2] * sin_theta,
+             axis[0] * axis[2] * (1 - cos_theta) + axis[1] * sin_theta],
+            
+            [axis[1] * axis[0] * (1 - cos_theta) + axis[2] * sin_theta,
+             cos_theta + axis[1]**2 * (1 - cos_theta),
+             axis[1] * axis[2] * (1 - cos_theta) - axis[0] * sin_theta],
+            
+            [axis[2] * axis[0] * (1 - cos_theta) - axis[1] * sin_theta,
+             axis[2] * axis[1] * (1 - cos_theta) + axis[0] * sin_theta,
+             cos_theta + axis[2]**2 * (1 - cos_theta)]
         ])
-
         # Apply the rotation to the vector
         rotated_vector = np.dot(rotation_matrix, vector)
 
@@ -75,7 +84,7 @@ class Postprocess:
         for i in range(len(x)):
             for j in range(len(x[i])):
                 vector = np.array([x[i][j], y[i][j], z[i][j]])
-                rotated_vector = self.rotate_vector(vector, axis, rotationangle)
+                rotated_vector = self.rotate_vector(vector, axis, rotationangle/180*np.pi)
                 x[i][j], y[i][j], z[i][j] = rotated_vector
 
         x += translate[0]

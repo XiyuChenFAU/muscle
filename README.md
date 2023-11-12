@@ -29,14 +29,6 @@ export Qt5_DIR="your_qt5_install_directory"/Qt5.14.2/5.14.2/clang_64/lib/cmake/Q
 ### For Windows:
 set environment variable name Qt5_DIR and value D:\path\to\qt5\msvc2017_64\lib\cmake\Qt5. Not set in the environmental path
 
-# Download and install swig
-
-## For mac
-brew install swig
-
-## For windows
-download address https://www.swig.org/download.html, download the corresponding .zip and unzip the software
-
 # Download and install ipopt
 
 ## For mac
@@ -44,6 +36,19 @@ brew install ipopt
 
 ## For windows
 download address https://github.com/coin-or/Ipopt/releases, download the corresponding .zip and unzip the software
+git clone -b stable/3.12 https://github.com/coin-or/Ipopt.git CoinIpopt
+cd CoinIpopt/ThirdParty/
+cd Blas/
+./get.Blas
+cd ../Lapack/
+./get.Lapack
+cd ../ASL
+./get.ASL
+cd ../Metis/
+./get.Metis
+cd ../Mumps/
+./get.Mumps
+
 
 # Download and install casadi programm
 
@@ -65,7 +70,7 @@ When you do "mkdir build", please sure it contains the CMakeLists.txtin the curr
 * cd casadi
 * mkdir build
 * cd build
-* cmake -DWITH_PYTHON=ON -DWITH_IPOPT=ON -DCMAKE_C_COMPILER="C:/path/to/gcc/bin/gcc.exe" -DCMAKE_CXX_COMPILER="C:/path/to/g++/bin/g++.exe" -G "MinGW Makefiles" -DIPOPT_LIBRARIES:FILEPATH="C:/path/to/ipopt/lib/ipopt.dll.lib" -DIPOPT_INCLUDE_DIRS:PATH="C:/path/to/ipopt/include/coin-or" -DSWIG_EXECUTABLE="C:/path/to/swig/swig.exe" ..
+* cmake -DWITH_IPOPT=ON -DCMAKE_C_COMPILER="C:/path/to/gcc/bin/gcc.exe" -DCMAKE_CXX_COMPILER="C:/path/to/g++/bin/g++.exe" -G "MinGW Makefiles" -DIPOPT_LIBRARIES:FILEPATH="C:/path/to/ipopt/lib/ipopt.dll.lib" -DIpopt_DIR="C:/path/to/ipopt" -DIPOPT_INCLUDE_DIRS:PATH="C:/path/to/ipopt/include/coin-or" ..
 * cmake --build . --config Release
 * cmake --install .
 

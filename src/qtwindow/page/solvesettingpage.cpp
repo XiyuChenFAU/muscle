@@ -66,7 +66,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     buttonGroup1->addButton(radioButtons[1], 1);
     buttonGroup1->addButton(radioButtons[2], 2); 
     buttonGroup1->addButton(radioButtons[3], 3); 
-    connect(buttonGroup1, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked);
+    connect(buttonGroup1, QOverload<int>::of(&QButtonGroup::idClicked), this, &solvesettingpage::handleButtonClicked);
 
     //Casadi setting
     setlabel("Casadi setting", 660, 110,20);

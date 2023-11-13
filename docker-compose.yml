@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  muscle:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: bash -c "cd /muscle/build && ./muscle_path"
+    image: muscle
+    container_name: muscle
+    ports:
+      - "8080:8080" 
+    

@@ -97,7 +97,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
         radioButtonso[i]->setGeometry(10, 260+i*40, 340, 30);
         buttonGroupo->addButton(radioButtonso[i], i);
     }
-    connect(buttonGroupo, QOverload<int>::of(&QButtonGroup::idClicked), this, &musclepage::handleButtonClickedo);
+    connect(buttonGroupo, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedo);
     int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoobodyname);
     if(findbodyo>-1){
         radioButtonso[findbodyo]->setChecked(true);
@@ -111,7 +111,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
         radioButtonsi[i]->setGeometry(660, 260+i*40, 340, 30);
         buttonGroupi->addButton(radioButtonsi[i], i);
     }
-    connect(buttonGroupi, QOverload<int>::of(&QButtonGroup::idClicked), this, &musclepage::handleButtonClickedi);
+    connect(buttonGroupi, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedi);
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
     if(findbodyi>-1){
         radioButtonsi[findbodyi]->setChecked(true);
@@ -342,10 +342,10 @@ void musclepage::showmusclesetting(int index){
     }
 }
 
-void musclepage::handleButtonClickedo(int value){
-    selectedValueo = value;
+void musclepage::handleButtonClickedo(QAbstractButton* button){
+    selectedValueo = buttonGroupo->id(button);
 }
 
-void musclepage::handleButtonClickedi(int value){
-    selectedValuei = value;
+void musclepage::handleButtonClickedi(QAbstractButton* button){
+    selectedValuei = buttonGroupi->id(button);
 }

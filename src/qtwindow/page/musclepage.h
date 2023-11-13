@@ -73,8 +73,8 @@ private slots:
     void deletebuttonsetting();
     void newmusclebuttonsetting();
     void showmusclesetting(int index);
-    void handleButtonClickedo(int value);
-    void handleButtonClickedi(int value);
+    void handleButtonClickedo(QAbstractButton* button);
+    void handleButtonClickedi(QAbstractButton* button);
 };
 
 #endif // MUSCLEPAGE_H

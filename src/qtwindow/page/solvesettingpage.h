@@ -60,7 +60,7 @@ private:
 private slots:
     void savesetting();
     void openFolderDialog();
-    void handleButtonClicked(int value);
+    void handleButtonClicked(QAbstractButton* button);
 };
 
 #endif // SOLVESETTINGPAGE_H

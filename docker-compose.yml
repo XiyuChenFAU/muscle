@@ -5,9 +5,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: bash -c "cd /muscle/build && ./muscle_path"
+    #command: bash -c "./muscle_path"
+    command: tail -f /dev/null
+    #restart: always
     image: muscle
     container_name: muscle
-    ports:
-      - "8080:8080" 
+    environment:
+      - DISPLAY=:0
+    volumes:
+      - ./tmp/.X11-unix:/tmp/.X11-unix
+    networks:
+      - muscle-network
+    #command: ["./muscle_path"]
+
+networks:
+  muscle-network:
+    driver: bridge
     

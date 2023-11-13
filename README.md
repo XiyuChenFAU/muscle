@@ -36,18 +36,21 @@ brew install ipopt
 
 ## For windows
 download address https://github.com/coin-or/Ipopt/releases, download the corresponding .zip and unzip the software
-git clone -b stable/3.12 https://github.com/coin-or/Ipopt.git CoinIpopt
-cd CoinIpopt/ThirdParty/
-cd Blas/
-./get.Blas
-cd ../Lapack/
-./get.Lapack
-cd ../ASL
-./get.ASL
-cd ../Metis/
-./get.Metis
-cd ../Mumps/
-./get.Mumps
+
+Or you can compile it based on the compile
+
+* git clone -b stable/3.12 https://github.com/coin-or/Ipopt.git CoinIpopt
+* cd CoinIpopt/ThirdParty/
+* cd Blas/
+* ./get.Blas
+* cd ../Lapack/
+* ./get.Lapack
+* cd ../ASL
+* ./get.ASL
+* cd ../Metis/
+* ./get.Metis
+* cd ../Mumps/
+* ./get.Mumps
 
 
 # Download and install casadi programm

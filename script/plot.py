@@ -7,15 +7,17 @@ import os
 import random
 import sys
 from PIL import Image
+from matplotlib.ticker import MultipleLocator, AutoLocator
 
 colors = [
-    "red", "green", "blue", "yellow", "orange", "purple", "pink", "brown", "cyan", "magenta",
-    "lime", "indigo", "violet", "gold", "silver", "gray", "black", "white", "navy", "maroon",
-    "olive", "teal", "aqua", "fuchsia", "limegreen", "darkred", "darkorange", "darkgreen",
-    "darkblue", "darkviolet", "darkmagenta", "darkcyan", "darkyellow", "darkpink", "darkbrown",
-    "lightgray", "lightred", "lightorange", "lightgreen", "lightblue", "lightmagenta",
-    "lightcyan", "lightyellow", "lightpink", "lightbrown", "lightviolet", "lightaqua",
-    "lightgold", "lightlime", "lightolive", "lightteal"
+    'r', 'g', 'b', 'm', 'aqua', 'black', 'brown', 'burlywood',
+    'cadetblue','chartreuse', 'y', 'k', 'w', 'c',
+    'chocolate', 'coral', 'cornflowerblue', 'crimson', 'cyan',
+    'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray', 'darkgreen',
+    'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange',
+    'darkorchid', 'darkred', 'darksalmon', 'darkseagreen', 'darkslateblue',
+    'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet', 'deeppink',
+    'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'forestgreen'
 ]
 
 class Postprocess:
@@ -52,8 +54,8 @@ class Postprocess:
         return rotated_vector
 
     def plot_ellipsoid(self, ax, a, b, c, axis, rotationangle, translate, colorval, stride):
-        u = np.linspace(0, 2 * np.pi, 100)
-        v = np.linspace(0, np.pi, 100)
+        u = np.linspace(0, 2 * np.pi, 40)
+        v = np.linspace(0, np.pi, 40)
         x = a * np.outer(np.cos(u), np.sin(v))
         y = b * np.outer(np.sin(u), np.sin(v))
         z = c * np.outer(np.ones_like(u), np.cos(v))
@@ -74,8 +76,8 @@ class Postprocess:
 
     def plot_elliptical_cylinder(self, ax, a, b, c, axis, rotationangle, translate, colorval,stride):
         # Generate points for the elliptical cylinder
-        u = np.linspace(0, 2 * np.pi, 100)
-        v = np.linspace(-c, c, 100)
+        u = np.linspace(0, 2 * np.pi, 40)
+        v = np.linspace(-c, c, 40)
         x = a * np.outer(np.cos(u), np.ones_like(v))
         y = b * np.outer(np.sin(u), np.ones_like(v))
         z = np.outer(np.ones_like(u), v)
@@ -157,19 +159,20 @@ class Postprocess:
         return shapename
 
     def pcolorfig(self, x, y, data2d, ylabelname, title, prefixname):
-        plt.figure()
+        fig = plt.figure()
         plt.pcolormesh(x, y, data2d, cmap='viridis')
         plt.colorbar()
-        plt.xticks(x, rotation=45)
+        plt.gca().xaxis.set_major_locator(MultipleLocator(10))
         plt.yticks(y)
         plt.xlabel('angle')
         plt.ylabel(ylabelname)
         plt.title(prefixname +title)
         figname = prefixname + title + '.png'
         plt.savefig(figname)
+        plt.close(fig)
 
     def normalfig(self, data, linename, x, ylabelname, title):
-        plt.figure()
+        fig=plt.figure()
         for i in range(len(data)):
             if 'length' in title:
                 sum = np.sum(np.array(data[i]), axis=0)
@@ -178,13 +181,14 @@ class Postprocess:
                     plt.plot(x[1:], sum[1:]-sum[:-1], linestyle='--', label=linename[i]+" difference",color=colors[i%len(colors)])
             else:
                 plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
-
-        plt.xticks(x, rotation=45)
+        plt.gca().xaxis.set_major_locator(MultipleLocator(10))
+        plt.gca().xaxis.set_minor_locator(AutoLocator())
         plt.xlabel('angle')
         plt.ylabel(ylabelname)
         plt.legend()
         figurename = title + '.png'
         plt.savefig(figurename)
+        plt.close(fig)
 
     def gatherdataandplot(self, data, another):
         allpenatration = []
@@ -244,12 +248,12 @@ class Postprocess:
                 axis=[allmuscledata[j][3][i],allmuscledata[j][4][i],allmuscledata[j][5][i]]
                 translate=[allmuscledata[j][7][i],allmuscledata[j][8][i],allmuscledata[j][9][i]]
                 if shapename[j]=="ellipsoid":
-                    self.plot_ellipsoid(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[j%len(colors)],stride)
+                    self.plot_ellipsoid(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[len(colors)-1-j%len(colors)],stride)
                 if shapename[j]=="cylinder":
-                    self.plot_elliptical_cylinder(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[j%len(colors)],stride)
+                    self.plot_elliptical_cylinder(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[len(colors)-1-j%len(colors)],stride)
             for j in range(len(gammaarray)):
                 gammaj=gammaarray[j][:,i].reshape(-1,3)
-                ax.plot(gammaj[:,0], gammaj[:,1], gammaj[:,2], marker='o', linestyle='-')
+                ax.plot(gammaj[:,0], gammaj[:,1], gammaj[:,2], linewidth=2.8, linestyle='-', color=colors[j%len(colors)])
 
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
@@ -289,9 +293,9 @@ class Postprocess:
 
                 # plot
                 if 'length' in filename.split("_")[-2]:
-                    self.normalfig(allmuscledata, muscles, angles, 'total deformation', 'length')
+                    self.normalfig(allmuscledata, muscles, angles, 'total length', 'total length')
                     allmuscledata=np.array(allmuscledata)
-                    self.normalfig(allmuscledata[:,:,1:]-allmuscledata[:,:,:-1], muscles, angles[1:], 'deformation diff', 'length_diff')
+                    self.normalfig(allmuscledata[:,:,1:]-allmuscledata[:,:,:-1], muscles, angles[1:], 'total length change', 'total length change')
                 elif 'phi' in filename.split("_")[-2]:
                     for i in range(len(allmuscledata)):
                         self.pcolorfig(angles, nodenum, np.array(allmuscledata[i]), 'node number', muscles[i], 'phi_')
@@ -373,9 +377,9 @@ class Postprocess:
         ax = fig.add_subplot(111, projection='3d')
         for i in range(len(statename)):
             if shapename[i]=="ellipsoid":
-                self.plot_ellipsoid(ax, statevalue[i][0], statevalue[i][1], statevalue[i][2], [statevalue[i][3],statevalue[i][4],statevalue[i][5]], statevalue[i][6], [statevalue[i][7],statevalue[i][8],statevalue[i][9]], colors[i%len(colors)], stride)
+                self.plot_ellipsoid(ax, statevalue[i][0], statevalue[i][1], statevalue[i][2], [statevalue[i][3],statevalue[i][4],statevalue[i][5]], statevalue[i][6], [statevalue[i][7],statevalue[i][8],statevalue[i][9]], colors[len(colors)-1-i%len(colors)], stride)
             if shapename[i]=="cylinder":
-                self.plot_elliptical_cylinder(ax, statevalue[i][0], statevalue[i][1], statevalue[i][2], [statevalue[i][3],statevalue[i][4],statevalue[i][5]], statevalue[i][6], [statevalue[i][7],statevalue[i][8],statevalue[i][9]], colors[i%len(colors)], stride)
+                self.plot_elliptical_cylinder(ax, statevalue[i][0], statevalue[i][1], statevalue[i][2], [statevalue[i][3],statevalue[i][4],statevalue[i][5]], statevalue[i][6], [statevalue[i][7],statevalue[i][8],statevalue[i][9]], colors[len(colors)-1-i%len(colors)], stride)
         for i in range(len(bodyname)):
             ax.quiver(bodyvalue[i][0], bodyvalue[i][1], bodyvalue[i][2], bodyvalue[i][3], bodyvalue[i][4], bodyvalue[i][5], length=0.1, normalize=True,color=colors[0])
             ax.quiver(bodyvalue[i][0], bodyvalue[i][1], bodyvalue[i][2], bodyvalue[i][6], bodyvalue[i][7], bodyvalue[i][8], length=0.1, normalize=True,color=colors[1])

@@ -21,9 +21,9 @@ IPOPT::~IPOPT() {
 
 void IPOPT::SetInitialipopt() {
     tol = 1e-8;
-    max_iter = 1000;
+    max_iter = 2000;
     linear_solver = "mumps";
-    print_level = 5;
+    print_level = 0;
     hessian_approximation = "limited-memory";
 }
 

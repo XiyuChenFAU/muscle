@@ -45,12 +45,15 @@ SX objective::getlengthdisdiff(Parm* parm, std::vector<std::vector<std::vector<S
 }
 
 SX objective::getnodelengthdisdiffall(Parm* parm, SX x, std::vector<std::vector<double>> jointposition){
+    double springconst=1.0;
     std::vector<std::vector<std::vector<std::vector<SX>>>> dataall=rearrange_gamma_eta(parm, x);
     std::vector<std::vector<std::vector<SX>>> gammaallnode=dataall[0];
     std::vector<SX> nodediff=getnodedisdiff(parm,gammaallnode);
     std::vector<double> massmatrix=getmassmatrix(parm, jointposition);
+    double massmatrixsum=0.0;
+    for(int i=0;i<massmatrix.size();i++){massmatrixsum=massmatrixsum+massmatrix[i];}
     SX f_mass=getobjectivemass(nodediff,massmatrix);
-    f_mass=f_mass+getlengthdisdiff(parm, gammaallnode);
+    f_mass=f_mass+getlengthdisdiff(parm, gammaallnode)*springconst*massmatrixsum/massmatrix.size();
     return f_mass;
 }
 
@@ -78,12 +81,12 @@ std::vector<double> objective::getmassmatrix(Parm* parm, std::vector<std::vector
         std::vector<double> gammalaststep=gammapreviousall[gammapreviousall.size()-1];
         for(int j=0;j<Muscle[i]->getnodenum();j++){
             std::vector<SX> gammaallnodemuscle1;
-            if(casenum==1 || casenum==3){
+            if(casenum==1){
                 for(int k=0;k<3;k++){
                     massmatrix.push_back(1.0);
                 }
             }
-            if(casenum==2){
+            if(casenum==2 || casenum==3){
                 double massvalue=0.0;
                 for(int k=0; k<jointposition.size();k++){
                     double massvaluei=std::sqrt((gammalaststep[3*j+0]-jointposition[k][0])*(gammalaststep[3*j+0]-jointposition[k][0])+(gammalaststep[3*j+1]-jointposition[k][1])*(gammalaststep[3*j+1]-jointposition[k][1])+(gammalaststep[3*j+2]-jointposition[k][2])*(gammalaststep[3*j+2]-jointposition[k][2]));

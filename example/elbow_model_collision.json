@@ -65,7 +65,7 @@
 			"muscle_name" : "triceps",
 			"node_number" : 21,
 			"origin_relative_body" : "upperarm",
-			"rho_insertion" : [0.05,0.0,0.1],
+			"rho_insertion" : [0.0456,0.0,0.1278],
 			"rho_origin" : [0.045,0.0,0.121695]
 		},
 		{

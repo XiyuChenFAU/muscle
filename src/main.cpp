@@ -21,6 +21,10 @@ int main(int argc, char* argv[]){
    /*
    runmodel Runmodel("../example/elbow_model.json",1);
    Runmodel.runprogram();
+   todo:
+   initial rotation angle
+   spherical joint
+   cylinder plot
    */
 }
 

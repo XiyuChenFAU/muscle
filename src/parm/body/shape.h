@@ -27,6 +27,8 @@ public:
     double getb();
     double getc();
     std::string getshapename();
+    static std::vector<std::string> allshape;
+    static int getshapeindex(const std::string& shapename);
 
 private:
     std::string shapename;

@@ -16,6 +16,11 @@ Xiyu Chen
 #include <QPushButton>
 #include <QMessageBox>
 #include "../../run_model.h"
+#include "jointtype/revolutejointpage.h"
+#include "jointtype/sphericaljointpage.h"
+#include <QRadioButton>
+#include <QButtonGroup>
+#include <QStackedWidget>
 
 class setmodelwindow;
 
@@ -32,22 +37,47 @@ public:
     std::string doubletostring(double num);
     double stringtodouble(std::string numStr);
     void errorbox(std::string errormessage);
+    runmodel* getrunmodel();
+    void setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex);
 
 private:
     std::vector<QLabel*> qlabels;
     setmodelwindow *setmodelwin=nullptr;
-    QLineEdit *rotatebodyEdit=nullptr;
-    QLineEdit *rotationaxis_xEdit=nullptr;
-    QLineEdit *rotationaxis_yEdit=nullptr;
-    QLineEdit *rotationaxis_zEdit=nullptr;
-    QLineEdit *rotationangleEdit=nullptr;
+    
+    QLineEdit *jointnameEdit=nullptr;
+    QLineEdit *positionaxis_xEdit=nullptr;
+    QLineEdit *positionaxis_yEdit=nullptr;
+    QLineEdit *positionaxis_zEdit=nullptr;
     QLineEdit *stepnumstringEdit=nullptr;
+
+    std::vector<QRadioButton *> radioButtonsbody;
+    QButtonGroup *buttonGroupbody = nullptr;
+    std::vector<QRadioButton *> radioButtonstype;
+    QButtonGroup *buttonGrouptype = nullptr;
+
     QFrame* rectangle=nullptr;
     QPushButton *savebutton=nullptr;
+    QPushButton *deletebutton=nullptr;
+    QPushButton *plusbutton=nullptr;
+    QPushButton *newjointbutton=nullptr;
+    std::vector<QPushButton*> jointbuttons;
+
+    QStackedWidget *stackedWidget=nullptr;
+    revolutejointpage *Revolutejointpage = nullptr;
+    sphericaljointpage *Sphericaljointpage = nullptr;
+    int selectedValuetype=-1;
+    int selectedValuebody=-1;
+
 
 
 private slots:
     void savesetting();
+    void deletesetting();
+    void plusbuttonsetting();
+    void newjointbuttonsetting();
+    void showjointsetting(int index);
+    void handleButtonClickedbody(QAbstractButton* button);
+    void handleButtonClickedtype(QAbstractButton* button);
 };
 
 #endif // JOINTPAGE_H

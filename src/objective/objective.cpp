@@ -84,14 +84,18 @@ std::vector<double> objective::getmassmatrix(Parm* parm, std::vector<std::vector
                 }
             }
             if(casenum==2){
-                double massmatrixvalue=100000;
-                double massvalue=1.0;
+                double massvalue=0.0;
                 for(int k=0; k<jointposition.size();k++){
-                    massvalue=massvalue*std::sqrt((gammalaststep[3*j+0]-jointposition[k][0])*(gammalaststep[3*j+0]-jointposition[k][0])+(gammalaststep[3*j+1]-jointposition[k][1])*(gammalaststep[3*j+1]-jointposition[k][1])+(gammalaststep[3*j+2]-jointposition[k][2])*(gammalaststep[3*j+2]-jointposition[k][2]));
+                    double massvaluei=std::sqrt((gammalaststep[3*j+0]-jointposition[k][0])*(gammalaststep[3*j+0]-jointposition[k][0])+(gammalaststep[3*j+1]-jointposition[k][1])*(gammalaststep[3*j+1]-jointposition[k][1])+(gammalaststep[3*j+2]-jointposition[k][2])*(gammalaststep[3*j+2]-jointposition[k][2]));
+                    if(massvalue!=0){
+                        massvalue=massvalue+1.0/massvaluei;
+                    }
+                    else{
+                        massvalue=massvalue+1000000;
+                    }
                 }
-                if(massvalue!=0){
-                    massmatrixvalue=1.0/massvalue;
-                }
+                double massmatrixvalue=1.0;
+                if(jointposition.size()>0){massmatrixvalue=massvalue/jointposition.size();}
                 for(int k=0;k<3;k++){
                     massmatrix.push_back(massmatrixvalue);
                 }

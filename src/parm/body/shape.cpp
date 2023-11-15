@@ -10,6 +10,8 @@ Xiyu Chen
 
 using namespace std;
 
+std::vector<std::string> shape::allshape={"ellipsoid","cylinder"};
+
 shape::shape (){
     a=0;
     b=0;
@@ -82,5 +84,16 @@ double shape::getc(){
 
 std::string shape::getshapename(){
     return shapename;
+}
+
+int shape::getshapeindex(const std::string& shapename){
+    int index=-1;
+    for(int i=0;i<allshape.size();i++){
+        if(allshape[i]==shapename){
+            index=i;
+            break;
+        }
+    }
+    return index;
 }
 

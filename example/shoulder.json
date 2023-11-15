@@ -86,25 +86,179 @@
 		"linear_solver" : "mumps",
 		"max_iter" : 1000,
 		"print_level" : 5,
-		"tol" : 0.001
+		"tol" : 0.00000001
 	},
-	"muscle" : [],
+	"muscle" : 
+	[
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Subscapularis_S",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.173399296958717,
+				0.030163705970087499,
+				0.042966924543348203
+			],
+			"rho_origin" : 
+			[
+				-0.092025390275657898,
+				0.045525543779116301,
+				0.15848090594411901
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Subscapularis_M",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.167970873739927,
+				0.026888091905238901,
+				0.041200750393196303
+			],
+			"rho_origin" : 
+			[
+				-0.092482067865412104,
+				0.060895958170655302,
+				0.13078914570733699
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Subscapularis_I",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.163475789700022,
+				0.023106629676119698,
+				0.042744366428887799
+			],
+			"rho_origin" : 
+			[
+				-0.076304949576528003,
+				0.089287526703250297,
+				0.105533087651172
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Infraspinatus_I",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.171511295008519,
+				0.048965112601735999,
+				0.0727340764893495
+			],
+			"rho_origin" : 
+			[
+				-0.084348936747807496,
+				0.081108753209493997,
+				0.112052051932108
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Infraspinatus_S",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.18107294573054999,
+				0.045120166040607403,
+				0.066626688435062503
+			],
+			"rho_origin" : 
+			[
+				-0.092403761407127499,
+				0.049831583090659402,
+				0.16540879847896101
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "TeresMinor",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.162985512896417,
+				0.050142283425659497,
+				0.068350492625602999
+			],
+			"rho_origin" : 
+			[
+				-0.112542712211088,
+				0.039245877607615401,
+				0.101148364372491
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Supraspinatus_A",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.18229120892349401,
+				0.041173395465668602,
+				0.049542442329320702
+			],
+			"rho_origin" : 
+			[
+				-0.096326483267120802,
+				0.0050019358632181999,
+				0.17287748686798199
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "Supraspinatus_P",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.184386308433545,
+				0.0435581341620161,
+				0.056956271495819499
+			],
+			"rho_origin" : 
+			[
+				-0.120506336658828,
+				0.017287802987894299,
+				0.16562187660309399
+			]
+		},
+		{
+			"insertion_relative_body" : "humeral_head",
+			"muscle_name" : "TeresMajor",
+			"node_number" : 21,
+			"origin_relative_body" : "wrap_scapula_blade",
+			"rho_insertion" : 
+			[
+				-0.11845037640799,
+				0.035126763362184302,
+				0.072218783305391998
+			],
+			"rho_origin" : 
+			[
+				-0.075103148503654099,
+				0.098467626847808895,
+				0.081033503325777204
+			]
+		}
+	],
 	"name" : "shoulder",
 	"postprocessing" : 
 	{
-		"tol" : 0.00000001
+		"tol" : 0.001
 	},
 	"solvercase":0,
-	"joint" : 
-	{
-		"rotate_axis" : 
-		[
-			0.0,
-			0.0,
-			0.0
-		],
-		"rotate_body" : "",
-		"rotationangle" : 0.0,
-		"stepnum" : 0
-	}
+	"stepnum" : 0,
+	"joint" : []
 }

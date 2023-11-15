@@ -59,8 +59,8 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     radioButtons[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
     radioButtons[3]->setGeometry(10, 550, 450, 30);
 
-    int solversetting = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getcasenum();
-    radioButtons[solversetting]->setChecked(true);
+    selectedValue = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getcasenum();
+    radioButtons[selectedValue]->setChecked(true);
 
     buttonGroup1->addButton(radioButtons[0], 0);
     buttonGroup1->addButton(radioButtons[1], 1);

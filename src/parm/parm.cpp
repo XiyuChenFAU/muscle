@@ -13,6 +13,7 @@ using namespace std;
 Parm::Parm() {
     n_bodies=-1;
     n_muscles=0;
+    n_joints=0;
     fsolve=new Fsolve();
     variablenum=0;
 }
@@ -25,7 +26,12 @@ Parm::~Parm() {
     for (muscle* ptr : allmuscle) {
         delete ptr;
     }
+
+    for (joint* ptr : alljoint) {
+        delete ptr;
+    }
     delete fsolve;
+    delete emptyjoint;
 }
 
 int Parm::getn_bodies(){
@@ -34,6 +40,10 @@ int Parm::getn_bodies(){
 
 int Parm::getn_muscles(){
     return n_muscles;
+}
+
+int Parm::getn_joints(){
+    return n_joints;
 }
 
 std::vector<body*> Parm::getallbody(){
@@ -46,6 +56,22 @@ body* Parm::getbodyindex(int index){
 
 muscle* Parm::getmuscleindex(int index){
     return allmuscle[index];
+}
+
+std::vector<joint*> Parm::getalljoint(){
+    return alljoint;
+}
+    
+joint* Parm::getjointindex(int index){
+    joint* Joint=nullptr;
+    if(index<alljoint.size()){Joint=alljoint[index];}
+    return Joint;
+}
+
+joint* Parm::getjointindexevenempty(int index){
+    joint* Joint=getjointindex(index);
+    if(Joint==nullptr){Joint=emptyjoint;}
+    return Joint;
 }
 
 std::vector<muscle*> Parm::getallmuscle(){
@@ -212,6 +238,57 @@ void Parm::addmuscle(const std::vector<double>& rho_o, const std::string& rhoo_b
     }
 }
 
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double anglevalue){
+    body* currentbodyvalue=findbody(bodynamevalue);
+    int add_joint=1;
+    for(int i=0;i<alljoint.size();i++){
+        if(alljoint[i]->getname() ==namevalue){
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, anglevalue);
+            add_joint=0;
+            break;
+        }
+    }
+    if(add_joint){
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, anglevalue);
+        alljoint.push_back(Joint);
+        n_joints=n_joints+1;
+    }
+}
+    
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double angle1value, double angle2value, double angle3value){
+    body* currentbodyvalue=findbody(bodynamevalue);
+    int add_joint=1;
+    for(int i=0;i<alljoint.size();i++){
+        if(alljoint[i]->getname() ==namevalue){
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, angle1value, angle2value, angle3value);
+            add_joint=0;
+            break;
+        }
+    }
+    if(add_joint){
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, angle1value, angle2value, angle3value);
+        alljoint.push_back(Joint);
+        n_joints=n_joints+1;
+    }
+}
+
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& rotationanglevalue){
+    body* currentbodyvalue=findbody(bodynamevalue);
+    int add_joint=1;
+    for(int i=0;i<alljoint.size();i++){
+        if(alljoint[i]->getname() ==namevalue){
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, rotationanglevalue);
+            add_joint=0;
+            break;
+        }
+    }
+    if(add_joint){
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, rotationanglevalue);
+        alljoint.push_back(Joint);
+        n_joints=n_joints+1;
+    }
+}
+
 body* Parm::findbody(const std::string& bodyname){
     for (body* Body : allbody) {
         if(Body->getname()==bodyname){return Body;}
@@ -242,26 +319,16 @@ void Parm::addmuslcesolution(const std::vector<double>& solution){
     }
 }
 
-void Parm::rotatebodyupdate(const std::string& bodyname, const std::vector<double>& naxis, double rotationangle){
-    body* findBody=findbody(bodyname);
-    rotatebody(findBody,naxis,rotationangle);
+void Parm::rotatebodyupdate(int nodenum){
+    for(int i=0;i<alljoint.size();i++){
+        alljoint[i]->updateall(nodenum);
+    }
     for(int i=0;i<allbody.size();i++){
         if(allbody[i]->getbodybasic()->getrotatestatus()){
             allbody[i]->getbodybasic()->setrotatestatus(0);
         }
         else{
             allbody[i]->getbodybasic()->norotateaddvalue();
-        }
-    }
-}
-
-void Parm::rotatebody(body* Body, const std::vector<double>& naxis, double rotationangle){
-    Body->getbodybasic()->nodalupdate(Body->getparent()->getbodybasic()->getposition(), Body->getparent()->getbodybasic()->getaxis(), naxis, rotationangle);
-    Body->getbodybasic()->setrotatestatus(1);
-    std::vector<body*> child = Body->getchild();
-    if(child.size()>0){
-        for(int i=0;i<child.size();i++){
-            rotatebody(child[i],naxis,rotationangle);
         }
     }
 }
@@ -313,6 +380,20 @@ int Parm::deletemuscle(const std::string& musclename){
     return index;
 }
 
+int Parm::deletejoint(const std::string& jointname){
+    int index=-1;
+    for (int i=0;i<alljoint.size();i++) {
+        if(alljoint[i]->getname()==jointname){
+            delete alljoint[i]; 
+            alljoint.erase(alljoint.begin() + i); 
+            index=i;
+            n_joints=n_joints-1;
+            break;
+        }
+    }
+    return index;
+}
+
 void Parm::resetallforrecalc(){
     for(int i=0;i<allbody.size();i++){
         allbody[i]->getbodybasic()->resetforrecalc();
@@ -320,4 +401,11 @@ void Parm::resetallforrecalc(){
     for(int i=0;i<n_muscles;i++){
         allmuscle[i]->resetforrecalc();
     }
+    for(int i=0;i<alljoint.size();i++){
+        alljoint[i]->resetforrecalc();
+    }
+}
+
+void Parm::addemptyjoint(){
+    emptyjoint=new joint("", "fix_space", allbody[0], "", {0,0,0}, {0,0,0}, {0,0,0});
 }

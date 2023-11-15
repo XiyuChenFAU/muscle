@@ -27,10 +27,7 @@ public:
     std::vector<double> getposition();
     std::vector<std::vector<double>> getaxis();
     std::vector<std::vector<double>> getq();
-    std::vector<double> getallrotationangle();
-    std::vector<double> getnaxis();
     std::vector<double> getrhobody();
-    double getrotationangle();
     int getrotatestatus();
     std::vector<double> getinitialsetting_naxis();
     double getinitialsetting_angle();
@@ -39,7 +36,7 @@ public:
     void  setpoistionaxis(const std::vector<double>& q);
     std::vector<double> pushback(std::vector<double>& q, const std::vector<double>& value);
     void norotateaddvalue();
-    void  nodalupdate(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisnew, double newangle);
+    void  addnewbodybasic(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis);
     void PrintParameters(const std::vector<double>& q0);
     std::vector<double> matrix_to_axisangle_ref_fix_space();
     void resetforrecalc();
@@ -48,11 +45,8 @@ private:
     std::vector<double> position;
     std::vector<std::vector<double>> axis;
     std::vector<std::vector<double>> q;
-    std::vector<double> allrotationangle;
-    std::vector<double> naxis;
     std::vector<double> rhobody;
     std::vector<std::vector<double>> axisangle_ref;
-    double rotationangle;
     int rotatestatus;
     std::vector<double> initialsetting_naxis;
     double initialsetting_angle;

@@ -15,10 +15,11 @@ Xiyu Chen
 #include <QTextEdit>
 #include <QPushButton>
 #include <QMessageBox>
-#include "../../run_model.h"
 #include <QFileDialog> 
 #include <QRadioButton>
 #include <QButtonGroup>
+#include "../../run_model.h"
+
 
 class setmodelwindow;
 

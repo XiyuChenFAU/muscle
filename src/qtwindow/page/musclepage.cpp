@@ -90,32 +90,39 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 1010, 425, 100, 30, allfontsize);
 
     buttonGroupo = new QButtonGroup;
+    QRadioButton* radioButtono = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtono->setVisible(false);
+    radioButtonso.push_back(radioButtono);
+    buttonGroupo->addButton(radioButtonso[0], -1);
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonso.push_back(radioButton);
-        radioButtonso[i]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonso[i]->setGeometry(10, 260+i*40, 340, 30);
-        buttonGroupo->addButton(radioButtonso[i], i);
+        radioButtonso[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonso[i+1]->setGeometry(10, 260+i*40, 340, 30);
+        buttonGroupo->addButton(radioButtonso[i+1], i);
     }
     connect(buttonGroupo, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedo);
     int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoobodyname);
-    if(findbodyo>-1){
-        radioButtonso[findbodyo]->setChecked(true);
-    }
+    radioButtonso[findbodyo+1]->setChecked(true);
+    selectedValueo=findbodyo;
+    
     
     buttonGroupi = new QButtonGroup;
+    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtoni->setVisible(false);
+    radioButtonsi.push_back(radioButtoni);
+    buttonGroupi->addButton(radioButtonsi[0], -1);
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonsi.push_back(radioButton);
-        radioButtonsi[i]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsi[i]->setGeometry(660, 260+i*40, 340, 30);
-        buttonGroupi->addButton(radioButtonsi[i], i);
+        radioButtonsi[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsi[i+1]->setGeometry(660, 260+i*40, 340, 30);
+        buttonGroupi->addButton(radioButtonsi[i+1], i);
     }
     connect(buttonGroupi, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedi);
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
-    if(findbodyi>-1){
-        radioButtonsi[findbodyi]->setChecked(true);
-    }
+    radioButtonsi[findbodyi+1]->setChecked(true);
+    selectedValuei=findbodyi;
 
     //save button
     savebutton = new QPushButton("Save", this);
@@ -221,17 +228,15 @@ void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::str
     nodenumEdit->setText(QString::fromStdString(std::to_string(nodenum)));
 
     int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoo_bodyname);
-    if(findbodyo>-1){
-        radioButtonso[findbodyo]->setChecked(true);
-    }
+    radioButtonso[findbodyo+1]->setChecked(true);
+    selectedValueo=findbodyo;
     rhooaxisxEdit->setText(QString::fromStdString(doubletostring(rho_o[0])));
     rhooaxisyEdit->setText(QString::fromStdString(doubletostring(rho_o[1])));
     rhooaxiszEdit->setText(QString::fromStdString(doubletostring(rho_o[2])));
 
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoi_bodyname);
-    if(findbodyi>-1){
-        radioButtonsi[findbodyi]->setChecked(true);
-    }
+    radioButtonsi[findbodyi+1]->setChecked(true);
+    selectedValuei=findbodyi;
 
     rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i[0])));
     rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i[1])));

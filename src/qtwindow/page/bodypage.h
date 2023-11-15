@@ -16,6 +16,8 @@ Xiyu Chen
 #include <QPushButton>
 #include <QMessageBox>
 #include "../../run_model.h"
+#include <QRadioButton>
+#include <QButtonGroup>
 
 class setmodelwindow;
 
@@ -36,6 +38,8 @@ public:
     void setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename);
 
 private:
+    std::vector<QRadioButton *> radioButtonsshape;
+    QButtonGroup *buttonGroupshape = nullptr;
     std::vector<QLabel*> qlabels;
     std::vector<QPushButton*> bodybuttons;
     QPushButton* savebutton=nullptr;
@@ -52,13 +56,13 @@ private:
     QLineEdit *positionaxisx=nullptr;
     QLineEdit *positionaxisy=nullptr;
     QLineEdit *positionaxisz=nullptr;
-    QLineEdit *shape_nameEdit=nullptr;
     QLineEdit *aEdit=nullptr;
     QLineEdit *bEdit=nullptr;
     QLineEdit *cEdit=nullptr;
     QLineEdit *lengthEdit=nullptr;
     QLineEdit *radiusEdit=nullptr;
     QFrame* rectangle=nullptr;
+    int selectedValueshape=-1;
 
 private slots:
     void plusbuttonsetting();
@@ -66,6 +70,7 @@ private slots:
     void deletebuttonsetting();
     void newbodybuttonsetting();
     void showbodysetting(int index);
+    void handleButtonClickedshape(QAbstractButton* button);
 
 };
 

@@ -179,11 +179,7 @@ std::vector<double> postprocessing::phi_shape_allnode(const std::vector<double>&
     int gammasize=gamma.size()/3;
     std::vector<double> gammaallnode;
     for(int i=0;i<gammasize;i++){
-        std::vector<double> gammaonenode;
-        gammaonenode.push_back(gamma[3*i]);
-        gammaonenode.push_back(gamma[3*i+1]);
-        gammaonenode.push_back(gamma[3*i+2]);
-        double gammaonenodere=phi_shape(gammaonenode, Body, timenum);
+        double gammaonenodere=phi_shape({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, Body, timenum);
         gammaallnode.push_back(gammaonenodere);
     }
     return gammaallnode;
@@ -192,12 +188,10 @@ std::vector<double> postprocessing::phi_shape_allnode(const std::vector<double>&
 double postprocessing::phi_shape(const std::vector<double>& gamma, body* Body, int timenum){
     std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
     std::vector<double>q = qall[timenum];
-
     std::vector<double> x;
     for (int i = 0; i < 3; i++) {
         x.push_back(gamma[i] - q[i]);
     }
-
     std::vector<std::vector<double>> axis;
     for(int i=0; i<3; i++){
         std::vector<double> axis1;

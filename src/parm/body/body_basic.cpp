@@ -25,8 +25,6 @@ bodybasic::bodybasic(const std::vector<double>& lastbodyposition, const std::vec
 }
 
 void bodybasic::setbodybasic(const std::vector<double>& q0){
-    naxis = {0.0, 1.0, 0.0};
-    rotationangle = 0;
     initialsetting_naxis = {0.0, 1.0, 0.0};
     initialsetting_angle = 0;
     setpoistionaxis(q0);
@@ -36,12 +34,6 @@ void bodybasic::setbodybasic(const std::vector<double>& q0){
     }
     else{
         q[0]=q0;
-    }
-    if(allrotationangle.empty()){
-        allrotationangle.push_back(rotationangle);
-    }
-    else{
-        allrotationangle[0]=rotationangle;
     }
     rotatestatus=0;
     if(axisangle_ref.empty()){
@@ -56,8 +48,6 @@ void bodybasic::setbodybasic(const std::vector<double>& q0){
 void bodybasic::setbodybasic(const std::vector<double>& q0, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue){
     initialsetting_naxis=naxisvalue;
     initialsetting_angle=rotationanglevalue;
-    rotationangle=rotationanglevalue;
-    naxis=naxisvalue;
     rhobody=rhobodyvalue;
     setpoistionaxis(q0);
     if(q.empty()){
@@ -65,12 +55,6 @@ void bodybasic::setbodybasic(const std::vector<double>& q0, const std::vector<do
     }
     else{
         q[0]=q0;
-    }
-    if(allrotationangle.empty()){
-        allrotationangle.push_back(rotationangle);
-    }
-    else{
-        allrotationangle[0]=rotationangle;
     }
     rotatestatus=0;
     if(axisangle_ref.empty()){
@@ -85,13 +69,11 @@ void bodybasic::setbodybasic(const std::vector<double>& q0, const std::vector<do
 void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue){
     initialsetting_naxis=naxisvalue;
     initialsetting_angle=rotationanglevalue;
-    rotationangle=rotationanglevalue;
-    naxis=naxisvalue;
     rhobody=rhobodyvalue;
-    //std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
-    //n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
+    //std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, initialsetting_naxis);
+    //n_axis=vector3timeconstant(n_axis, initialsetting_angle/180.0*M_PI);
     //std::vector<std::vector<double>> R=RodriguesMap(n_axis);
-    std::vector<std::vector<double>> R=rotationMatrix(naxis, rotationangle/180.0*M_PI);
+    std::vector<std::vector<double>> R=rotationMatrix(initialsetting_naxis, initialsetting_angle/180.0*M_PI);
     std::vector<double> qnewall;
     std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
     std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
@@ -109,12 +91,6 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
     }
     else{
         q[0]=qnewall;
-    }
-    if(allrotationangle.empty()){
-        allrotationangle.push_back(rotationangle);
-    }
-    else{
-        allrotationangle[0]=rotationangle;
     }
     rotatestatus=0;
     if(axisangle_ref.empty()){
@@ -127,10 +103,10 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
 }
 
 void bodybasic::updatebodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis){
-    std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxis);
-    //n_axis=vector3timeconstant(n_axis, rotationangle/180.0*M_PI);
+    std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, initialsetting_naxis);
+    //n_axis=vector3timeconstant(n_axis, initialsetting_angle/180.0*M_PI);
     //std::vector<std::vector<double>> R=RodriguesMap(n_axis);
-    std::vector<std::vector<double>> R=rotationMatrix(n_axis, rotationangle/180.0*M_PI);
+    std::vector<std::vector<double>> R=rotationMatrix(n_axis, initialsetting_angle/180.0*M_PI);
     std::vector<double> qnewall;
     std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
     std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
@@ -148,12 +124,6 @@ void bodybasic::updatebodybasic(const std::vector<double>& lastbodyposition, con
     }
     else{
         q[0]=qnewall;
-    }
-    if(allrotationangle.empty()){
-        allrotationangle.push_back(rotationangle);
-    }
-    else{
-        allrotationangle[0]=rotationangle;
     }
     rotatestatus=0;
     if(axisangle_ref.empty()){
@@ -181,20 +151,8 @@ std::vector<std::vector<double>> bodybasic::getq(){
     return q;
 }
 
-std::vector<double> bodybasic::getallrotationangle(){
-    return allrotationangle;
-}
-
-std::vector<double> bodybasic::getnaxis(){
-    return naxis;
-}
-
 std::vector<double> bodybasic::getrhobody(){
     return rhobody;
-}
-
-double bodybasic::getrotationangle(){
-    return rotationangle;
 }
 
 int bodybasic::getrotatestatus(){
@@ -240,27 +198,16 @@ std::vector<double> bodybasic::pushback(std::vector<double>& q, const std::vecto
 }
 
 void bodybasic::norotateaddvalue(){
-    allrotationangle.push_back(allrotationangle[allrotationangle.size()-1]);
     q.push_back(q[q.size()-1]);
     axisangle_ref.push_back(axisangle_ref[axisangle_ref.size()-1]);
 }
 
-void bodybasic::nodalupdate(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisnew, double newangle){
-    
-    naxis=naxisnew;
-    rotationangle=newangle;
-    allrotationangle.push_back(newangle+allrotationangle[allrotationangle.size()-1]);
-    
-    std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, naxisnew);
-    std::vector<std::vector<double>> R=CayleyMap(vector3timeconstant(n_axis, newangle/180.0*M_PI));
-
-    std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
-    std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
+void bodybasic::addnewbodybasic(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis){
 
     std::vector<double> qnewall;
-    qnewall=pushback(qnewall, phi_body);
+    qnewall=pushback(qnewall, newbodyposition);
     for(int i=0; i<3; i++){
-        qnewall=pushback(qnewall, matrix33time31tog(R, axis[i]));
+        qnewall=pushback(qnewall, newbodyaxis[i]);
     }
     q.push_back(qnewall);
     setpoistionaxis(qnewall);
@@ -293,13 +240,8 @@ std::vector<double> bodybasic::matrix_to_axisangle_ref_fix_space(){
 
 void bodybasic::resetforrecalc(){    
     if (q.size() > 1) {
-        rotationangle=initialsetting_angle;
-        naxis=initialsetting_naxis;
         setpoistionaxis(q[0]);
         q.erase(q.begin() + 1, q.end());
-    }
-    if (allrotationangle.size() > 1) {
-        allrotationangle.erase(allrotationangle.begin() + 1, allrotationangle.end());
     }
     if (axisangle_ref.size() > 1) {
         axisangle_ref.erase(axisangle_ref.begin() + 1, axisangle_ref.end());

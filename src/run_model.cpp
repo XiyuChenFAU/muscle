@@ -47,7 +47,6 @@ double runmodel::runprogram(){
     Model->solve_signorini();
     Model->do_postprocessing();
 
-
     io->writemusclebodyresultToFileAll(Model);
     io->writeanalyzeresultToFileAll(Model);
 

@@ -83,11 +83,16 @@
 		"tol" : 0.01
 	},
 	"solvercase":0,
+	"stepnum" : 40,
 	"joint" : 
-	{
-		"rotate_axis" : [0.0,1.0,0.0],
-		"rotate_body" : "elbow",
-		"rotationangle" : 160.0,
-		"stepnum" : 40
-	}
+	[
+		{
+			"joint_name":"joint_elbow",
+			"joint_type_name":"revolute joint",
+			"position_relative_rotate_body" : [0.0,0.0,0.0],
+			"rotation_axis_relative_rotate_body" : [0.0,1.0,0.0],
+			"rotate_body_name" : "elbow",
+			"rotation_angle" : [160.0,0.0,0.0]
+		}
+	]
 }

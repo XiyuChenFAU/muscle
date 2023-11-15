@@ -58,11 +58,11 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
         bodyname=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getname();
         parentbodyname=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getparent()->getname();
         bodybasic* bodybasicfirstbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getbodybasic();
-        std::vector<double> naxisfirstbody=bodybasicfirstbody->getnaxis();
+        std::vector<double> naxisfirstbody=bodybasicfirstbody->getinitialsetting_naxis();
         rotationaxis_x=doubletostring(naxisfirstbody[0]);
         rotationaxis_y=doubletostring(naxisfirstbody[1]);
         rotationaxis_z=doubletostring(naxisfirstbody[2]);
-        init_rotationangle=doubletostring(bodybasicfirstbody->getrotationangle());
+        init_rotationangle=doubletostring(bodybasicfirstbody->getinitialsetting_angle());
         std::vector<double> rhobodyfirstbody=bodybasicfirstbody->getrhobody();
         positionaxis_x=doubletostring(rhobodyfirstbody[0]);
         positionaxis_y=doubletostring(rhobodyfirstbody[1]);
@@ -107,7 +107,26 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
 
     //shape
     setlabel("Shape information", 660, 110, 20);
-    shape_nameEdit=settextandlabel("shape name",shape_name, 660, 150, 450, 30, allfontsize);
+    setlabel("shape name", 660, 150, allfontsize);
+
+    buttonGroupshape = new QButtonGroup;
+    QRadioButton* radioButtonshapenull = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtonshapenull->setVisible(false);
+    radioButtonsshape.push_back(radioButtonshapenull);
+    buttonGroupshape->addButton(radioButtonsshape[0], -1);
+    for(int i=0;i<shape::allshape.size();i++){
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(shape::allshape[i]), this);
+        radioButtonsshape.push_back(radioButton);
+        radioButtonsshape[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsshape[i+1]->setGeometry(660+i*110, 175, 100, 30);
+        buttonGroupshape->addButton(radioButtonsshape[i+1], i);
+    }
+    connect(buttonGroupshape, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &bodypage::handleButtonClickedshape);
+
+    int findshape=shape::getshapeindex(shape_name);
+    radioButtonsshape[findshape+1]->setChecked(true);
+    selectedValueshape=findshape;
+
     aEdit=settextandlabel("a",a_stringvalue, 660, 224, 450, 30, allfontsize);
     bEdit=settextandlabel("b",b_stringvalue, 660, 298, 450, 30, allfontsize);
     cEdit=settextandlabel("c",c_stringvalue, 660, 372, 450, 30, allfontsize);
@@ -134,6 +153,10 @@ bodypage::~bodypage(){
     for(int i=0;i<qlabels.size();i++){
         delete qlabels[i];
     }
+    for(int i=0;i<radioButtonsshape.size();i++){
+        delete radioButtonsshape[i];
+    }
+    delete buttonGroupshape;
     delete savebutton;
     delete deletebutton;
     delete newbodybutton;
@@ -147,7 +170,6 @@ bodypage::~bodypage(){
     delete positionaxisx;
     delete positionaxisy;
     delete positionaxisz;
-    delete shape_nameEdit;
     delete aEdit;
     delete bEdit;
     delete cEdit;
@@ -216,7 +238,10 @@ void bodypage::setalltextedit(const std::string& bodyname, const std::string& pa
     positionaxisx->setText(QString::fromStdString(doubletostring(rhobody[0])));
     positionaxisy->setText(QString::fromStdString(doubletostring(rhobody[1])));
     positionaxisz->setText(QString::fromStdString(doubletostring(rhobody[2])));
-    shape_nameEdit->setText(QString::fromStdString(shapename));
+    
+    int findshape=shape::getshapeindex(shapename);
+    radioButtonsshape[findshape+1]->setChecked(true);
+    selectedValueshape=findshape;
     aEdit->setText(QString::fromStdString(doubletostring(a)));
     bEdit->setText(QString::fromStdString(doubletostring(b)));
     cEdit->setText(QString::fromStdString(doubletostring(c)));
@@ -239,13 +264,18 @@ void bodypage::plusbuttonsetting(){
 
 void bodypage::savebuttonsetting(){
     body* findparentbody=setmodelwin->getRunmodel()->getModel()->getparm()->findbody(parentbody_nameEdit->text().toStdString());
-    if(findparentbody==nullptr){
-        errorbox("please check parent body name, parent does not exist");
+    if(findparentbody==nullptr || selectedValueshape<0){
+        if(findparentbody==nullptr){
+            errorbox("please check parent body name, parent does not exist");
+        }
+        if(selectedValueshape<0){
+            errorbox("please check shape name, it does not exist");
+        }
     }
     else{
         std::vector<double> naxisvalue={rotationaxisx->text().toDouble(),rotationaxisy->text().toDouble(),rotationaxisz->text().toDouble()};
         std::vector<double> rhobodyvalue={positionaxisx->text().toDouble(),positionaxisy->text().toDouble(),positionaxisz->text().toDouble()};
-        setmodelwin->getRunmodel()->getModel()->getparm()->addbody(body_nameEdit->text().toStdString(), parentbody_nameEdit->text().toStdString(), naxisvalue, initrotationangle->text().toDouble(), rhobodyvalue, aEdit->text().toDouble(), bEdit->text().toDouble(), cEdit->text().toDouble(), lengthEdit->text().toDouble(), radiusEdit->text().toDouble(), shape_nameEdit->text().toStdString());
+        setmodelwin->getRunmodel()->getModel()->getparm()->addbody(body_nameEdit->text().toStdString(), parentbody_nameEdit->text().toStdString(), naxisvalue, initrotationangle->text().toDouble(), rhobodyvalue, aEdit->text().toDouble(), bEdit->text().toDouble(), cEdit->text().toDouble(), lengthEdit->text().toDouble(), radiusEdit->text().toDouble(), shape::allshape[selectedValueshape]);
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()>bodybuttons.size()){
             newbodybutton->setVisible(false);
             for(int i=0;i<bodybuttons.size();i++){
@@ -310,7 +340,7 @@ void bodypage::newbodybuttonsetting(){
 
 void bodypage::showbodysetting(int index){
     body* Body=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
-    setalltextedit(Body->getname(), Body->getparent()->getname(), Body->getbodybasic()->getnaxis(), Body->getbodybasic()->getrotationangle(), Body->getbodybasic()->getrhobody(), Body->getshape()->geta(), Body->getshape()->getb(), Body->getshape()->getc(), Body->getshape()->getlength(), Body->getshape()->getradius(), Body->getshape()->getshapename());
+    setalltextedit(Body->getname(), Body->getparent()->getname(), Body->getbodybasic()->getinitialsetting_naxis(), Body->getbodybasic()->getinitialsetting_angle(), Body->getbodybasic()->getrhobody(), Body->getshape()->geta(), Body->getshape()->getb(), Body->getshape()->getc(), Body->getshape()->getlength(), Body->getshape()->getradius(), Body->getshape()->getshapename());
     for(int i=0;i<bodybuttons.size();i++){
         if(index==i){
             bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
@@ -322,4 +352,8 @@ void bodypage::showbodysetting(int index){
     if(newbodybutton->isVisible()){
         newbodybutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
     }
+}
+
+void bodypage::handleButtonClickedshape(QAbstractButton* button){
+    selectedValueshape = buttonGroupshape->id(button);
 }

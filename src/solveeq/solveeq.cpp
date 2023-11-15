@@ -11,7 +11,7 @@ Xiyu Chen
 solveeq::solveeq(){
     ipopt=new IPOPT();
     Constraint=new constraint();
-    setproblemtosolve("", {0.0,0.0,0.0}, 0.0, 0);
+    setstepnum(0);
     Objective=new objective();
 }
     
@@ -25,10 +25,6 @@ IPOPT* solveeq::getipopt(){
     return ipopt;
 }
 
-std::vector<double> solveeq::getrotationmodel(){
-    return rotationmodel;
-}
-
 void solveeq::setipoptoption(double tolvalue,int max_itervalue,const std::string& linear_solvervalue,int print_levelvalue,const std::string& hessian_approximationvalue){
     ipopt->settol(tolvalue);
     ipopt->setmax_iter(max_itervalue);
@@ -37,33 +33,8 @@ void solveeq::setipoptoption(double tolvalue,int max_itervalue,const std::string
     ipopt->sethessian_approximation(hessian_approximationvalue);
 }
 
-void solveeq::setproblemtosolve(std::string rotatebodyvalue, std::vector<double> naxisvalue, double rotationanglevalue, double stepnumvalue){
-    rotatebody=rotatebodyvalue;
-    naxis=naxisvalue;
-    rotationangle=rotationanglevalue;
+void solveeq::setstepnum(int stepnumvalue){
     stepnum=stepnumvalue;
-    if(stepnum==0){
-        rotationanglestep=0.0;
-    }
-    else{
-        rotationanglestep=rotationangle/stepnum;
-    }
-}
-
-std::string solveeq::getrotatebody(){
-    return rotatebody;
-}
-
-std::vector<double> solveeq::getnaxis(){
-    return naxis;
-}
-    
-double solveeq::getrotationangle(){
-    return rotationangle;
-}
-    
-double solveeq::getrotationanglestep(){
-    return rotationanglestep;
 }
 
 int solveeq::getstepnum(){
@@ -76,7 +47,9 @@ objective* solveeq::getObjective(){
 
 void solveeq::solvesignorinirotate(Parm* parm){
     std::vector<std::vector<double>> jointnaxisall;
-    jointnaxisall.push_back(parm->findbody(rotatebody)->getbodybasic()->getposition());
+    for(int i=0;i<parm->getn_joints();i++){
+        jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos());
+    }
     //variable
     int variablenum=parm->getvariable();
     SX x = SX::sym("x", variablenum);
@@ -112,21 +85,11 @@ void solveeq::solvesignorinirotate(Parm* parm){
 void solveeq::solvesignorini(Parm* parm){
     int loopnum = stepnum+1;
     if(stepnum==0){
-        loopnum=0;
-    }
-    std::vector<double> rotation;
-    for(int i=0;i<loopnum;i++){
-        rotation.push_back(rotationanglestep*i);
+        loopnum=2;
     }
     for(int i=0;i<loopnum;i++){
-        if(i==0){
-            parm->rotatebodyupdate(rotatebody, naxis, 0.0);
-        }
-        else{
-            parm->rotatebodyupdate(rotatebody, naxis, rotationanglestep);
-        }
+        parm->rotatebodyupdate(loopnum-1);
         solvesignorinirotate(parm);
     }
-    rotationmodel=rotation;
 }
 

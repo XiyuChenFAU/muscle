@@ -36,8 +36,8 @@ public:
 
     void errorbox(std::string errormessage);
 
-    void setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum);
-
+    void setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal);
+    void setlocalglobal();
 
 private:
     std::vector<QLabel*> qlabels;
@@ -49,6 +49,9 @@ private:
     setmodelwindow *setmodelwin=nullptr;
     QLineEdit *musclenameEdit=nullptr;
     QLineEdit *nodenumEdit=nullptr;
+
+    QLabel *positionrefer_o=nullptr;
+    QLabel *positionrefer_i=nullptr;
 
     QLineEdit *rhoobodyEdit=nullptr;
     QLineEdit *rhooaxisxEdit=nullptr;
@@ -64,8 +67,13 @@ private:
     QButtonGroup *buttonGroupo = nullptr;
     std::vector<QRadioButton *> radioButtonsi;
     QButtonGroup *buttonGroupi = nullptr;
+    std::vector<QRadioButton *> radioButtonsgloballocal;
+    QButtonGroup *buttonGroupgloballocal = nullptr;
     int selectedValueo=-1;
     int selectedValuei=-1;
+
+    int selectedValuelocal=-1;
+    muscle* Muscle=nullptr;
 
 private slots:
     void plusbuttonsetting();
@@ -75,6 +83,7 @@ private slots:
     void showmusclesetting(int index);
     void handleButtonClickedo(QAbstractButton* button);
     void handleButtonClickedi(QAbstractButton* button);
+    void handleButtonClickedtype(QAbstractButton* button);
 };
 
 #endif // MUSCLEPAGE_H

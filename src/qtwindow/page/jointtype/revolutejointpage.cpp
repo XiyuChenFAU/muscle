@@ -25,7 +25,9 @@ revolutejointpage::revolutejointpage(jointpage *Jointpage, QWidget *parent):
     qedits.push_back(axisyedit);
     QLineEdit *axiszedit=settextandlabel("rotation axis z","0", 0, 160, 300, 30, allfontsize);
     qedits.push_back(axiszedit);
-    QLineEdit *axisangleedit=settextandlabel("rotation angle","0", 0, 240, 300, 30, allfontsize);
+    QLineEdit *axisinitialangleedit=settextandlabel("initial rotation angle","0", 0, 240, 140, 30, allfontsize);
+    qedits.push_back(axisinitialangleedit);
+    QLineEdit *axisangleedit=settextandlabel("rotation angle","0", 160, 240, 140, 30, allfontsize);
     qedits.push_back(axisangleedit);
 
     setforjointi(0);
@@ -90,11 +92,13 @@ void revolutejointpage::setforjointi(int index){
     else{
         joint* Joint=Jointpage->getrunmodel()->getModel()->getparm()->getjointindex(index);
         std::vector<double> axisvector=Joint->getaxisvector();
+        std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
         std::vector<double> rotationangle=Joint->getrotationangle();
         qedits[0]->setText(QString::fromStdString(doubletostring(axisvector[0])));
         qedits[1]->setText(QString::fromStdString(doubletostring(axisvector[1])));
         qedits[2]->setText(QString::fromStdString(doubletostring(axisvector[2])));
-        qedits[3]->setText(QString::fromStdString(doubletostring(rotationangle[0])));
+        qedits[3]->setText(QString::fromStdString(doubletostring(initialrotationangle[0])));
+        qedits[4]->setText(QString::fromStdString(doubletostring(rotationangle[0])));
     }
 }
 

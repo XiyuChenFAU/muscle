@@ -77,17 +77,37 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
 
     musclenameEdit=settextandlabel("muscle name",musclenamestring, 10, 150, 450, 30, allfontsize);
     nodenumEdit=settextandlabel("node number",nodenumstring, 660, 150, 450, 30, allfontsize);
-    setlabel("origin body name", 10, 230,allfontsize);
-    setlabel("origin position refer body coordinate", 300, 230, allfontsize);
-    rhooaxisxEdit = settextandlabel("axis x",rhoostring_axis_x, 360, 265, 100, 30, allfontsize);
-    rhooaxisyEdit = settextandlabel("axis y",rhoostring_axis_y, 360, 340, 100, 30, allfontsize);
-    rhooaxiszEdit = settextandlabel("axis z",rhoostring_axis_z, 360, 425, 100, 30, allfontsize);
 
-    setlabel("insertion body name", 660, 230,allfontsize);
-    setlabel("insertion position refer body coordinate", 950, 230, allfontsize);
-    rhoiaxisxEdit = settextandlabel("axis x",rhoistring_axis_x, 1010, 255, 100, 30, allfontsize);
-    rhoiaxisyEdit = settextandlabel("axis y",rhoistring_axis_y, 1010, 340, 100, 30, allfontsize);
-    rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 1010, 425, 100, 30, allfontsize);
+    buttonGroupgloballocal = new QButtonGroup;
+    QRadioButton* radioButtonlocalnull = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtonlocalnull->setVisible(false);
+    radioButtonsgloballocal.push_back(radioButtonlocalnull);
+    buttonGroupgloballocal->addButton(radioButtonsgloballocal[0], -1);
+    for(int i=0;i<bodybasic::alltype.size();i++){
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(bodybasic::alltype[i]), this);
+        radioButtonsgloballocal.push_back(radioButton);
+        radioButtonsgloballocal[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsgloballocal[i+1]->setGeometry(10+i*230, 230, 220, 30);
+        buttonGroupgloballocal->addButton(radioButtonsgloballocal[i+1], i);
+    }
+    connect(buttonGroupgloballocal, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedtype);
+
+    radioButtonsgloballocal[1]->setChecked(true);
+    selectedValuelocal=0;
+
+    setlabel("origin body name", 10, 270,allfontsize);
+    setlabel("origin position refer body coordinate", 300, 270, allfontsize);
+    positionrefer_o=qlabels.back();
+    rhooaxisxEdit = settextandlabel("axis x",rhoostring_axis_x, 360, 305, 100, 30, allfontsize);
+    rhooaxisyEdit = settextandlabel("axis y",rhoostring_axis_y, 360, 390, 100, 30, allfontsize);
+    rhooaxiszEdit = settextandlabel("axis z",rhoostring_axis_z, 360, 475, 100, 30, allfontsize);
+
+    setlabel("insertion body name", 660, 270,allfontsize);
+    setlabel("insertion position refer body coordinate", 950, 270, allfontsize);
+    positionrefer_i=qlabels.back();
+    rhoiaxisxEdit = settextandlabel("axis x",rhoistring_axis_x, 1010, 305, 100, 30, allfontsize);
+    rhoiaxisyEdit = settextandlabel("axis y",rhoistring_axis_y, 1010, 390, 100, 30, allfontsize);
+    rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 1010, 475, 100, 30, allfontsize);
 
     buttonGroupo = new QButtonGroup;
     QRadioButton* radioButtono = new QRadioButton(QString::fromStdString("null"), this);
@@ -98,7 +118,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonso.push_back(radioButton);
         radioButtonso[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonso[i+1]->setGeometry(10, 260+i*40, 340, 30);
+        radioButtonso[i+1]->setGeometry(10, 300+i*40, 340, 30);
         buttonGroupo->addButton(radioButtonso[i+1], i);
     }
     connect(buttonGroupo, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedo);
@@ -116,7 +136,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonsi.push_back(radioButton);
         radioButtonsi[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsi[i+1]->setGeometry(660, 260+i*40, 340, 30);
+        radioButtonsi[i+1]->setGeometry(660, 300+i*40, 340, 30);
         buttonGroupi->addButton(radioButtonsi[i+1], i);
     }
     connect(buttonGroupi, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedi);
@@ -127,13 +147,13 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     //save button
     savebutton = new QPushButton("Save", this);
     savebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    savebutton->setGeometry(1010, 530, 100, 50);
+    savebutton->setGeometry(1010, 570, 100, 50);
     connect(savebutton, &QPushButton::clicked, this, &musclepage::savebuttonsetting);
 
     //delete button
     deletebutton = new QPushButton("Delete muscle", this);
     deletebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    deletebutton->setGeometry(1010, 620, 100, 50);
+    deletebutton->setGeometry(1010, 660, 100, 50);
     connect(deletebutton, &QPushButton::clicked, this, &musclepage::deletebuttonsetting);
 }
 
@@ -151,6 +171,10 @@ musclepage::~musclepage(){
     for(int i=0;i<radioButtonsi.size();i++){
         delete radioButtonsi[i];
     }
+    for(int i=0;i<radioButtonsgloballocal.size();i++){
+        delete radioButtonsgloballocal[i];
+    }
+    delete buttonGroupgloballocal;
     delete buttonGroupo;
     delete buttonGroupi;
     
@@ -222,7 +246,7 @@ void musclepage::errorbox(std::string errormessage){
     errorMessage.exec();
 }
 
-void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum){
+void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal){
     
     musclenameEdit->setText(QString::fromStdString(name));
     nodenumEdit->setText(QString::fromStdString(std::to_string(nodenum)));
@@ -241,6 +265,10 @@ void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::str
     rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i[0])));
     rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i[1])));
     rhoiaxiszEdit->setText(QString::fromStdString(doubletostring(rho_i[2])));
+
+    radioButtonsgloballocal[localglobal+1]->setChecked(true);
+    selectedValuelocal=localglobal;
+    setlocalglobal();
 }
 
 void musclepage::plusbuttonsetting(){
@@ -249,7 +277,7 @@ void musclepage::plusbuttonsetting(){
         newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
         newmusclebutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70, 50, 70, 50);
         plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70+70, 50, 50, 50);
-        setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0);
+        setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1);
         for(int i=0;i<musclebuttons.size();i++){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
         }
@@ -257,18 +285,21 @@ void musclepage::plusbuttonsetting(){
 }
 
 void musclepage::savebuttonsetting(){
-    if(selectedValueo<0 || selectedValuei<0){
+    if(selectedValueo<0 || selectedValuei<0 || selectedValuelocal<0){
         if(selectedValueo<0 ){
             errorbox("please check origin body name, it does not exist");
         }
         if(selectedValuei<0){
             errorbox("please check insertion body name, it does not exist");
         }
+        if(selectedValuelocal<0){
+            errorbox("please select local or global");
+        }
     }
     else{
         std::vector<double> rhooaxisvalue={rhooaxisxEdit->text().toDouble(),rhooaxisyEdit->text().toDouble(),rhooaxiszEdit->text().toDouble()};
         std::vector<double> rhoiaxisvalue={rhoiaxisxEdit->text().toDouble(),rhoiaxisyEdit->text().toDouble(),rhoiaxiszEdit->text().toDouble()};
-        setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt());
+        setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal);
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()>musclebuttons.size()){
             newmusclebutton->setVisible(false);
             for(int i=0;i<musclebuttons.size();i++){
@@ -328,12 +359,12 @@ void musclepage::newmusclebuttonsetting(){
         musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
     }
     newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0);
+    setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1);
 }
 
 void musclepage::showmusclesetting(int index){
-    muscle* Muscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(index);
-    setalltextedit(Muscle->getrho_o(), Muscle->getrhoo_bodyname(), Muscle->getrho_i(), Muscle->getrhoi_bodyname(), Muscle->getname(), Muscle->getnodenum());
+    Muscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(index);
+    setalltextedit(Muscle->getrho_o(), Muscle->getrhoo_bodyname(), Muscle->getrho_i(), Muscle->getrhoi_bodyname(), Muscle->getname(), Muscle->getnodenum(), 0);
     for(int i=0;i<musclebuttons.size();i++){
         if(index==i){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
@@ -354,3 +385,43 @@ void musclepage::handleButtonClickedo(QAbstractButton* button){
 void musclepage::handleButtonClickedi(QAbstractButton* button){
     selectedValuei = buttonGroupi->id(button);
 }
+
+void musclepage::setlocalglobal(){
+    
+        if(selectedValuelocal==0){
+            positionrefer_o->setText(QString::fromStdString("origin position refer body coordinate")); 
+            positionrefer_i->setText(QString::fromStdString("insertion position refer body coordinate")); 
+            if(Muscle!=nullptr){
+                std::vector<double> rho_o_position_local=Muscle->getrho_o();
+                rhooaxisxEdit->setText(QString::fromStdString(doubletostring(rho_o_position_local[0])));
+                rhooaxisyEdit->setText(QString::fromStdString(doubletostring(rho_o_position_local[1])));
+                rhooaxiszEdit->setText(QString::fromStdString(doubletostring(rho_o_position_local[2])));
+                std::vector<double> rho_i_position_local=Muscle->getrho_i();
+                rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i_position_local[0])));
+                rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i_position_local[1])));
+                rhoiaxiszEdit->setText(QString::fromStdString(doubletostring(rho_i_position_local[2])));
+            }
+        }
+        if(selectedValuelocal==1){
+            positionrefer_o->setText(QString::fromStdString("origin position refer fix space")); 
+            positionrefer_i->setText(QString::fromStdString("insertion position refer fix space"));
+            if(Muscle!=nullptr){
+                std::vector<double> rho_o_position_global=Muscle->getrho_o_position_initial_global();
+                rhooaxisxEdit->setText(QString::fromStdString(doubletostring(rho_o_position_global[0])));
+                rhooaxisyEdit->setText(QString::fromStdString(doubletostring(rho_o_position_global[1])));
+                rhooaxiszEdit->setText(QString::fromStdString(doubletostring(rho_o_position_global[2])));
+                
+                std::vector<double> rho_i_position_global=Muscle->getrho_i_position_initial_global();
+                rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i_position_global[0])));
+                rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i_position_global[1])));
+                rhoiaxiszEdit->setText(QString::fromStdString(doubletostring(rho_i_position_global[2])));
+            }
+        }
+
+}
+
+void musclepage::handleButtonClickedtype(QAbstractButton* button){
+    selectedValuelocal = buttonGroupgloballocal->id(button);
+    setlocalglobal();
+}
+

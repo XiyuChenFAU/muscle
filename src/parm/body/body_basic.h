@@ -17,10 +17,10 @@ Xiyu Chen
 class bodybasic {
 public:
     bodybasic(const std::vector<double>& q0);
-    bodybasic(const std::vector<double>& q0, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue);
+    bodybasic(const std::vector<double>& positionglobal, const std::vector<double>& naxisvalueglobal, double rotationanglevalueglobal, bodybasic* parentbodybasic);
     bodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue);
     void setbodybasic(const std::vector<double>& q0);
-    void setbodybasic(const std::vector<double>& q0, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue);
+    void setbodybasic(const std::vector<double>& positionglobal, const std::vector<double>& naxisvalueglobal, double rotationanglevalueglobal, bodybasic* parentbodybasic);
     void setbodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue);
     void updatebodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis);
     ~bodybasic();
@@ -40,6 +40,7 @@ public:
     void PrintParameters(const std::vector<double>& q0);
     std::vector<double> matrix_to_axisangle_ref_fix_space();
     void resetforrecalc();
+    static std::vector<std::string> alltype;
 
 private:
     std::vector<double> position;
@@ -50,6 +51,7 @@ private:
     int rotatestatus;
     std::vector<double> initialsetting_naxis;
     double initialsetting_angle;
+    
 };
 
 #endif // BODY_BASIC_H

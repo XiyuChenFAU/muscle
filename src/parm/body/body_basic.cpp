@@ -10,13 +10,15 @@ Xiyu Chen
 
 using namespace std;
 
+std::vector<std::string> bodybasic::alltype={"local","global"};
+
 bodybasic::bodybasic(const std::vector<double>& q0){
     setbodybasic(q0);
     //PrintParameters(q0);
 }
 
-bodybasic::bodybasic(const std::vector<double>& q0, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue){
-    setbodybasic(q0, naxisvalue, rotationanglevalue, rhobodyvalue);
+bodybasic::bodybasic(const std::vector<double>& positionglobal, const std::vector<double>& naxisvalueglobal, double rotationanglevalueglobal, bodybasic* parentbodybasic){
+    setbodybasic(positionglobal, naxisvalueglobal, rotationanglevalueglobal, parentbodybasic);
     //PrintParameters(q0);
 }
 
@@ -45,18 +47,26 @@ void bodybasic::setbodybasic(const std::vector<double>& q0){
     //PrintParameters(q0);
 }
 
-void bodybasic::setbodybasic(const std::vector<double>& q0, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue){
-    initialsetting_naxis=naxisvalue;
-    initialsetting_angle=rotationanglevalue;
-    rhobody=rhobodyvalue;
-    setpoistionaxis(q0);
+void bodybasic::setbodybasic(const std::vector<double>& positionglobal, const std::vector<double>& naxisvalueglobal, double rotationanglevalueglobal, bodybasic* parentbodybasic){
+
+    initialsetting_naxis=globaltolocal(parentbodybasic->getposition(),parentbodybasic->getaxis(), naxisvalueglobal);
+    initialsetting_angle=rotationanglevalueglobal;
+    rhobody=globaltolocal(parentbodybasic->getposition(),parentbodybasic->getaxis(), positionglobal);
+    position=positionglobal;
+    rotatestatus=0;
+    axis=matrixtranspose(rotationMatrix(naxisvalueglobal, rotationanglevalueglobal/180.0*M_PI));
+    std::vector<double> qnewall;
+    qnewall=pushback(qnewall, position);
+    for(int i=0; i<3; i++){
+        qnewall=pushback(qnewall, axis[i]);
+    }
+    
     if(q.empty()){
-        q.push_back(q0);
+        q.push_back(qnewall);
     }
     else{
-        q[0]=q0;
+        q[0]=qnewall;
     }
-    rotatestatus=0;
     if(axisangle_ref.empty()){
         axisangle_ref.push_back(matrix_to_axisangle_ref_fix_space());
     }

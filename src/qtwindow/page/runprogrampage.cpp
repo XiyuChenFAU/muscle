@@ -48,9 +48,6 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     scaleeditbutton->setGeometry(570, 30, 100, 50);
     connect(scaleeditbutton, &QPushButton::clicked, this, &runprogrampage::setscale);
 
-
-    labels.push_back(setlabel(setmodelwin->getRunmodel()->getModel()->getparm()->getjointindexevenempty(0)->getbodyname(), 10, 100 ,15));
-    labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
     labels.push_back(setlabel("initial", 500, 100 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
     int loopnum;
@@ -68,8 +65,8 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     sliders.push_back(slider);
     QLabel* labelzeroa=setlabel("initial", 10, 155 ,15);
     genrallabels.push_back(labelzeroa);
-    std::vector<double> rotationanglevalue=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindexevenempty(0)->getrotationangle();
-    labels.push_back(setlabel(doubletostring(rotationanglevalue[0]), 1000, 155 ,15));
+    int stepnumall=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum();
+    labels.push_back(setlabel(std::to_string(stepnumall), 1000, 155 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
 
 
@@ -286,17 +283,10 @@ void runprogrampage::drawmuscle(int muscleindex, int rotationindex, int previous
 }
 
 void runprogrampage::updateSquareSize(int size){
-    std::vector<double> rotationanglevalue=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindexevenempty(0)->getrotationangle();
-    if(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()==0){
-        currentrotationangle=0.0;
-    }
-    else{
-        currentrotationangle = (size-1) * rotationanglevalue[0]/setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum(); // 30 is a factor to control the square size
-    }
     if(size==0){
-        labels[1]->setText(QString::fromStdString("initial"));
+        labels[0]->setText(QString::fromStdString("initial"));
     }else{
-        labels[1]->setText(QString::fromStdString(doubletostring(currentrotationangle)));
+        labels[0]->setText(QString::fromStdString("stepnum: "+std::to_string(size-1)));
     }
     if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()>0){
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getbodybasic()->getaxisangle_ref().size()>size){
@@ -349,11 +339,10 @@ std::string runprogrampage::doubletostring(double num) {
 }
 
 void runprogrampage::updatevalue(){
-    labels[0]->setText(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getjointindexevenempty(0)->getbodyname()));
-    std::vector<double> rotationanglevalue=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindexevenempty(0)->getrotationangle();
-    labels[2]->setText(QString::fromStdString(doubletostring(rotationanglevalue[0])));
+    int stepnumall=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum();
+    labels[1]->setText(QString::fromStdString(std::to_string(stepnumall)));
     int loopnum;
-    if(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()){
+    if(stepnumall){
         loopnum = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()+1;
     }
     else{

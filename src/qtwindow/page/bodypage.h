@@ -35,11 +35,14 @@ public:
     double stringtodouble(std::string numStr);
     void errorbox(std::string errormessage);
 
-    void setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename);
+    void setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename,int localglobal);
+    void setlocalglobal();
 
 private:
     std::vector<QRadioButton *> radioButtonsshape;
     QButtonGroup *buttonGroupshape = nullptr;
+    std::vector<QRadioButton *> radioButtonsgloballocal;
+    QButtonGroup *buttonGroupgloballocal = nullptr;
     std::vector<QLabel*> qlabels;
     std::vector<QPushButton*> bodybuttons;
     QPushButton* savebutton=nullptr;
@@ -47,6 +50,10 @@ private:
     QPushButton* newbodybutton=nullptr;
     QPushButton* plusbutton=nullptr;
     setmodelwindow *setmodelwin=nullptr;
+
+    QLabel *positionrefer=nullptr;
+    QLabel *rotationrefer=nullptr;
+
     QLineEdit *body_nameEdit=nullptr;
     QLineEdit *parentbody_nameEdit=nullptr;
     QLineEdit *rotationaxisx=nullptr;
@@ -63,6 +70,8 @@ private:
     QLineEdit *radiusEdit=nullptr;
     QFrame* rectangle=nullptr;
     int selectedValueshape=-1;
+    int selectedValuelocal=-1;
+    body* Body=nullptr;
 
 private slots:
     void plusbuttonsetting();
@@ -71,6 +80,7 @@ private slots:
     void newbodybuttonsetting();
     void showbodysetting(int index);
     void handleButtonClickedshape(QAbstractButton* button);
+    void handleButtonClickedtype(QAbstractButton* button);
 
 };
 

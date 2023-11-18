@@ -12,23 +12,23 @@ using namespace std;
 
 std::vector<std::string> joint::alljoint_type = {"revolute joint", "spherical joint"};
 
-joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double anglevalue){
-    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, anglevalue);
+joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue){
+    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialanglevalue, anglevalue);
 }
 
-joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double angle1value, double angle2value, double angle3value){
-    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, angle1value, angle2value, angle3value);
+joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value){
+    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
 }
 
-joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& rotationanglevalue){
-    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, rotationanglevalue);
+joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& initialrotationanglevalue, const std::vector<double>& rotationanglevalue){
+    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialrotationanglevalue, rotationanglevalue);
 }
     
 joint::~joint(){
 
 }
 
-void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& rotationanglevalue){
+void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue){
     name=namevalue;
     bodyname=bodynamevalue;
     currentbody=currentbodyvalue;
@@ -37,24 +37,12 @@ void joint::setjoint(const std::string& namevalue, const std::string& bodynameva
     absolute_pos = localtoglobal(currentbody->getbodybasic()->getposition(), currentbody->getbodybasic()->getaxis(), relative_pos);
     absolute_axisvector=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), axisvectorvalue);
     axisvector=axisvectorvalue;
-    rotationangle=rotationanglevalue;
-    allrotationangle={};
-}
-
-void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double anglevalue){
-    name=namevalue;
-    bodyname=bodynamevalue;
-    currentbody=currentbodyvalue;
-    joint_type=joint_typevalue;
-    relative_pos=relative_posvalue;
-    absolute_pos = localtoglobal(currentbody->getbodybasic()->getposition(), currentbody->getbodybasic()->getaxis(), relative_pos);
-    absolute_axisvector=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), axisvectorvalue);
-    axisvector=axisvectorvalue;
+    initialrotationangle={initialanglevalue,0.0,0.0};
     rotationangle={anglevalue, 0.0, 0.0};
     allrotationangle={};
 }
 
-void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double angle1value, double angle2value, double angle3value){
+void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value){
     name=namevalue;
     bodyname=bodynamevalue;
     currentbody=currentbodyvalue;
@@ -63,7 +51,22 @@ void joint::setjoint(const std::string& namevalue, const std::string& bodynameva
     absolute_pos = localtoglobal(currentbody->getbodybasic()->getposition(), currentbody->getbodybasic()->getaxis(), relative_pos);
     axisvector={0.0,0.0,0.0};
     absolute_axisvector={0.0,0.0,0.0};
+    initialrotationangle={initialangle1value,initialangle2value,initialangle3value};
     rotationangle={angle1value, angle2value, angle3value};
+    allrotationangle={};
+}
+
+void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& initialrotationanglevalue, const std::vector<double>& rotationanglevalue){
+    name=namevalue;
+    bodyname=bodynamevalue;
+    currentbody=currentbodyvalue;
+    joint_type=joint_typevalue;
+    relative_pos=relative_posvalue;
+    absolute_pos = localtoglobal(currentbody->getbodybasic()->getposition(), currentbody->getbodybasic()->getaxis(), relative_pos);
+    absolute_axisvector=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), axisvectorvalue);
+    axisvector=axisvectorvalue;
+    initialrotationangle=initialrotationanglevalue;
+    rotationangle=rotationanglevalue;
     allrotationangle={};
 }
 
@@ -107,20 +110,29 @@ std::vector<double> joint::getallrotationangle(){
     return allrotationangle;
 }
 
+std::vector<double> joint::getinitialrotationangle(){
+    return initialrotationangle;
+}
+
 void joint::revolute_update(int nodenum,body* Body, int addrotate){
     
-    double rotationanglestep=rotationangle[0]/180.0*M_PI/nodenum;
+    double rotationanglestep=(rotationangle[0]-initialrotationangle[0])/180.0*M_PI/nodenum;
     if(addrotate){
         if(allrotationangle.empty()){
-            allrotationangle.push_back(0.0);
-            rotationanglestep=0.0;
+            allrotationangle.push_back(initialrotationangle[0]);
+            rotationanglestep=initialrotationangle[0];
         }
         else{
-            allrotationangle.push_back(allrotationangle[allrotationangle.size()-1]+rotationangle[0]/nodenum);
+            allrotationangle.push_back(allrotationangle.back()+(rotationangle[0]-initialrotationangle[0])/nodenum);
         }
     }
-
-    std::vector<std::vector<double>> R=CayleyMap(vector3timeconstant(absolute_axisvector, rotationanglestep));
+    std::vector<std::vector<double>> R;
+    if(rotationanglestep<3){
+        R=CayleyMap(vector3timeconstant(absolute_axisvector, rotationanglestep));
+    }
+    else{
+        R=RodriguesMap(vector3timeconstant(absolute_axisvector, rotationanglestep));
+    }
     std::vector<double> rhobody=vector3minus(Body->getbodybasic()->getposition(),absolute_pos);
 
     std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),Body->getbodybasic()->getposition());
@@ -183,4 +195,6 @@ int joint::getjointtypeindex(std::string joint_typename){
     }
     return index;
 }
+
+
 

@@ -31,7 +31,6 @@ Parm::~Parm() {
         delete ptr;
     }
     delete fsolve;
-    delete emptyjoint;
 }
 
 int Parm::getn_bodies(){
@@ -65,12 +64,6 @@ std::vector<joint*> Parm::getalljoint(){
 joint* Parm::getjointindex(int index){
     joint* Joint=nullptr;
     if(index<alljoint.size()){Joint=alljoint[index];}
-    return Joint;
-}
-
-joint* Parm::getjointindexevenempty(int index){
-    joint* Joint=getjointindex(index);
-    if(Joint==nullptr){Joint=emptyjoint;}
     return Joint;
 }
 
@@ -123,16 +116,16 @@ void Parm::addbody(const std::string& bodyname, const std::vector<double>& q0){
     }
 }
 
-void Parm::addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename){
+void Parm::addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename,int global){
     if(a && b && c){
-        addbody(bodyname, parentbodyname, naxis, rotationangle, rhobody, a, b, c, shapename);
+        addbody(bodyname, parentbodyname, naxis, rotationangle, rhobody, a, b, c, shapename, global);
     }
     else{
-        addbody(bodyname, parentbodyname, naxis, rotationangle, rhobody, length, radius, shapename);
+        addbody(bodyname, parentbodyname, naxis, rotationangle, rhobody, length, radius, shapename, global);
     }
 }
 
-void Parm::addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, const std::string& shapename){
+void Parm::addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, const std::string& shapename,int global){
     int addnew=1;
     for(int i=0;i<allbody.size();i++){
         if(bodyname==allbody[i]->getname()){
@@ -140,7 +133,12 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
             body* parentbody=findbody(parentbodyname);
             allbody[i]->setparent(parentbody);
             allbody[i]->setshape(a,b,c,shapename,addnew);
-            allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew);
+            if(global){
+                allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew,global);
+            }
+            else{
+                allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew);
+            }
             updatechildbody(allbody[i]);
             break;
         }
@@ -151,13 +149,18 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
         body* parentbody=findbody(parentbodyname);
         Body->setparent(parentbody);
         Body->setshape(a,b,c,shapename,addnew);
-        Body->setbodybasic(naxis, rotationangle, rhobody,addnew);
+        if(global){
+            Body->setbodybasic(naxis, rotationangle, rhobody,addnew,global);
+        }
+        else{
+            Body->setbodybasic(naxis, rotationangle, rhobody,addnew);
+        }
         allbody.push_back(Body);
         n_bodies=n_bodies+1;
     }
 }
 
-void Parm::addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double length, double radius, const std::string& shapename){
+void Parm::addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double length, double radius, const std::string& shapename,int global){
     int addnew=1;
     for(int i=0;i<allbody.size();i++){
         if(bodyname==allbody[i]->getname()){
@@ -165,7 +168,12 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
             body* parentbody=findbody(parentbodyname);
             allbody[i]->setparent(parentbody);
             allbody[i]->setshape(length,radius,shapename,addnew);
-            allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew);
+            if(global){
+                allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew,global);
+            }
+            else{
+                allbody[i]->setbodybasic(naxis, rotationangle, rhobody,addnew);
+            }
             updatechildbody(allbody[i]);
             break;
         }
@@ -176,7 +184,12 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
         body* parentbody=findbody(parentbodyname);
         Body->setparent(parentbody);
         Body->setshape(length,radius,shapename,addnew);
-        Body->setbodybasic(naxis, rotationangle, rhobody,addnew);
+        if(global){
+            Body->setbodybasic(naxis, rotationangle, rhobody,addnew,global);
+        }
+        else{
+            Body->setbodybasic(naxis, rotationangle, rhobody,addnew);
+        }
         allbody.push_back(Body);
         n_bodies=n_bodies+1;
     }
@@ -206,84 +219,79 @@ void Parm::addmuscle(muscle* Muscle){
     }    
 }
 
-void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, const std::string& global){
+void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int global){
     int add_muscle=1;
     for(int i=0;i<allmuscle.size();i++){
         if(allmuscle[i]->getname()==name){
-            allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global);
+            if(global){
+                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global);
+            }
+            else{
+                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum);
+            }
             add_muscle=0;
             break;
         }
     }
     if(add_muscle){
-        muscle* Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global);
+        muscle* Muscle=nullptr;
+        if(global){
+            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global);
+        }
+        else{
+            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum);
+        }
         allmuscle.push_back(Muscle);
         n_muscles=n_muscles+1;
     }   
 }
 
-void Parm::addmuscle(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum){
-    int add_muscle=1;
-    for(int i=0;i<allmuscle.size();i++){
-        if(allmuscle[i]->getname()==name){
-            allmuscle[i]->setmuscle(allbody, rho_o, rhoo_bodyname, rho_i, rhoi_bodyname, name, nodenum);
-            add_muscle=0;
-            break;
-        }
-    }
-    if(add_muscle){
-        muscle* Muscle=new muscle(allbody, rho_o, rhoo_bodyname, rho_i, rhoi_bodyname, name, nodenum);
-        allmuscle.push_back(Muscle);
-        n_muscles=n_muscles+1;
-    }
-}
-
-void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double anglevalue){
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue){
     body* currentbodyvalue=findbody(bodynamevalue);
     int add_joint=1;
     for(int i=0;i<alljoint.size();i++){
         if(alljoint[i]->getname() ==namevalue){
-            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, anglevalue);
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialanglevalue, anglevalue);
             add_joint=0;
             break;
         }
     }
     if(add_joint){
-        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, anglevalue);
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialanglevalue, anglevalue);
         alljoint.push_back(Joint);
         n_joints=n_joints+1;
     }
 }
     
-void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double angle1value, double angle2value, double angle3value){
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value){
     body* currentbodyvalue=findbody(bodynamevalue);
     int add_joint=1;
     for(int i=0;i<alljoint.size();i++){
         if(alljoint[i]->getname() ==namevalue){
-            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, angle1value, angle2value, angle3value);
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
             add_joint=0;
             break;
         }
     }
     if(add_joint){
-        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, angle1value, angle2value, angle3value);
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
         alljoint.push_back(Joint);
         n_joints=n_joints+1;
     }
 }
 
-void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& rotationanglevalue){
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& initialrotationanglevalue, const std::vector<double>& rotationanglevalue){
     body* currentbodyvalue=findbody(bodynamevalue);
     int add_joint=1;
     for(int i=0;i<alljoint.size();i++){
         if(alljoint[i]->getname() ==namevalue){
-            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, rotationanglevalue);
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialrotationanglevalue, rotationanglevalue);
             add_joint=0;
             break;
         }
     }
     if(add_joint){
-        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, rotationanglevalue);
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialrotationanglevalue, rotationanglevalue);
         alljoint.push_back(Joint);
         n_joints=n_joints+1;
     }
@@ -342,9 +350,9 @@ int Parm::getvariable(){
     return vari;
 }
 
-void Parm::setallmuscleinitialeta(){
+void Parm::setallmuscleinitialeta_gamma(){
     for(int i=0;i<n_muscles;i++){
-        allmuscle[i]->setinitialeta(n_bodies);
+        allmuscle[i]->setinitialeta_gamma(allbody);
     }
 }
 
@@ -404,8 +412,4 @@ void Parm::resetallforrecalc(){
     for(int i=0;i<alljoint.size();i++){
         alljoint[i]->resetforrecalc();
     }
-}
-
-void Parm::addemptyjoint(){
-    emptyjoint=new joint("", "fix_space", allbody[0], "", {0,0,0}, {0,0,0}, {0,0,0});
 }

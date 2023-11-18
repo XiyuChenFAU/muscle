@@ -23,7 +23,7 @@ public:
     void setstepnum(int stepnumvalue);
     int getstepnum();
     objective* getObjective();
-    void solvesignorinirotate(Parm* parm);
+    void solvesignorinirotate(Parm* parm, int initialstart=0);
     void solvesignorini(Parm* parm);
     
 

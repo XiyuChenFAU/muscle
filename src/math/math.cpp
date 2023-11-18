@@ -40,6 +40,9 @@ std::vector<double> localtoglobal(const std::vector<double>& position, const std
     return vector3plus(position, matrix33time31sepcol(axis, rho));
 }
 
+std::vector<double> globaltolocal(const std::vector<double>& position, const std::vector<std::vector<double>>& axis, const std::vector<double>& rho){
+    return matrix33time31tog(axis, vector3minus(rho, position));
+}
 
 std::vector<std::vector<double>> CayleyMap(const std::vector<double>& eta){
     std::vector<std::vector<double>> A= HatVec(eta);
@@ -62,7 +65,7 @@ std::vector<std::vector<double>> HatVec(const std::vector<double>& n) {
 }
 
 std::vector<double> InverseHat(const std::vector<std::vector<double>>& hat) {
-    std::vector<double>  inv = {0.5 * (hat[2][1] - hat[1][2]), 0.5 * (hat[0][2] - hat[2][0]), 0.5 * (hat[1][0] - hat[0][1])};
+    std::vector<double> inv = {0.5 * (hat[2][1] - hat[1][2]), 0.5 * (hat[0][2] - hat[2][0]), 0.5 * (hat[1][0] - hat[0][1])};
     return inv;
 }
 

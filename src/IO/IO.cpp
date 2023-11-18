@@ -376,6 +376,13 @@ void IO::writejson(model* Model){
             axisvectorvalue.append(value);
         }
         jointObject["rotation_axis_relative_rotate_body"] = axisvectorvalue;
+
+        Json::Value initial_rotationanglevalue(Json::arrayValue);
+        for (const auto& value : Model->getparm()->getjointindex(i)->getinitialrotationangle()) {
+            initial_rotationanglevalue.append(value);
+        }
+        jointObject["initial_rotation_angle"] = initial_rotationanglevalue;
+
         Json::Value rotationanglevalue(Json::arrayValue);
         for (const auto& value : Model->getparm()->getjointindex(i)->getrotationangle()) {
             rotationanglevalue.append(value);
@@ -469,7 +476,7 @@ model* IO::readmodel(const std::string&  jsonfilename){
         double length = Shape["length"].asDouble();
         double radius = Shape["radius"].asDouble();
         std::string shapename = Shape["shape_name"].asString();
-        Model->getparm()->addbody(bodyname,parentname,n_axis,rotationangle,rho_body,a,b,c,length,radius,shapename);
+        Model->getparm()->addbody(bodyname,parentname,n_axis,rotationangle,rho_body,a,b,c,length,radius,shapename,0);
     }
 
     //muscle
@@ -490,7 +497,7 @@ model* IO::readmodel(const std::string&  jsonfilename){
         std::string rho_ibodyname = muscleObject["insertion_relative_body"].asString();
         std::string musclename = muscleObject["muscle_name"].asString();
         int nodenumber = muscleObject["node_number"].asInt();
-        Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber);
+        Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0);
     }
     //joint
     const Json::Value& jointArray = root["joint"];
@@ -508,12 +515,17 @@ model* IO::readmodel(const std::string&  jsonfilename){
         for (const Json::Value& value : rotation_axis_jointArray) {
             rotation_axis_jointvalue.push_back(value.asDouble());
         }
+        std::vector<double> initial_rotation_anglevalue;
+        const Json::Value& initial_rotation_angleArray = jointObject["initial_rotation_angle"];
+        for (const Json::Value& value : initial_rotation_angleArray) {
+            initial_rotation_anglevalue.push_back(value.asDouble());
+        }
         std::vector<double> rotation_anglevalue;
         const Json::Value& rotation_angleArray = jointObject["rotation_angle"];
         for (const Json::Value& value : rotation_angleArray) {
             rotation_anglevalue.push_back(value.asDouble());
         }
-        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, rotation_anglevalue);
+        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, initial_rotation_anglevalue, rotation_anglevalue);
     }
 
     //setipopt

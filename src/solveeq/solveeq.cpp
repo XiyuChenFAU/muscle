@@ -45,7 +45,7 @@ objective* solveeq::getObjective(){
     return Objective;
 }
 
-void solveeq::solvesignorinirotate(Parm* parm){
+void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
     std::vector<std::vector<double>> jointnaxisall;
     for(int i=0;i<parm->getn_joints();i++){
         jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos());
@@ -68,9 +68,20 @@ void solveeq::solvesignorinirotate(Parm* parm){
     arg["ubg"] = Constraint->getupperlimitall();
     std::vector<double> x0;
     std::vector<muscle*> allmuscle=parm->getallmuscle();
-    for(int i=0;i<parm->getn_muscles();i++){
-        std::vector<std::vector<double>> muscleparmall=allmuscle[i]->getmuscleparm();
-        x0.insert(x0.end(), muscleparmall[muscleparmall.size()-1].begin(), muscleparmall[muscleparmall.size()-1].end());
+    if(initialstart){
+        for(int i=0;i<parm->getn_muscles();i++){
+            std::vector<std::vector<double>> gammaall_muscle = allmuscle[i]->getgammaall();
+            std::vector<std::vector<double>> etaall_muscle = allmuscle[i]->getetaall();
+            x0.insert(x0.end(), gammaall_muscle.back().begin(), gammaall_muscle.back().end());
+            x0.insert(x0.end(), etaall_muscle.back().begin(), etaall_muscle.back().end());
+            allmuscle[i]->deletegammaalllast();
+        }
+    }
+    else{
+        for(int i=0;i<parm->getn_muscles();i++){
+            std::vector<std::vector<double>> muscleparmall=allmuscle[i]->getmuscleparm();
+            x0.insert(x0.end(), muscleparmall[muscleparmall.size()-1].begin(), muscleparmall[muscleparmall.size()-1].end());
+        }
     }
     arg["x0"] = x0;
     // Solve the NLP
@@ -85,11 +96,16 @@ void solveeq::solvesignorinirotate(Parm* parm){
 void solveeq::solvesignorini(Parm* parm){
     int loopnum = stepnum+1;
     if(stepnum==0){
-        loopnum=2;
+        loopnum=0;
     }
     for(int i=0;i<loopnum;i++){
         parm->rotatebodyupdate(loopnum-1);
-        solvesignorinirotate(parm);
+        if(i==0){
+            parm->setallmuscleinitialeta_gamma();
+            solvesignorinirotate(parm,1);
+        }else{
+            solvesignorinirotate(parm,0);
+        }
     }
 }
 

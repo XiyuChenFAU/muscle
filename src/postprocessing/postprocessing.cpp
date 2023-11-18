@@ -18,7 +18,6 @@ void postprocessing::get_force_allmuscle(Parm* parm){
     std::vector<std::vector<std::vector<double>>> forceallnodevalue;
     get_length_allmuscle(parm);
     getphiall(parm);
-
     for(int i=0;i<allmuscle.size();i++){
         std::vector<double> totalforceallvalue1;
         std::vector<std::vector<double>> forceallnodevalue1;

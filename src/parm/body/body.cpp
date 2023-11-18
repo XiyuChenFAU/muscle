@@ -126,12 +126,12 @@ void body::setbodybasic(const std::vector<double>& q0, int addnew){
     
 }
 
-void body::setbodybasic(const std::vector<double>& q0, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, int addnew){
+void body::setbodybasic(const std::vector<double>& naxisvalueglobal, double rotationanglevalueglobal, const std::vector<double>& positionglobal, int addnew, int global){
     if(addnew){
-        BodyBasic=new bodybasic(q0, naxis, rotationangle, rhobody);
+        BodyBasic=new bodybasic(positionglobal, naxisvalueglobal, rotationanglevalueglobal, parent->getbodybasic());
     }
     else{
-        BodyBasic->setbodybasic(q0, naxis, rotationangle, rhobody);
+        BodyBasic->setbodybasic(positionglobal, naxisvalueglobal, rotationanglevalueglobal, parent->getbodybasic());
     }
 }
 

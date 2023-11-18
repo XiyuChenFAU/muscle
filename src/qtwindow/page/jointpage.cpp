@@ -280,16 +280,20 @@ void jointpage::savesetting(){
         if(selectedValuetype==0){
             std::vector<QLineEdit *> alleditsrevo=Revolutejointpage->getqedits();
             std::vector<double> axisvectorvalue={alleditsrevo[0]->text().toDouble(),alleditsrevo[1]->text().toDouble(),alleditsrevo[2]->text().toDouble()};
-            double anglevalue=alleditsrevo[3]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, anglevalue);
+            double initialanglevalue=alleditsrevo[3]->text().toDouble();
+            double anglevalue=alleditsrevo[4]->text().toDouble();
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, initialanglevalue, anglevalue);
         }
         if(selectedValuetype==1){
             
             std::vector<QLineEdit *> alleditsspher=Sphericaljointpage->getqedits();
-            double angle1value=alleditsspher[0]->text().toDouble();
-            double angle2value=alleditsspher[1]->text().toDouble(); 
-            double angle3value=alleditsspher[2]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, angle1value, angle2value, angle3value);
+            double initialangle1value=alleditsspher[0]->text().toDouble();
+            double initialangle2value=alleditsspher[1]->text().toDouble(); 
+            double initialangle3value=alleditsspher[2]->text().toDouble();
+            double angle1value=alleditsspher[3]->text().toDouble();
+            double angle2value=alleditsspher[4]->text().toDouble(); 
+            double angle3value=alleditsspher[5]->text().toDouble();
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
         }
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setstepnum(stepnumstringEdit->text().toInt());
 

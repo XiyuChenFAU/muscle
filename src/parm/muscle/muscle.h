@@ -16,7 +16,7 @@ Xiyu Chen
 
 class muscle {
 public:
-    muscle(const std::vector<body*>& allbody, const std::vector<double>& gamma_o, const std::string& rhoo_bodynamevalue, const std::vector<double>& gamma_i, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue, const std::string& global);
+    muscle(const std::vector<body*>& allbody, const std::vector<double>& gamma_o, const std::string& rhoo_bodynamevalue, const std::vector<double>& gamma_i, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue, int global);
     muscle(const std::vector<body*>& allbody, const std::vector<double>& rho_ovalue, const std::string& rhoo_bodynamevalue, const std::vector<double>& rho_ivalue, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue);
     ~muscle();
     void PrintParameters();
@@ -25,7 +25,7 @@ public:
     std::string getname();
     // std::vector<double> getrho_o();
     // std::vector<double> getrho_i();
-    void setmuscle(const std::vector<body*>& allbody, const std::vector<double>& gamma_o, const std::string& rhoo_bodynamevalue, const std::vector<double>& gamma_i, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue, const std::string& global);
+    void setmuscle(const std::vector<body*>& allbody, const std::vector<double>& gamma_o, const std::string& rhoo_bodynamevalue, const std::vector<double>& gamma_i, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue, int global);
     void setmuscle(const std::vector<body*>& allbody, const std::vector<double>& rho_ovalue, const std::string& rhoo_bodynamevalue, const std::vector<double>& rho_ivalue, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue);
     std::vector<std::vector<double>> getgammaall();
     std::vector<std::vector<double>> getetaall();
@@ -36,8 +36,10 @@ public:
     std::vector<double> getrho_o();
     std::string getrhoi_bodyname();
     std::vector<double> getrho_i();
-    std::vector<double> getrho_o_position(const std::vector<body*>& allbody);
-    std::vector<double> getrho_i_position(const std::vector<body*>& allbody);
+    std::vector<double> getrho_o_position();
+    std::vector<double> getrho_i_position();
+    std::vector<double> getrho_o_position_initial_global();
+    std::vector<double> getrho_i_position_initial_global();
 
     void addgamma(const std::vector<std::vector<double>>& gammanew);
     void addeta(const std::vector<std::vector<double>>& etanew);
@@ -49,9 +51,11 @@ public:
     std::vector<double> rearrangeto1D(const std::vector<std::vector<double>>& value);
     std::vector<std::vector<double>> rearrangeto2D(const std::vector<double>& value, int rownum);
     body* findbody(const std::vector<body*>& allbody, const std::string& bodyname);
-    void setinitialeta(int bodynum);
+    void setinitialeta_gamma(const std::vector<body*>& allbody);
+    void deletegammaalllast();
 
     void print2Dvalue(const std::vector<std::vector<double>>& value);
+    void printmuscleinfo();
     void resetforrecalc();
 
 
@@ -69,6 +73,8 @@ private:
     std::vector<double> rho_o;
     std::string rhoi_bodyname;
     std::vector<double> rho_i;
+    body* rhoo_body=nullptr;
+    body* rhoi_body=nullptr;
 };
 
 #endif // MUSCLE_H

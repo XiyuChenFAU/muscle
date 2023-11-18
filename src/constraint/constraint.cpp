@@ -23,8 +23,8 @@ constraint::~constraint(){
 
 std::vector<SX> constraint::constraints_fix_muscle_two_side_point(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode) {
     std::vector<SX> musclefix;
-    std::vector<double> gammarhoo=Muscle->getrho_o_position(parm->getallbody());
-    std::vector<double> gammarhoi=Muscle->getrho_i_position(parm->getallbody());
+    std::vector<double> gammarhoo=Muscle->getrho_o_position();
+    std::vector<double> gammarhoi=Muscle->getrho_i_position();
     for(int j=0;j<3;j++){
         SX muscleo=gammarhoo[j] - gammaallnode[0][j];
         musclefix.push_back(muscleo);

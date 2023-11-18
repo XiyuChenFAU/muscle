@@ -25,7 +25,6 @@ model::model(const std::string& modelname):
     qall=pushback(qall,e2);
     qall=pushback(qall,e3);
     parm->addbody("fix_space",qall);
-    parm->addemptyjoint();
 }
 
 model::~model(){
@@ -55,7 +54,6 @@ postprocessing* model::getPostprocessing(){
 }
 
 void model::solve_signorini(){
-    parm->setallmuscleinitialeta();
     Solveeq->solvesignorini(parm);
 }
 

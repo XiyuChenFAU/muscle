@@ -30,36 +30,33 @@ public:
     muscle* getmuscleindex(int index);
     std::vector<joint*> getalljoint();
     joint* getjointindex(int index);
-    joint* getjointindexevenempty(int index);
     Fsolve* getfsolve();
     void addbody(body* Body, const std::string& parentbodyname);
     void addbody(const std::string& bodyname, const std::vector<double>& q0);
-    void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename);
-    void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, const std::string& shapename);
-    void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double length, double radius, const std::string& shapename);
+    void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename,int global=0);
+    void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, const std::string& shapename,int global=0);
+    void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double length, double radius, const std::string& shapename,int global=0);
     void updatechildbody(body* Body);
 
     void addmuscle(muscle* Muscle);
-    void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,const std::string& global);
-    void addmuscle(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum);
+    void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global=0);
 
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double anglevalue);
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double angle1value, double angle2value, double angle3value);
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& rotationanglevalue);
+    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue);
+    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value);
+    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& initialrotationanglevalue, const std::vector<double>& rotationanglevalue);
 
     body* findbody(const std::string& bodyname);
     int findbodyindex(const std::string& bodyname);
     void addmuslcesolution(const std::vector<double>& solution);
     void rotatebodyupdate(int nodenum);
     int getvariable();
-    void setallmuscleinitialeta();
+    void setallmuscleinitialeta_gamma();
 
     int deletebody(const std::string& bodyname);
     int deletemuscle(const std::string& musclename);
     int deletejoint(const std::string& jointname);
 
     void resetallforrecalc();
-    void addemptyjoint();
 
 private:
     int n_bodies;
@@ -68,7 +65,6 @@ private:
     std::vector<body*> allbody;
     std::vector<muscle*> allmuscle;
     std::vector<joint*> alljoint;
-    joint* emptyjoint;
     Fsolve* fsolve=nullptr;
     int variablenum;
 };

@@ -19,11 +19,17 @@ sphericaljointpage::sphericaljointpage(jointpage *Jointpage, QWidget *parent):
 
     int allfontsize=15;
 
-    QLineEdit *axisxedit=settextandlabel("rotation angle x","0", 0, 0, 300, 30, allfontsize);
+    QLineEdit *initialanglexedit=settextandlabel("initial rotation angle x","0", 0, 0, 140, 30, allfontsize);
+    qedits.push_back(initialanglexedit);
+    QLineEdit *initialangleyedit=settextandlabel("initial rotation angle y","0", 0, 80, 140, 30, allfontsize);
+    qedits.push_back(initialangleyedit);
+    QLineEdit *initialanglezedit=settextandlabel("initial rotation angle z","0", 0, 160, 140, 30, allfontsize);
+    qedits.push_back(initialanglezedit);
+    QLineEdit *axisxedit=settextandlabel("rotation angle x","0", 160, 0, 140, 30, allfontsize);
     qedits.push_back(axisxedit);
-    QLineEdit *axisyedit=settextandlabel("rotation angle y","0", 0, 80, 300, 30, allfontsize);
+    QLineEdit *axisyedit=settextandlabel("rotation angle y","0", 160, 80, 140, 30, allfontsize);
     qedits.push_back(axisyedit);
-    QLineEdit *axiszedit=settextandlabel("rotation angle z","0", 0, 160, 300, 30, allfontsize);
+    QLineEdit *axiszedit=settextandlabel("rotation angle z","0", 160, 160, 140, 30, allfontsize);
     qedits.push_back(axiszedit);
 
     setforjointi(0);
@@ -87,10 +93,14 @@ void sphericaljointpage::setforjointi(int index){
     }
     else{
         joint* Joint=Jointpage->getrunmodel()->getModel()->getparm()->getjointindex(index);
+        std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
         std::vector<double> rotationangle=Joint->getrotationangle();
-        qedits[0]->setText(QString::fromStdString(doubletostring(rotationangle[0])));
-        qedits[1]->setText(QString::fromStdString(doubletostring(rotationangle[1])));
-        qedits[2]->setText(QString::fromStdString(doubletostring(rotationangle[2])));
+        qedits[0]->setText(QString::fromStdString(doubletostring(initialrotationangle[0])));
+        qedits[1]->setText(QString::fromStdString(doubletostring(initialrotationangle[1])));
+        qedits[2]->setText(QString::fromStdString(doubletostring(initialrotationangle[2])));
+        qedits[3]->setText(QString::fromStdString(doubletostring(rotationangle[0])));
+        qedits[4]->setText(QString::fromStdString(doubletostring(rotationangle[1])));
+        qedits[5]->setText(QString::fromStdString(doubletostring(rotationangle[2])));
     }
 }
 

@@ -92,6 +92,7 @@
 			"position_relative_rotate_body" : [0.0,0.0,0.0],
 			"rotation_axis_relative_rotate_body" : [0.0,1.0,0.0],
 			"rotate_body_name" : "elbow",
+			"initial_rotation_angle" : [0.0,0.0,0.0],
 			"rotation_angle" : [160.0,0.0,0.0]
 		}
 	]

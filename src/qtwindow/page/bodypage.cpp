@@ -95,15 +95,35 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
     setlabel("Basic information", 10, 110, 20);
     body_nameEdit=settextandlabel("arm name",bodyname, 10, 150, 450, 30, allfontsize);
     parentbody_nameEdit = settextandlabel("parent arm name",parentbodyname, 10, 230, 450, 30, allfontsize);
-    setlabel("rotation axis refers to the parent coordinate", 10, 310, allfontsize);
-    rotationaxisx = settextandlabel("axis x",rotationaxis_x, 10, 335, 140, 30, allfontsize);
-    rotationaxisy = settextandlabel("axis y",rotationaxis_y, 165, 335, 140, 30, allfontsize);
-    rotationaxisz = settextandlabel("axis z",rotationaxis_z, 320, 335, 140, 30, allfontsize);
-    initrotationangle = settextandlabel("rotation angle",init_rotationangle, 10, 415, 140, 30, allfontsize);
-    setlabel("position refers to the parent coordinate", 10, 495, allfontsize);
-    positionaxisx = settextandlabel("axis x",positionaxis_x, 10, 520, 140, 30, allfontsize);
-    positionaxisy = settextandlabel("axis y",positionaxis_y, 165, 520, 140, 30, allfontsize);
-    positionaxisz = settextandlabel("axis z",positionaxis_z, 320, 520, 140, 30, allfontsize);
+
+    buttonGroupgloballocal = new QButtonGroup;
+    QRadioButton* radioButtonlocalnull = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtonlocalnull->setVisible(false);
+    radioButtonsgloballocal.push_back(radioButtonlocalnull);
+    buttonGroupgloballocal->addButton(radioButtonsgloballocal[0], -1);
+    for(int i=0;i<bodybasic::alltype.size();i++){
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(bodybasic::alltype[i]), this);
+        radioButtonsgloballocal.push_back(radioButton);
+        radioButtonsgloballocal[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsgloballocal[i+1]->setGeometry(10+i*230, 310, 220, 30);
+        buttonGroupgloballocal->addButton(radioButtonsgloballocal[i+1], i);
+    }
+    connect(buttonGroupgloballocal, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &bodypage::handleButtonClickedtype);
+
+    radioButtonsgloballocal[1]->setChecked(true);
+    selectedValuelocal=0;
+
+    setlabel("rotation axis refers to the parent coordinate", 10, 350, allfontsize);
+    rotationrefer=qlabels.back();
+    rotationaxisx = settextandlabel("axis x",rotationaxis_x, 10, 375, 140, 30, allfontsize);
+    rotationaxisy = settextandlabel("axis y",rotationaxis_y, 165, 375, 140, 30, allfontsize);
+    rotationaxisz = settextandlabel("axis z",rotationaxis_z, 320, 375, 140, 30, allfontsize);
+    initrotationangle = settextandlabel("rotation angle",init_rotationangle, 10, 455, 140, 30, allfontsize);
+    setlabel("position refers to the parent coordinate", 10, 535, allfontsize);
+    positionrefer=qlabels.back();
+    positionaxisx = settextandlabel("axis x",positionaxis_x, 10, 560, 140, 30, allfontsize);
+    positionaxisy = settextandlabel("axis y",positionaxis_y, 165, 560, 140, 30, allfontsize);
+    positionaxisz = settextandlabel("axis z",positionaxis_z, 320, 560, 140, 30, allfontsize);
 
     //shape
     setlabel("Shape information", 660, 110, 20);
@@ -156,6 +176,10 @@ bodypage::~bodypage(){
     for(int i=0;i<radioButtonsshape.size();i++){
         delete radioButtonsshape[i];
     }
+    for(int i=0;i<radioButtonsgloballocal.size();i++){
+        delete radioButtonsgloballocal[i];
+    }
+    delete buttonGroupgloballocal;
     delete buttonGroupshape;
     delete savebutton;
     delete deletebutton;
@@ -228,7 +252,7 @@ void bodypage::errorbox(std::string errormessage){
     errorMessage.exec();
 }
 
-void bodypage::setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename){
+void bodypage::setalltextedit(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename,int localglobal){
     body_nameEdit->setText(QString::fromStdString(bodyname));
     parentbody_nameEdit->setText(QString::fromStdString(parentbodyname));
     rotationaxisx->setText(QString::fromStdString(doubletostring(naxis[0])));
@@ -247,6 +271,9 @@ void bodypage::setalltextedit(const std::string& bodyname, const std::string& pa
     cEdit->setText(QString::fromStdString(doubletostring(c)));
     lengthEdit->setText(QString::fromStdString(doubletostring(length)));
     radiusEdit->setText(QString::fromStdString(doubletostring(radius)));
+    radioButtonsgloballocal[localglobal+1]->setChecked(true);
+    selectedValuelocal = localglobal;
+    setlocalglobal();
 }
 
 void bodypage::plusbuttonsetting(){
@@ -255,7 +282,7 @@ void bodypage::plusbuttonsetting(){
         newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
         newbodybutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70, 50, 70, 50);
         plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70+70, 50, 50, 50);
-        setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "");
+        setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "",-1);
         for(int i=0;i<bodybuttons.size();i++){
             bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
         }
@@ -264,18 +291,21 @@ void bodypage::plusbuttonsetting(){
 
 void bodypage::savebuttonsetting(){
     body* findparentbody=setmodelwin->getRunmodel()->getModel()->getparm()->findbody(parentbody_nameEdit->text().toStdString());
-    if(findparentbody==nullptr || selectedValueshape<0){
+    if(findparentbody==nullptr || selectedValueshape<0 || selectedValuelocal<0){
         if(findparentbody==nullptr){
             errorbox("please check parent body name, parent does not exist");
         }
         if(selectedValueshape<0){
             errorbox("please check shape name, it does not exist");
         }
+        if(selectedValuelocal<0){
+            errorbox("please select local or global coordinate");
+        }
     }
     else{
         std::vector<double> naxisvalue={rotationaxisx->text().toDouble(),rotationaxisy->text().toDouble(),rotationaxisz->text().toDouble()};
         std::vector<double> rhobodyvalue={positionaxisx->text().toDouble(),positionaxisy->text().toDouble(),positionaxisz->text().toDouble()};
-        setmodelwin->getRunmodel()->getModel()->getparm()->addbody(body_nameEdit->text().toStdString(), parentbody_nameEdit->text().toStdString(), naxisvalue, initrotationangle->text().toDouble(), rhobodyvalue, aEdit->text().toDouble(), bEdit->text().toDouble(), cEdit->text().toDouble(), lengthEdit->text().toDouble(), radiusEdit->text().toDouble(), shape::allshape[selectedValueshape]);
+        setmodelwin->getRunmodel()->getModel()->getparm()->addbody(body_nameEdit->text().toStdString(), parentbody_nameEdit->text().toStdString(), naxisvalue, initrotationangle->text().toDouble(), rhobodyvalue, aEdit->text().toDouble(), bEdit->text().toDouble(), cEdit->text().toDouble(), lengthEdit->text().toDouble(), radiusEdit->text().toDouble(), shape::allshape[selectedValueshape],selectedValuelocal);
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()>bodybuttons.size()){
             newbodybutton->setVisible(false);
             for(int i=0;i<bodybuttons.size();i++){
@@ -335,12 +365,12 @@ void bodypage::newbodybuttonsetting(){
         bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
     }
     newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "");
+    setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "",-1);
 }
 
 void bodypage::showbodysetting(int index){
-    body* Body=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
-    setalltextedit(Body->getname(), Body->getparent()->getname(), Body->getbodybasic()->getinitialsetting_naxis(), Body->getbodybasic()->getinitialsetting_angle(), Body->getbodybasic()->getrhobody(), Body->getshape()->geta(), Body->getshape()->getb(), Body->getshape()->getc(), Body->getshape()->getlength(), Body->getshape()->getradius(), Body->getshape()->getshapename());
+    Body=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
+    setalltextedit(Body->getname(), Body->getparent()->getname(), Body->getbodybasic()->getinitialsetting_naxis(), Body->getbodybasic()->getinitialsetting_angle(), Body->getbodybasic()->getrhobody(), Body->getshape()->geta(), Body->getshape()->getb(), Body->getshape()->getc(), Body->getshape()->getlength(), Body->getshape()->getradius(), Body->getshape()->getshapename(),0);
     for(int i=0;i<bodybuttons.size();i++){
         if(index==i){
             bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
@@ -356,4 +386,43 @@ void bodypage::showbodysetting(int index){
 
 void bodypage::handleButtonClickedshape(QAbstractButton* button){
     selectedValueshape = buttonGroupshape->id(button);
+}
+
+void bodypage::setlocalglobal(){
+    
+        if(selectedValuelocal==0){
+            positionrefer->setText(QString::fromStdString("position refers to the parent coordinate")); 
+            rotationrefer->setText(QString::fromStdString("rotation axis refers to the parent coordinate")); 
+            if(Body!=nullptr){
+                std::vector<double> naxis_local=Body->getbodybasic()->getinitialsetting_naxis();
+                rotationaxisx->setText(QString::fromStdString(doubletostring(naxis_local[0])));
+                rotationaxisy->setText(QString::fromStdString(doubletostring(naxis_local[1])));
+                rotationaxisz->setText(QString::fromStdString(doubletostring(naxis_local[2])));
+                std::vector<double> position_local=Body->getbodybasic()->getrhobody();
+                positionaxisx->setText(QString::fromStdString(doubletostring(position_local[0])));
+                positionaxisy->setText(QString::fromStdString(doubletostring(position_local[1])));
+                positionaxisz->setText(QString::fromStdString(doubletostring(position_local[2])));
+            }
+        }
+        if(selectedValuelocal==1){
+            positionrefer->setText(QString::fromStdString("position refers to the fix space")); 
+            rotationrefer->setText(QString::fromStdString("rotation axis refers to the fix space"));
+            if(Body!=nullptr){
+                std::vector<std::vector<double>>  naxis_global=Body->getbodybasic()->getaxisangle_ref();
+                rotationaxisx->setText(QString::fromStdString(doubletostring(naxis_global[0][0])));
+                rotationaxisy->setText(QString::fromStdString(doubletostring(naxis_global[0][1])));
+                rotationaxisz->setText(QString::fromStdString(doubletostring(naxis_global[0][2])));
+                
+                std::vector<double> position_global=Body->getbodybasic()->getposition();
+                positionaxisx->setText(QString::fromStdString(doubletostring(position_global[0])));
+                positionaxisy->setText(QString::fromStdString(doubletostring(position_global[1])));
+                positionaxisz->setText(QString::fromStdString(doubletostring(position_global[2])));
+            }
+        }
+
+}
+
+void bodypage::handleButtonClickedtype(QAbstractButton* button){
+    selectedValuelocal = buttonGroupgloballocal->id(button);
+    setlocalglobal();
 }

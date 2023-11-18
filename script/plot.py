@@ -21,10 +21,25 @@ colors = [
 ]
 
 class Postprocess:
-    def __init__(self,modelname,scale,viewangle):
+    def __init__(self,modelname,scale,viewangle,axisplot):
         self.modelname=modelname
         self.scale=scale
         self.viewangle=viewangle
+        self.axisplot=axisplot
+        filenamebody = self.modelname +'_body_result.txt'
+        file2=open(filenamebody, 'r')
+        t,bodyvalue=0,[]
+        for i in file2:
+            if t==0:
+                t=1
+            else:
+                line=i.strip().split("\t")
+                bodyvalue1=[]
+                for j in range(len(line)-3):
+                    bodyvalue1.append(float(line[j+3]))
+                bodyvalue.append(bodyvalue1)
+        self.bodyvalue=np.array(bodyvalue)
+        file2.close()
         
     def rotate_vector(self,vector, axis, angle):
         # Normalize the axis vector
@@ -251,6 +266,8 @@ class Postprocess:
                     self.plot_ellipsoid(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[len(colors)-1-j%len(colors)],stride)
                 if shapename[j]=="cylinder":
                     self.plot_elliptical_cylinder(ax,allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i], axis, allmuscledata[j][6][i], translate, colors[len(colors)-1-j%len(colors)],stride)
+            if self.axisplot:
+                self.axisplotfig(ax,i+1)
             for j in range(len(gammaarray)):
                 gammaj=gammaarray[j][:,i].reshape(-1,3)
                 ax.plot(gammaj[:,0], gammaj[:,1], gammaj[:,2], linewidth=2.8, linestyle='-', color=colors[j%len(colors)])
@@ -341,6 +358,13 @@ class Postprocess:
                     #writer = Writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
                     #ani.save('animation.mp4', writer=writer)
                     plt.close(fig)
+                    
+    def axisplotfig(self,ax,index):
+        for i in range(int(self.bodyvalue.shape[0]/12)):
+            ax.quiver(self.bodyvalue[12*i][index], self.bodyvalue[12*i+1][index], self.bodyvalue[12*i+2][index], self.bodyvalue[12*i+3][index], self.bodyvalue[12*i+4][index], self.bodyvalue[12*i+5][index], length=0.1, normalize=True,color=colors[0])
+            ax.quiver(self.bodyvalue[12*i][index], self.bodyvalue[12*i+1][index], self.bodyvalue[12*i+2][index], self.bodyvalue[12*i+6][index], self.bodyvalue[12*i+7][index], self.bodyvalue[12*i+8][index], length=0.1, normalize=True,color=colors[1])
+            ax.quiver(self.bodyvalue[12*i][index], self.bodyvalue[12*i+1][index], self.bodyvalue[12*i+2][index], self.bodyvalue[12*i+9][index], self.bodyvalue[12*i+10][index], self.bodyvalue[12*i+11][index], length=0.1, normalize=True,color=colors[2])
+            
 
     def checkbody(self):
         stride = 50  # Adjust the stride value to control the sparsity of lines
@@ -360,19 +384,6 @@ class Postprocess:
                 statevalue[-1].append(float(line[3]))
         file1.close()
             
-        filenamebody = self.modelname +'_body_result.txt'
-        file2=open(filenamebody, 'r')
-        t,bodyname,bodyvalue=0,[],[]
-        for i in file2:
-            if t==0:
-                t=1
-            else:
-                line=i.strip().split("\t")
-                if not line[0] in bodyname:
-                    bodyvalue.append([])
-                    bodyname.append(line[0])
-                bodyvalue[-1].append(float(line[3]))
-        file2.close()
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         for i in range(len(statename)):
@@ -380,10 +391,7 @@ class Postprocess:
                 self.plot_ellipsoid(ax, statevalue[i][0], statevalue[i][1], statevalue[i][2], [statevalue[i][3],statevalue[i][4],statevalue[i][5]], statevalue[i][6], [statevalue[i][7],statevalue[i][8],statevalue[i][9]], colors[len(colors)-1-i%len(colors)], stride)
             if shapename[i]=="cylinder":
                 self.plot_elliptical_cylinder(ax, statevalue[i][0], statevalue[i][1], statevalue[i][2], [statevalue[i][3],statevalue[i][4],statevalue[i][5]], statevalue[i][6], [statevalue[i][7],statevalue[i][8],statevalue[i][9]], colors[len(colors)-1-i%len(colors)], stride)
-        for i in range(len(bodyname)):
-            ax.quiver(bodyvalue[i][0], bodyvalue[i][1], bodyvalue[i][2], bodyvalue[i][3], bodyvalue[i][4], bodyvalue[i][5], length=0.1, normalize=True,color=colors[0])
-            ax.quiver(bodyvalue[i][0], bodyvalue[i][1], bodyvalue[i][2], bodyvalue[i][6], bodyvalue[i][7], bodyvalue[i][8], length=0.1, normalize=True,color=colors[1])
-            ax.quiver(bodyvalue[i][0], bodyvalue[i][1], bodyvalue[i][2], bodyvalue[i][9], bodyvalue[i][10], bodyvalue[i][11], length=0.1, normalize=True,color=colors[2])
+            self.axisplotfig(ax,0)
         figurename='body_initial.png'
         ax.set_xlim(-1.0*self.scale, 1.0*self.scale) #x,y,z limit
         ax.set_ylim(-1.0*self.scale, 1.0*self.scale)
@@ -413,9 +421,14 @@ if __name__ == "__main__":
         else:
             viewangle=0.0
         
+        if "-axisplot" in argv:
+            axisplot=1
+        else:
+            axisplot=0
+        
         if "-model" in argv:
             modelname=argv[argv.index("-model")+1]
-            post=Postprocess(modelname,scale,viewangle)
+            post=Postprocess(modelname,scale,viewangle,axisplot)
             if "-onlyinitbody" in argv:
                 post.checkbody()
             else:

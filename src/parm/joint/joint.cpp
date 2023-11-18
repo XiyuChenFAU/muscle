@@ -116,15 +116,20 @@ std::vector<double> joint::getinitialrotationangle(){
 
 void joint::revolute_update(int nodenum,body* Body, int addrotate){
     
-    double rotationanglestep=(rotationangle[0]-initialrotationangle[0])/180.0*M_PI/nodenum;
     if(addrotate){
         if(allrotationangle.empty()){
             allrotationangle.push_back(initialrotationangle[0]);
-            rotationanglestep=initialrotationangle[0];
         }
         else{
             allrotationangle.push_back(allrotationangle.back()+(rotationangle[0]-initialrotationangle[0])/nodenum);
         }
+    }
+    double rotationanglestep=0.0;
+    if(allrotationangle.size()==1){
+        rotationanglestep=allrotationangle[0]/180.0*M_PI;
+    }
+    else{
+        rotationanglestep=(allrotationangle[allrotationangle.size()-1]-allrotationangle[allrotationangle.size()-2])/180.0*M_PI;
     }
     std::vector<std::vector<double>> R;
     if(rotationanglestep<3){
@@ -133,6 +138,7 @@ void joint::revolute_update(int nodenum,body* Body, int addrotate){
     else{
         R=RodriguesMap(vector3timeconstant(absolute_axisvector, rotationanglestep));
     }
+     
     std::vector<double> rhobody=vector3minus(Body->getbodybasic()->getposition(),absolute_pos);
 
     std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),Body->getbodybasic()->getposition());

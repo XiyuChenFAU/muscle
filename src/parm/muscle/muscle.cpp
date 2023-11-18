@@ -124,24 +124,24 @@ std::vector<double> muscle::getrho_i(){
     return rho_i;
 }
 
-std::vector<double> muscle::getrho_o_position(){
+std::vector<double> muscle::getrho_o_position_initial_global(){
     std::vector<std::vector<double>> rhoo_q=rhoo_body->getbodybasic()->getq();
     std::vector<double> gamma_o = localtoglobal({rhoo_q[0][0],rhoo_q[0][1],rhoo_q[0][2]},{{rhoo_q[0][3],rhoo_q[0][4],rhoo_q[0][5]},{rhoo_q[0][6],rhoo_q[0][7],rhoo_q[0][8]},{rhoo_q[0][9],rhoo_q[0][10],rhoo_q[0][11]}}, rho_o);
     return gamma_o;
 }
 
-std::vector<double> muscle::getrho_i_position(){
+std::vector<double> muscle::getrho_i_position_initial_global(){
     std::vector<std::vector<double>> rhoi_q=rhoi_body->getbodybasic()->getq();
     std::vector<double> gamma_i = localtoglobal({rhoi_q[0][0],rhoi_q[0][1],rhoi_q[0][2]},{{rhoi_q[0][3],rhoi_q[0][4],rhoi_q[0][5]},{rhoi_q[0][6],rhoi_q[0][7],rhoi_q[0][8]},{rhoi_q[0][9],rhoi_q[0][10],rhoi_q[0][11]}}, rho_i);
     return gamma_i;
 }
 
-std::vector<double> muscle::getrho_o_position_initial_global(){
+std::vector<double> muscle::getrho_o_position(){
     std::vector<double> gamma_o = localtoglobal(rhoo_body->getbodybasic()->getposition(), rhoo_body->getbodybasic()->getaxis(), rho_o);
     return gamma_o;
 }
 
-std::vector<double> muscle::getrho_i_position_initial_global(){
+std::vector<double> muscle::getrho_i_position(){
     std::vector<double> gamma_i = localtoglobal(rhoi_body->getbodybasic()->getposition(), rhoi_body->getbodybasic()->getaxis(), rho_i);
     return gamma_i;
 }

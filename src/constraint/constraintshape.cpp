@@ -63,12 +63,14 @@ std::vector<SX> constraintshape::Jacobiancylinder(const std::vector<SX>& gamma, 
     std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
     SX binary_condition = if_else(fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2]) <= Body->getshape()->getc(), 1.0, 0.0);
 
-    std::vector<double> surfacejacobian={0.0,0.0,axis[0][2]};
 
     for (int i = 0; i < 3; i++) {
         SX G1 = 2.0 * ((x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) / (Body->getshape()->geta()*Body->getshape()->geta()) * axis[0][i] +
             (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) / (Body->getshape()->getb()*Body->getshape()->getb()) * axis[1][i]);
-        G[i] = binary_condition*G1+(1-binary_condition)*surfacejacobian[i];
+        SX surfacejacobian = 2.0 * ((x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) / (Body->getshape()->geta()*Body->getshape()->geta()) * axis[0][i] +
+            (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) / (Body->getshape()->getb()*Body->getshape()->getb()) * axis[1][i] +
+            (fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2])-(Body->getshape()->geta()+Body->getshape()->getb())/2) / ((Body->getshape()->geta()+Body->getshape()->getb())/2*(Body->getshape()->geta()+Body->getshape()->getb())/2) * axis[2][i] );
+        G[i] = binary_condition*G1+(1-binary_condition)*surfacejacobian;
     }
     return G;
 }
@@ -126,7 +128,9 @@ SX constraintshape::constraint_cylinder(const std::vector<SX>& gamma, body* Body
     SX G1 = (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) * (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) / (Body->getshape()->geta()*Body->getshape()->geta()) +
         (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) * (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) / (Body->getshape()->getb()*Body->getshape()->getb()) - 1;
 
-    SX surface = fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2]) - Body->getshape()->getc();
+    SX surface = (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) * (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) / (Body->getshape()->geta()*Body->getshape()->geta()) +
+        (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) * (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) / (Body->getshape()->getb()*Body->getshape()->getb()) +
+        (fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2])-(Body->getshape()->geta()+Body->getshape()->getb())/2) * (fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2])-(Body->getshape()->geta()+Body->getshape()->getb())/2) / ((Body->getshape()->geta()+Body->getshape()->getb())/2*(Body->getshape()->geta()+Body->getshape()->getb())/2) - 1;
 
     SX G = binary_condition*G1+(1-binary_condition)*1;
     return G;

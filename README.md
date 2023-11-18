@@ -89,6 +89,8 @@ Download and install docker via https://docs.docker.com/desktop/
 
 Start the docker by using:
 * docker compose up -d
+* docker exec -it muscle /bin/bash
+
 Finish the docker by using:
 * docker compose down
 

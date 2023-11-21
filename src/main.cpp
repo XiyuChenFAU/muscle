@@ -22,7 +22,6 @@ int main(int argc, char* argv[]){
    runmodel Runmodel("../example/elbow_model.json",1);
    Runmodel.runprogram();
    todo:
-   cylinder
    spherical joint
    cylinder plot
    */

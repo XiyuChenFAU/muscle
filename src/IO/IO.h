@@ -36,6 +36,8 @@ private:
     void writeforcenodeToFile(model* Model);
     void writetotalforceToFile(model* Model);
     void writebody_stateToFile(model* Model);
+    void writemomentarmnodeToFile(model* Model);
+    void writemomentarmToFile(model* Model);
     std::string folderpath="";
 };
 

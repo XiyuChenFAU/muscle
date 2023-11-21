@@ -304,7 +304,82 @@ void IO::writebody_stateToFile(model* Model){
     file5.close();
 }
 
+void IO::writemomentarmnodeToFile(model* Model){
+
+    //create folder
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::vector<std::vector<std::vector<double>>> momentarmnodeall = Model->getPostprocessing()->getmomentarmnodeall();
+    std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
+    std::vector<joint*> alljoint=Model->getparm()->getalljoint();
+    std::vector<double> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    
+
+    //phiall
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_moment_arm_node_result.txt";
+    std::ofstream file6(filename);
+    //write titel
+    file6 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    for(int i=0;i<rotation.size();i++){file6 << rotation[i] << "\t";}
+    file6 << "\n";
+    //writevalue
+    for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        for(int j =0;j<Model->getparm()->getn_joints();j++){
+            write2DvalueToFile(momentarmnodeall[i*Model->getparm()->getn_joints()+j],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
+        }
+    }
+    file6.close();
+}
+
+void IO::writemomentarmToFile(model* Model){
+
+    //create folder
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::vector<std::vector<double>> momentarmall = Model->getPostprocessing()->getmomentarmall();
+    std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
+    std::vector<joint*> alljoint=Model->getparm()->getalljoint();
+    std::vector<double> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    
+
+    //phiall
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_moment_arm_result.txt";
+    std::ofstream file7(filename);
+    //write titel
+    file7 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    for(int i=0;i<rotation.size();i++){file7 << rotation[i] << "\t";}
+    file7 << "\n";
+    //writevalue
+    for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        for(int j =0;j<Model->getparm()->getn_joints();j++){
+            file7 << allmuscle[i]->getname()+"-"+alljoint[j]->getname() << "\t"<<"moment_arm"<<"\t"<<1<<"\t";
+            for(int k =0;k<momentarmall[i*Model->getparm()->getn_joints()+j].size();k++){
+                file7 << momentarmall[i*Model->getparm()->getn_joints()+j][k]<<"\t";
+            }
+            file7 << "\n";
+        }
+    }
+    file7.close();
+}
+
 void IO::writejson(model* Model){
+
+    //create folder
+    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
 
     Json::Value root;
     root["name"] = Model->getmodelname();

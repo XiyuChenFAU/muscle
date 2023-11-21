@@ -54,13 +54,18 @@ void bodybasic::setbodybasic(const std::vector<double>& positionglobal, const st
     rhobody=globaltolocal(parentbodybasic->getposition(),parentbodybasic->getaxis(), positionglobal);
     position=positionglobal;
     rotatestatus=0;
-    axis=matrixtranspose(rotationMatrix(naxisvalueglobal, rotationanglevalueglobal/180.0*M_PI));
+
+    std::vector<std::vector<double>> R=rotationMatrix(initialsetting_naxis, initialsetting_angle/180.0*M_PI);
     std::vector<double> qnewall;
-    qnewall=pushback(qnewall, position);
+    std::vector<std::vector<double>> axisnew;
+    std::vector<std::vector<double>> lastbodyaxis=parentbodybasic->getaxis();
+    qnewall=pushback(qnewall, positionglobal);
     for(int i=0; i<3; i++){
-        qnewall=pushback(qnewall, axis[i]);
+        std::vector<double> axisi = matrix33time31tog(R, lastbodyaxis[i]);
+        axisnew.push_back(axisi);
+        qnewall=pushback(qnewall, axisi);
     }
-    
+    axis=axisnew;
     if(q.empty()){
         q.push_back(qnewall);
     }
@@ -73,7 +78,7 @@ void bodybasic::setbodybasic(const std::vector<double>& positionglobal, const st
     else{
         axisangle_ref[0]=matrix_to_axisangle_ref_fix_space();
     }
-    //PrintParameters(q0);
+    //PrintParameters(q[q.size()-1]);
 }
 
 void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis, const std::vector<double>& naxisvalue, double rotationanglevalue, const std::vector<double>& rhobodyvalue){
@@ -85,8 +90,7 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
     //std::vector<std::vector<double>> R=RodriguesMap(n_axis);
     std::vector<std::vector<double>> R=rotationMatrix(initialsetting_naxis, initialsetting_angle/180.0*M_PI);
     std::vector<double> qnewall;
-    std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
-    std::vector<double> phi_body=vector3plus(lastbodyposition, phi_body1);
+    std::vector<double> phi_body=localtoglobal(lastbodyposition, lastbodyaxis, rhobody);
     position=phi_body;
     std::vector<std::vector<double>> axisnew;
     qnewall=pushback(qnewall, phi_body);
@@ -179,6 +183,10 @@ double bodybasic::getinitialsetting_angle(){
 
 std::vector<std::vector<double>> bodybasic::getaxisangle_ref(){
     return axisangle_ref;
+}
+
+std::vector<double> bodybasic::getglobalnaxis(bodybasic* parentbodybasic){
+    return localtoglobal(parentbodybasic->getposition(),parentbodybasic->getaxis(), initialsetting_naxis);
 }
     
 void bodybasic::setrotatestatus(int newstatus){

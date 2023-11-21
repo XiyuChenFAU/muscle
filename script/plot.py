@@ -187,6 +187,7 @@ class Postprocess:
         plt.close(fig)
 
     def normalfig(self, data, linename, x, ylabelname, title):
+        allmusclname=[]
         fig=plt.figure()
         for i in range(len(data)):
             if 'length' in title:
@@ -195,7 +196,15 @@ class Postprocess:
                 if 'length' == title:
                     plt.plot(x[1:], sum[1:]-sum[:-1], linestyle='--', label=linename[i]+" difference",color=colors[i%len(colors)])
             else:
-                plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
+                if 'moment_arm' == title:
+                    if linename[i].split("-")[0] in allmusclname:
+                        indexvalue=allmusclname.index(linename[i].split("-")[0])
+                        plt.plot(x, data[i], label=linename[i],color=colors[indexvalue%len(colors)])
+                    else:
+                        allmusclname.append(linename[i].split("-")[0])
+                        plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
+                else:
+                    plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
         plt.gca().xaxis.set_major_locator(MultipleLocator(10))
         plt.gca().xaxis.set_minor_locator(AutoLocator())
         plt.xlabel('angle')
@@ -286,7 +295,7 @@ class Postprocess:
     def postprocessingresult(self):
         self.checkbody()
         prefix = self.modelname+'_'
-        types = ['length', 'forcenode', 'phi', 'totalforce', 'bodystate']
+        types = ['length', 'forcenode', 'phi', 'totalforce', 'bodystate','moment_arm']
         
 
         for i in range(len(types)):
@@ -313,6 +322,8 @@ class Postprocess:
                     self.normalfig(allmuscledata, muscles, angles, 'total length', 'total length')
                     allmuscledata=np.array(allmuscledata)
                     self.normalfig(allmuscledata[:,:,1:]-allmuscledata[:,:,:-1], muscles, angles[1:], 'total length change', 'total length change')
+                elif 'moment_arm' in filename.split("_")[-2]:
+                    self.normalfig(allmuscledata, muscles, angles, 'moment arm', 'moment arm')
                 elif 'phi' in filename.split("_")[-2]:
                     for i in range(len(allmuscledata)):
                         self.pcolorfig(angles, nodenum, np.array(allmuscledata[i]), 'node number', muscles[i], 'phi_')

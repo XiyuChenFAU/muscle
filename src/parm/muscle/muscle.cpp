@@ -33,10 +33,10 @@ void muscle::setmuscle(const std::vector<body*>& allbody, const std::vector<doub
     rhoi_bodyname=rhoi_bodynamevalue;
     rhoo_body=findbody(allbody, rhoo_bodyname);
     std::vector<std::vector<double>> rhoo_q=rhoo_body->getbodybasic()->getq();
-    rho_o=globaltolocal({rhoo_q[0][0],rhoo_q[0][1],rhoo_q[0][2]},{{rhoo_q[0][3],rhoo_q[0][4],rhoo_q[0][5]},{rhoo_q[0][6],rhoo_q[0][7],rhoo_q[0][8]},{rhoo_q[0][9],rhoo_q[0][10],rhoo_q[0][11]}}, rhoo_body->getbodybasic()->getposition());
+    rho_o=globaltolocal({rhoo_q[0][0],rhoo_q[0][1],rhoo_q[0][2]},{{rhoo_q[0][3],rhoo_q[0][4],rhoo_q[0][5]},{rhoo_q[0][6],rhoo_q[0][7],rhoo_q[0][8]},{rhoo_q[0][9],rhoo_q[0][10],rhoo_q[0][11]}}, gamma_o);
     rhoi_body=findbody(allbody, rhoi_bodyname);
     std::vector<std::vector<double>> rhoi_q=rhoi_body->getbodybasic()->getq();
-    rho_i=globaltolocal({rhoi_q[0][0],rhoi_q[0][1],rhoi_q[0][2]},{{rhoi_q[0][3],rhoi_q[0][4],rhoi_q[0][5]},{rhoi_q[0][6],rhoi_q[0][7],rhoi_q[0][8]},{rhoi_q[0][9],rhoi_q[0][10],rhoi_q[0][11]}}, rhoi_body->getbodybasic()->getposition());
+    rho_i=globaltolocal({rhoi_q[0][0],rhoi_q[0][1],rhoi_q[0][2]},{{rhoi_q[0][3],rhoi_q[0][4],rhoi_q[0][5]},{rhoi_q[0][6],rhoi_q[0][7],rhoi_q[0][8]},{rhoi_q[0][9],rhoi_q[0][10],rhoi_q[0][11]}}, gamma_i);
     gamma=interpolation(gamma_o, gamma_i, nodenum);
     std::vector<double> gamma1D=rearrangeto1D(gamma);
     if(gammaall.empty()){

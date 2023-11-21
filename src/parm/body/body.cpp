@@ -50,6 +50,10 @@ std::string body::getname(){
     return name;
 }
 
+std::vector<double> body::getbodyglobalnaxis(){
+    return BodyBasic->getglobalnaxis(parent->getbodybasic());
+}
+
 void body::setid(int idvalue){
     id=idvalue;
 }

@@ -16,6 +16,9 @@ public:
     postprocessing();
     ~postprocessing();
     void do_postprocessingall(Parm* parm);
+    void get_momentarmall(Parm* parm);
+    std::vector<std::vector<double>> get_momentarm_per_muscle(const std::vector<std::vector<double>>& gamma, joint* Joint);
+    std::vector<double> get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint);
     void get_force_allmuscle(Parm* parm);
     std::vector<std::vector<std::vector<double>>> get_force_each_muscle(Parm* parm, int musclenum);
     std::vector<std::vector<double>> get_force_each_muscle_each_time(const std::vector<double>& gamma, const std::vector<std::vector<double>>& phi, double lengthchange);
@@ -35,6 +38,8 @@ public:
     std::vector<std::vector<std::vector<double>>> getlengthall();
     std::vector<std::vector<double>> gettotalforceall();
     std::vector<std::vector<std::vector<double>>> getforceallnode();
+    std::vector<std::vector<double>> getmomentarmall();
+    std::vector<std::vector<std::vector<double>>> getmomentarmnodeall();
 
 private:
 
@@ -45,6 +50,8 @@ private:
     std::vector<std::vector<std::vector<double>>> lengthall;
     std::vector<std::vector<double>> totalforceall;
     std::vector<std::vector<std::vector<double>>> forceallnode;
+    std::vector<std::vector<double>> momentarmall;
+    std::vector<std::vector<std::vector<double>>> momentarmnodeall;
 
 };
 

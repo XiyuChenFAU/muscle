@@ -75,6 +75,7 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
         c_stringvalue=doubletostring(shapefirstbody->getc());
         length_stringvalue=doubletostring(shapefirstbody->getlength());
         radius_stringvalue=doubletostring(shapefirstbody->getradius());
+        Body=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0);
 
         newbodybutton->setVisible(false);
     }
@@ -408,10 +409,10 @@ void bodypage::setlocalglobal(){
             positionrefer->setText(QString::fromStdString("position refers to the fix space")); 
             rotationrefer->setText(QString::fromStdString("rotation axis refers to the fix space"));
             if(Body!=nullptr){
-                std::vector<std::vector<double>>  naxis_global=Body->getbodybasic()->getaxisangle_ref();
-                rotationaxisx->setText(QString::fromStdString(doubletostring(naxis_global[0][0])));
-                rotationaxisy->setText(QString::fromStdString(doubletostring(naxis_global[0][1])));
-                rotationaxisz->setText(QString::fromStdString(doubletostring(naxis_global[0][2])));
+                std::vector<double>  naxis_global=Body->getbodyglobalnaxis();
+                rotationaxisx->setText(QString::fromStdString(doubletostring(naxis_global[0])));
+                rotationaxisy->setText(QString::fromStdString(doubletostring(naxis_global[1])));
+                rotationaxisz->setText(QString::fromStdString(doubletostring(naxis_global[2])));
                 
                 std::vector<double> position_global=Body->getbodybasic()->getposition();
                 positionaxisx->setText(QString::fromStdString(doubletostring(position_global[0])));

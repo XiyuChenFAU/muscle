@@ -32,6 +32,7 @@ public:
     std::vector<double> getinitialsetting_naxis();
     double getinitialsetting_angle();
     std::vector<std::vector<double>> getaxisangle_ref();
+    std::vector<double> getglobalnaxis(bodybasic* parentbodybasic);
     void setrotatestatus(int newstatus);
     void  setpoistionaxis(const std::vector<double>& q);
     std::vector<double> pushback(std::vector<double>& q, const std::vector<double>& value);

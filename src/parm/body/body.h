@@ -26,6 +26,7 @@ public:
     body* getparent();
     std::vector<body*> getchild();
     std::string getname();
+    std::vector<double> getbodyglobalnaxis();
     void setid(int idvalue);
     void setparent(body* parentbody);
     void setchild(body* childbody);

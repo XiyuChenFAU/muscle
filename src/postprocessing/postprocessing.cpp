@@ -12,6 +12,59 @@ void postprocessing::do_postprocessingall(Parm* parm){
     get_force_allmuscle(parm);
 }
 
+void postprocessing::get_momentarmall(Parm* parm){
+    std::vector<muscle*> allmuscle=parm->getallmuscle();
+    std::vector<joint*> alljoint=parm->getalljoint();
+    std::vector<std::vector<std::vector<double>>> momentarmallnoderes;
+    std::vector<std::vector<double>> momentarmallres;
+    for(int i=0;i<allmuscle.size();i++){
+        for(int j=0;j<alljoint.size();j++){
+            std::vector<std::vector<double>> gammaall=get_momentarm_per_muscle(allmuscle[i]->getgammaall(),alljoint[j]);
+            momentarmallnoderes.push_back(gammaall);
+            std::vector<double> moment_re;
+            for(int k=0;k<gammaall.size();k++){
+                double minimum_abs=fabs(gammaall[k][0]);
+                double minimum_no_abs=gammaall[k][0];
+                for(int l=1;l<gammaall[k].size();l++){
+                    if(fabs(gammaall[k][l])<minimum_abs){
+                        minimum_abs=fabs(gammaall[k][l]);
+                        minimum_no_abs=gammaall[k][l];
+                    }
+                }
+                moment_re.push_back(minimum_no_abs);
+            }
+            momentarmallres.push_back(moment_re);
+        }
+    }
+    momentarmall=momentarmallres;
+    momentarmnodeall=momentarmallnoderes;
+}
+
+std::vector<std::vector<double>> postprocessing::get_momentarm_per_muscle(const std::vector<std::vector<double>>& gamma, joint* Joint){
+    std::vector<std::vector<double>> gammaall;
+    for(int i=0;i<gamma.size();i++){
+        std::vector<double> gammaallnode=get_momentarm_per_node(gamma[i],Joint);
+        gammaall.push_back(gammaallnode);
+    }
+    return gammaall;
+}
+
+std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint){
+    int gammasize=gamma.size()/3;
+    std::vector<double> gammaallnode;
+    if(Joint->getname()=="revolute joint"){
+        for(int i=0;i<gammasize;i++){
+            double axis_value=std::sqrt(vectortime1(Joint->getabsolute_axisvector(),Joint->getabsolute_axisvector()));
+            std::vector<double> gamma_one_node_cross=crossProduct(vector3timeconstant(Joint->getabsolute_axisvector(),1.0/axis_value),vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, Joint->getabsolute_pos()));
+            std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
+            std::vector<double> allrotationangle=Joint->getallrotationangle();
+            double gamma_one_node_res=fabs(std::sqrt(vectortime1(gamma_one_node_cross,gamma_one_node_cross)))*(allrotationangle[0]-initialrotationangle[0])/fabs(allrotationangle[0]-initialrotationangle[0]);
+            gammaallnode.push_back(gamma_one_node_res);
+        }
+    }
+    return gammaallnode;    
+}
+
 void postprocessing::get_force_allmuscle(Parm* parm){
     std::vector<muscle*> allmuscle=parm->getallmuscle();
     std::vector<std::vector<double>> totalforceallvalue;
@@ -257,4 +310,12 @@ std::vector<std::vector<double>> postprocessing::gettotalforceall(){
     
 std::vector<std::vector<std::vector<double>>> postprocessing::getforceallnode(){
     return forceallnode;
+}
+
+std::vector<std::vector<double>> postprocessing::getmomentarmall(){
+    return momentarmall;
+}
+
+std::vector<std::vector<std::vector<double>>> postprocessing::getmomentarmnodeall(){
+    return momentarmnodeall;
 }

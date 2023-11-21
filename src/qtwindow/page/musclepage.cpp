@@ -58,6 +58,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
         rhoistring_axis_x=doubletostring(rhoiaxis[0]);
         rhoistring_axis_y=doubletostring(rhoiaxis[1]);
         rhoistring_axis_z=doubletostring(rhoiaxis[2]);
+        Muscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(0);
         newmusclebutton->setVisible(false);
     }
     else{

@@ -15,6 +15,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
 {
     std::string modelname_string=setmodelwin->getRunmodel()->getModel()->getmodelname();
     std::string savepath_string=setmodelwin->getRunmodel()->getio()->getfolderpath();
+    std::string length_cons_string=doubletostring(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getlengthconstant());
 
     std::string tolpostprocessing=doubletostring(setmodelwin->getRunmodel()->getModel()->getPostprocessing()->gettol());
 
@@ -68,6 +69,17 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     buttonGroup1->addButton(radioButtons[3], 3); 
     connect(buttonGroup1, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked);
 
+    lengthconstEdit=settextandlabel("lenght spring constant",length_cons_string, 10, 600, 450, 30, allfontsize);
+    lenghtspringlabel=qlabels.back();
+    if(selectedValue==3){
+        lengthconstEdit->setVisible(true);
+        lenghtspringlabel->setVisible(true);
+    }
+    else{
+        lengthconstEdit->setVisible(false);
+        lenghtspringlabel->setVisible(false);
+    }
+
     //Casadi setting
     setlabel("Casadi setting", 660, 110,20);
     tolEdit=settextandlabel("tolerance",tol_string, 660, 150, 450, 30, allfontsize);
@@ -95,6 +107,7 @@ solvesettingpage::~solvesettingpage(){
     
     delete modelnameEdit;
     delete savepathEdit;
+    delete lengthconstEdit;
 
     delete tolpostprocessingEdit;
 
@@ -160,6 +173,9 @@ void solvesettingpage::savesetting(){
     }
     else{
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->setcasenum(selectedValue);
+        if(selectedValue==3){
+            setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->setlengthconstant(lengthconstEdit->text().toDouble());
+        }
         setmodelwin->getRunmodel()->getModel()->setmodelname(modelnameEdit->text().toStdString());
         setmodelwin->getRunmodel()->getio()->setfolderpath(savepathEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());
@@ -183,4 +199,12 @@ void solvesettingpage::openFolderDialog() {
 
 void solvesettingpage::handleButtonClicked(QAbstractButton* button){
     selectedValue = buttonGroup1->id(button);
+    if(selectedValue==3){
+        lengthconstEdit->setVisible(true);
+        lenghtspringlabel->setVisible(true);
+    }
+    else{
+        lengthconstEdit->setVisible(false);
+        lenghtspringlabel->setVisible(false);
+    }
 }

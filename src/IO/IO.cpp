@@ -96,6 +96,8 @@ void IO::writeanalyzeresultToFileAll(model* Model){
     writeforcenodeToFile(Model);
     writetotalforceToFile(Model);
     writebody_stateToFile(Model);
+    writemomentarmnodeToFile(Model);
+    writemomentarmToFile(Model);
 }
 
 void IO::writephiToFile(model* Model){
@@ -321,7 +323,7 @@ void IO::writemomentarmnodeToFile(model* Model){
     
 
     //phiall
-    std::string filename = folderoutput+"/"+Model->getmodelname()+"_moment_arm_node_result.txt";
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarmnode_result.txt";
     std::ofstream file6(filename);
     //write titel
     file6 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
@@ -353,7 +355,7 @@ void IO::writemomentarmToFile(model* Model){
     
 
     //phiall
-    std::string filename = folderoutput+"/"+Model->getmodelname()+"_moment_arm_result.txt";
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarm_result.txt";
     std::ofstream file7(filename);
     //write titel
     file7 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
@@ -477,7 +479,10 @@ void IO::writejson(model* Model){
 
 
     root["stepnum"]=Model->getSolveeq()->getstepnum();
-    root["solvercase"] = Model->getSolveeq()->getObjective()->getcasenum();
+    Json::Value objective;
+    objective["solvercase"] = Model->getSolveeq()->getObjective()->getcasenum();
+    objective["length_constant"] = Model->getSolveeq()->getObjective()->getlengthconstant();
+    root["objective"]=objective;
 
     Json::Value postprocessing;
     postprocessing["tol"]=Model->getPostprocessing()->gettol();
@@ -617,9 +622,11 @@ model* IO::readmodel(const std::string&  jsonfilename){
     int stepnum=stepnumvalue.asInt();
     Model->getSolveeq()->setstepnum(stepnum);
 
-    const Json::Value& solver = root["solvercase"];
-    int solvercase=solver.asInt();
+    const Json::Value& obj = root["objective"];
+    int solvercase=obj["solvercase"].asInt();
     Model->getSolveeq()->getObjective()->setcasenum(solvercase);
+    double length_constant=obj["length_constant"].asDouble();
+    Model->getSolveeq()->getObjective()->setlengthconstant(length_constant);
 
     //postprocessing
     const Json::Value& postprocessingvalue = root["postprocessing"];

@@ -290,6 +290,10 @@
 	{
 		"tol" : 0.001
 	},
-	"solvercase" : 0,
+	"objective" :
+	{
+		"solvercase" : 0,
+		"length_constant" : 1.0
+	},	
 	"stepnum" : 100
 }

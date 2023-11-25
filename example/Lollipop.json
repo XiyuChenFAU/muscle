@@ -1,0 +1,129 @@
+{
+	"body" : 
+	[
+		{
+			"body_name" : "sphere",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : 
+			[
+				-3.9199999999999999,
+				-0.46000000000000002,
+				-0.28000000000000003
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				1.0
+			],
+			"shape" : 
+			{
+				"a" : 80.0,
+				"b" : 80.0,
+				"c" : 80.0,
+				"length" : 160.0,
+				"radius" : 80.0,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "cylinder",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-150.0
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				1.0
+			],
+			"shape" : 
+			{
+				"a" : 40.0,
+				"b" : 40.0,
+				"c" : 150.0,
+				"length" : 300.0,
+				"radius" : 40.0,
+				"shape_name" : "cylinder"
+			}
+		}
+	],
+	"ipoptsetting" : 
+	{
+		"hessian_approximation" : "limited-memory",
+		"linear_solver" : "mumps",
+		"max_iter" : 2000,
+		"print_level" : 0,
+		"tol" : 1e-08
+	},
+	"joint" : 
+	[
+		{
+			"initial_rotation_angle" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"joint_name" : "joint_cylinder",
+			"joint_type_name" : "revolute joint",
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"rotate_body_name" : "cylinder",
+			"rotation_angle" : 
+			[
+				100.0,
+				0.0,
+				0.0
+			],
+			"rotation_axis_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				1.0
+			]
+		}
+	],
+	"muscle" : 
+	[
+		{
+			"insertion_relative_body" : "cylinder",
+			"muscle_name" : "Lollipop_muscle",
+			"node_number" : 21,
+			"origin_relative_body" : "sphere",
+			"rho_insertion" : 
+			[
+				40.0,
+				0.0,
+				-150.0
+			],
+			"rho_origin" : 
+			[
+				-76.079999999999998,
+				20.460000000000001,
+				80.280000000000001
+			]
+		}
+	],
+	"name" : "Lollipop",
+	"objective" : 
+	{
+		"length_constant" : 1.0,
+		"solvercase" : 0
+	},
+	"postprocessing" : 
+	{
+		"tol" : 0.001
+	},
+	"stepnum" : 50
+}

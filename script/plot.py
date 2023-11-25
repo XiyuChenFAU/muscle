@@ -196,13 +196,13 @@ class Postprocess:
                 if 'length' == title:
                     plt.plot(x[1:], sum[1:]-sum[:-1], linestyle='--', label=linename[i]+" difference",color=colors[i%len(colors)])
             else:
-                if 'moment_arm' == title:
+                if 'moment arm' == title:
                     if linename[i].split("-")[0] in allmusclname:
                         indexvalue=allmusclname.index(linename[i].split("-")[0])
-                        plt.plot(x, data[i], label=linename[i],color=colors[indexvalue%len(colors)])
+                        plt.plot(x, data[i][0], label=linename[i],color=colors[indexvalue%len(colors)])
                     else:
                         allmusclname.append(linename[i].split("-")[0])
-                        plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
+                        plt.plot(x, data[i][0], label=linename[i],color=colors[i%len(colors)])
                 else:
                     plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
         plt.gca().xaxis.set_major_locator(MultipleLocator(10))
@@ -295,7 +295,7 @@ class Postprocess:
     def postprocessingresult(self):
         self.checkbody()
         prefix = self.modelname+'_'
-        types = ['length', 'forcenode', 'phi', 'totalforce', 'bodystate','moment_arm']
+        types = ['length', 'forcenode', 'phi', 'totalforce', 'bodystate','momentarm']
         
 
         for i in range(len(types)):
@@ -322,7 +322,7 @@ class Postprocess:
                     self.normalfig(allmuscledata, muscles, angles, 'total length', 'total length')
                     allmuscledata=np.array(allmuscledata)
                     self.normalfig(allmuscledata[:,:,1:]-allmuscledata[:,:,:-1], muscles, angles[1:], 'total length change', 'total length change')
-                elif 'moment_arm' in filename.split("_")[-2]:
+                elif 'momentarm' in filename.split("_")[-2]:
                     self.normalfig(allmuscledata, muscles, angles, 'moment arm', 'moment arm')
                 elif 'phi' in filename.split("_")[-2]:
                     for i in range(len(allmuscledata)):

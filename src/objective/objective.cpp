@@ -23,6 +23,14 @@ void objective::setcasenum(int casenumvalue){
     casenum=casenumvalue;
 }
 
+void objective::setlengthconstant(double lengthconstantvalue){
+    lengthconstant=lengthconstantvalue;
+}
+
+double objective::getlengthconstant(){
+    return lengthconstant;
+}
+
 int objective::getcasenum(){
     return casenum;
 }
@@ -53,7 +61,7 @@ SX objective::getnodelengthdisdiffall(Parm* parm, SX x, std::vector<std::vector<
     double massmatrixsum=0.0;
     for(int i=0;i<massmatrix.size();i++){massmatrixsum=massmatrixsum+massmatrix[i];}
     SX f_mass=getobjectivemass(nodediff,massmatrix);
-    f_mass=f_mass+getlengthdisdiff(parm, gammaallnode)*springconst*massmatrixsum/massmatrix.size();
+    f_mass=f_mass+getlengthdisdiff(parm, gammaallnode)*springconst*massmatrixsum/massmatrix.size()*lengthconstant;
     return f_mass;
 }
 

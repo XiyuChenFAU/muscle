@@ -42,6 +42,8 @@ private:
     setmodelwindow *setmodelwin=nullptr;
     QLineEdit *modelnameEdit=nullptr;
     QLineEdit *savepathEdit=nullptr;
+    QLineEdit *lengthconstEdit=nullptr;
+    QLabel* lenghtspringlabel=nullptr;
 
     QLineEdit *tolpostprocessingEdit=nullptr;
 

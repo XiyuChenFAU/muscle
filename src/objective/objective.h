@@ -23,6 +23,8 @@ public:
     objective();
     ~objective();
     void setcasenum(int casenumvalue);
+    void setlengthconstant(double lengthconstantvalue);
+    double getlengthconstant();
     int getcasenum();
     SX getlengthdisdiff(Parm* parm, std::vector<std::vector<std::vector<SX>>> gammaallnode);
     SX getnodelengthdisdiffall(Parm* parm, SX x, std::vector<std::vector<double>> jointposition);
@@ -36,6 +38,7 @@ public:
 
 private:
     int casenum=0;
+    double lengthconstant=1.0;
     SX f=0;
 };
 

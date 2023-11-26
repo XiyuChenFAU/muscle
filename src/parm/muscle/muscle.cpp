@@ -328,3 +328,8 @@ void muscle::resetforrecalc(){
     }
 }
 
+int muscle::getvariablenum(int n_bodies){
+    int vari=nodenum*3+(nodenum-2)*n_bodies;
+    return vari;
+}
+

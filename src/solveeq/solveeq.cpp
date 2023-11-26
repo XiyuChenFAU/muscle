@@ -50,47 +50,49 @@ void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
     for(int i=0;i<parm->getn_joints();i++){
         jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos());
     }
-    //variable
-    int variablenum=parm->getvariable();
-    SX x = SX::sym("x", variablenum);
-    //minimum
-    SX f = Objective->getobjective(parm, x,jointnaxisall);
-    //constraints
-    std::vector<SX> allconstraint=Constraint->constraints(parm,x);
-    SX g = vertcat(allconstraint);
-    //set ipopt nlp
-    SXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
-    Dict opts_dict=ipopt->getipoptparm();
-    Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
-    std::map<std::string, DM> arg, res;
-    // Set constraint limit
-    arg["lbg"] = Constraint->getlowerlimitall();
-    arg["ubg"] = Constraint->getupperlimitall();
-    std::vector<double> x0;
+    
     std::vector<muscle*> allmuscle=parm->getallmuscle();
-    if(initialstart){
-        for(int i=0;i<parm->getn_muscles();i++){
+    int variablenumall=parm->getvariable();
+    for(int i=0;i<parm->getn_muscles();i++){
+        //variable
+        int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
+        SX x = SX::sym("x", variablenum);
+        //minimum
+        SX f = Objective->getobjective(parm, x,jointnaxisall,i);
+        //constraints
+        std::vector<SX> allconstraint=Constraint->constraints(parm,x,i);
+        SX g = vertcat(allconstraint);
+        //set ipopt nlp
+        SXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+        Dict opts_dict=ipopt->getipoptparm();
+        Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
+        std::map<std::string, DM> arg, res;
+        // Set constraint limit
+        arg["lbg"] = Constraint->getlowerlimitall();
+        arg["ubg"] = Constraint->getupperlimitall();
+        std::vector<double> x0;
+
+        if(initialstart){
             std::vector<std::vector<double>> gammaall_muscle = allmuscle[i]->getgammaall();
             std::vector<std::vector<double>> etaall_muscle = allmuscle[i]->getetaall();
             x0.insert(x0.end(), gammaall_muscle.back().begin(), gammaall_muscle.back().end());
             x0.insert(x0.end(), etaall_muscle.back().begin(), etaall_muscle.back().end());
             allmuscle[i]->deletegammaalllast();
         }
-    }
-    else{
-        for(int i=0;i<parm->getn_muscles();i++){
+        else{
             std::vector<std::vector<double>> muscleparmall=allmuscle[i]->getmuscleparm();
             x0.insert(x0.end(), muscleparmall[muscleparmall.size()-1].begin(), muscleparmall[muscleparmall.size()-1].end());
         }
+        arg["x0"] = x0;
+        // Solve the NLP
+        res = solver(arg);
+        vector<double> solution;
+        for (int i = 0; i < x0.size(); i++) {
+            solution.push_back(static_cast<double>(res.at("x")(i)));
+        }
+        allmuscle[i]->addmuscleparm(solution);
     }
-    arg["x0"] = x0;
-    // Solve the NLP
-    res = solver(arg);
-    vector<double> solution;
-    for (int i = 0; i < x0.size(); i++) {
-        solution.push_back(static_cast<double>(res.at("x")(i)));
-    }
-    parm->addmuslcesolution(solution);
+
 }
 
 void solveeq::solvesignorini(Parm* parm){

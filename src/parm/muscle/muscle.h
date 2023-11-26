@@ -57,6 +57,7 @@ public:
     void print2Dvalue(const std::vector<std::vector<double>>& value);
     void printmuscleinfo();
     void resetforrecalc();
+    int getvariablenum(int n_bodies);
 
 
 private:

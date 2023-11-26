@@ -26,15 +26,16 @@ public:
     void setlengthconstant(double lengthconstantvalue);
     double getlengthconstant();
     int getcasenum();
-    SX getlengthdisdiff(Parm* parm, std::vector<std::vector<std::vector<SX>>> gammaallnode);
-    SX getnodelengthdisdiffall(Parm* parm, SX x, std::vector<std::vector<double>> jointposition);
 
-    std::vector<SX> getnodedisdiff(Parm* parm, std::vector<std::vector<std::vector<SX>>> gammaallnode);
-    std::vector<double> getmassmatrix(Parm* parm, std::vector<std::vector<double>> jointposition);
-    SX getobjectivemass(std::vector<SX> nodediff, std::vector<double> massmatrix);
-    SX getnodedisdiffall(Parm* parm, SX x, std::vector<std::vector<double>> jointposition);
-    std::vector<std::vector<std::vector<std::vector<SX>>>> rearrange_gamma_eta(Parm* parm, SX x);
-    SX getobjective(Parm* parm, SX x, std::vector<std::vector<double>> jointposition);
+    SX getlengthdisdiff(muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode);
+    SX getnodelengthdisdiffall(Parm* parm, SX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
+
+    std::vector<SX> getnodedisdiff(muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode);
+    std::vector<double> getmassmatrix(muscle* Muscle, const std::vector<std::vector<double>>& jointposition);
+    SX getobjectivemass(const std::vector<SX>& nodediff, const std::vector<double>& massmatrix);
+    SX getnodedisdiffall(Parm* parm, SX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
+    std::vector<std::vector<std::vector<SX>>> rearrange_gamma_eta(Parm* parm, SX x, int musclenum);
+    SX getobjective(Parm* parm, SX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
 
 private:
     int casenum=0;

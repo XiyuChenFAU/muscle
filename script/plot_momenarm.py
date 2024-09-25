@@ -30,8 +30,9 @@ def readdatafromliterature(filename):
     rotationangle,data=[],[]
     for i in f:
         line=i.strip().split()
-        rotationangle.append(float(line[0].replace(",",".")))
-        data.append(-1*float(line[-1].replace(",",".")))
+        if len(line)>0:
+            rotationangle.append(float(line[0].replace(",",".").replace(";","")))
+            data.append(-1*float(line[-1].replace(",",".").replace(";","")))
     f.close()
     return [rotationangle,data]
     
@@ -70,7 +71,7 @@ for i in range(9):
             literatures.append(labelname)
             axes[-1, -1].plot([], [], label=labelname, color=colors[(index+1)%6])
         dataliterature=readdatafromliterature(j)
-        ax.plot(dataliterature[0], dataliterature[1], color=colors[index])
+        ax.plot(dataliterature[0], dataliterature[1], color=colors[(index+1)%6])
 
 print(literatures)
 axes[-1, -1].plot([], [], label="Geodesic model", color=colors[0])
@@ -78,4 +79,4 @@ axes[-1,-1].legend()
 axes[-1,-1].set_axis_off()
 
 plt.tight_layout()
-plt.show()
+plt.savefig("moment_arm_compare.png")

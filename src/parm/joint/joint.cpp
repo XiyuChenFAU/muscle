@@ -10,10 +10,14 @@ Xiyu Chen
 
 using namespace std;
 
-std::vector<std::string> joint::alljoint_type = {"revolute joint", "spherical joint"};
+std::vector<std::string> joint::alljoint_type = {"revolute joint", "spherical joint", "static revoulte joint"};
 
 joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue){
     setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialanglevalue, anglevalue);
+}
+
+joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue){
+    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, initialanglevalue);
 }
 
 joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value){
@@ -39,6 +43,20 @@ void joint::setjoint(const std::string& namevalue, const std::string& bodynameva
     axisvector=axisvectorvalue;
     initialrotationangle={initialanglevalue,0.0,0.0};
     rotationangle={anglevalue, 0.0, 0.0};
+    allrotationangle={};
+}
+
+void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue){
+    name=namevalue;
+    bodyname=bodynamevalue;
+    currentbody=currentbodyvalue;
+    joint_type=joint_typevalue;
+    relative_pos=relative_posvalue;
+    absolute_pos = localtoglobal(currentbody->getbodybasic()->getposition(), currentbody->getbodybasic()->getaxis(), relative_pos);
+    absolute_axisvector=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), axisvectorvalue);
+    axisvector=axisvectorvalue;
+    initialrotationangle={initialanglevalue,0.0,0.0};
+    rotationangle={0.0, 0.0, 0.0};
     allrotationangle={};
 }
 
@@ -178,12 +196,59 @@ void joint::spherical_update(int nodenum,body* Body, int addrotate){
     }
 }
 
-void joint::updateall(int nodenum){
+void joint::static_revolute_update(int nodenum,body* Body, int stepnum){
+    
+    if(!stepnum){
+        if(allrotationangle.empty()){
+            allrotationangle.push_back(initialrotationangle[0]);
+        }
+        else{
+            allrotationangle.push_back(allrotationangle.back()+(rotationangle[0]-initialrotationangle[0])/nodenum);
+        }
+    }
+    double rotationanglestep=0.0;
+    if(allrotationangle.size()==1){
+        rotationanglestep=allrotationangle[0]/180.0*M_PI;
+    }
+    else{
+        rotationanglestep=(allrotationangle[allrotationangle.size()-1]-allrotationangle[allrotationangle.size()-2])/180.0*M_PI;
+    }
+    std::vector<std::vector<double>> R;
+    if(rotationanglestep<3){
+        R=CayleyMap(vector3timeconstant(absolute_axisvector, rotationanglestep));
+    }
+    else{
+        R=RodriguesMap(vector3timeconstant(absolute_axisvector, rotationanglestep));
+    }
+     
+    std::vector<double> rhobody=vector3minus(Body->getbodybasic()->getposition(),absolute_pos);
+
+    std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),Body->getbodybasic()->getposition());
+    std::vector<std::vector<double>> axis_new;
+    std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
+    for(int i=0; i<3; i++){
+        axis_new.push_back(matrix33time31tog(R, axis[i]));
+    }
+    
+    Body->getbodybasic()->addnewbodybasic(position_new,axis_new);
+    Body->getbodybasic()->setrotatestatus(1);
+    if(Body->getchild().size()>0){
+        std::vector<body*> allchild=Body->getchild();
+        for(int i=0;i<Body->getchild().size();i++){
+            revolute_update(nodenum,allchild[i],0);
+        }
+    }
+}
+
+void joint::updateall(int nodenum,int stepnum){
     if(joint_type=="revolute joint"){
         revolute_update(nodenum,currentbody,1);
     }
     if(joint_type=="spherical joint"){
         spherical_update(nodenum,currentbody,1);
+    }
+    if(joint_type=="static revoulte joint"){
+        revolute_update(nodenum,currentbody,stepnum);
     }
 }
 

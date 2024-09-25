@@ -1,16 +1,24 @@
 #!/bin/bash
 
-outputs=("output_elbow_model_0p1" "output_elbow_model_0p01" "output_elbow_model_0p02" "output_elbow_model_0p05" "output_elbow_model_origin" "output_elbow_model_y_0p05_collision" "output_elbow_model_y_0p05_collision_minimize" "output_elbow_model_y_0p05_collision_minimize_mass" "output_elbow_model_y_0p05_collision_minimize_mass_length" "output_elbow_model_z_180" "output_elbow_model_z_360" "output_elbow_model_z_720" "output_elbow_model_z_1080" "output_elbow_model_z_1080_minimize" "output_elbow_model_z_1080_minimize_mass" "output_elbow_model_z_1080_minimize_mass_length")
+#outputs=("output_shoulder_ellipsoid_m100_100_global_y" "output_shoulder_ellipsoid_m100_100_global_y_minimize" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length" "output_shoulder_ellipsoid_m100_100_global_y_minimize_mass" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_10" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_100" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_1000" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_10000" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_0p1" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_0p05" "output_shoulder_ellipsoid_m100_100_global_y_minimize_length_0p01")
+
+outputs=("output_shoulder_ellipsoid_m100_100_global_y_minimize_length_1000_node_100")
 
 
 for output in "${outputs[@]}"; do
     model_name="${output#output_}"
 
     cd "$output" || exit 1
-
-    python3 plot.py -model "$model_name" -scale 0.23 -viewangle -90
+    
+        
+    python3 plot_momenarm.py "$model_name"
 
     wait
+
+    python3 plot.py -model "$model_name" -scale 0.09 -viewangle -90
+
+    wait
+
 
     cd ..
 done

@@ -43,7 +43,8 @@ class Postprocess:
         
     def rotate_vector(self,vector, axis, angle):
         # Normalize the axis vector
-        axis = axis / np.linalg.norm(axis)
+        if np.linalg.norm(axis):
+            axis = axis / np.linalg.norm(axis)
 
         # Calculate the rotation matrix
         cos_theta = np.cos(angle)
@@ -280,6 +281,8 @@ class Postprocess:
             for j in range(len(gammaarray)):
                 gammaj=gammaarray[j][:,i].reshape(-1,3)
                 ax.plot(gammaj[:,0], gammaj[:,1], gammaj[:,2], linewidth=2.8, linestyle='-', color=colors[j%len(colors)])
+                ax.scatter(gammaj[0,0], gammaj[0,1], gammaj[0,2], color=colors[j%len(colors)], marker='o', s=30)  # Start marker
+                ax.scatter(gammaj[-1,0], gammaj[-1,1], gammaj[-1,2], color=colors[j%len(colors)], marker='o', s=30)  # End marker
 
             ax.set_xlabel('X')
             ax.set_ylabel('Y')
@@ -321,7 +324,7 @@ class Postprocess:
                 if 'length' in filename.split("_")[-2]:
                     self.normalfig(allmuscledata, muscles, angles, 'total length', 'total length')
                     allmuscledata=np.array(allmuscledata)
-                    self.normalfig(allmuscledata[:,:,1:]-allmuscledata[:,:,:-1], muscles, angles[1:], 'total length change', 'total length change')
+                    self.normalfig((allmuscledata[:,:,1:]-allmuscledata[:,:,:-1])/(angles[1]-angles[0]), muscles, angles[1:], 'muscle length rate', 'muscle length rate')
                 elif 'momentarm' in filename.split("_")[-2]:
                     self.normalfig(allmuscledata, muscles, angles, 'moment arm', 'moment arm')
                 elif 'phi' in filename.split("_")[-2]:
@@ -341,7 +344,7 @@ class Postprocess:
                     
                     if not os.path.exists("animation_front"):
                         os.makedirs("animation_front")
-                    self.bodyrotateplot(allmuscledata, allmuscledatagamma, shapename,"animation_front", 0)
+                    self.bodyrotateplot(allmuscledata, allmuscledatagamma, shapename,"animation_front", self.viewangle+90)
                     fig = plt.figure()
                     ims = []
                     for i in range(len(allmuscledata[0][0])):
@@ -356,7 +359,7 @@ class Postprocess:
                     plt.close(fig)
                     if not os.path.exists("animation_side"):
                         os.makedirs("animation_side")
-                    self.bodyrotateplot(allmuscledata, allmuscledatagamma, shapename,"animation_side", -90)
+                    self.bodyrotateplot(allmuscledata, allmuscledatagamma, shapename,"animation_side", self.viewangle)
                     fig = plt.figure()
                     ims = []
                     for i in range(len(allmuscledata[0][0])):

@@ -48,7 +48,7 @@ public:
     body* findbody(const std::string& bodyname);
     int findbodyindex(const std::string& bodyname);
     void addmuslcesolution(const std::vector<double>& solution);
-    void rotatebodyupdate(int nodenum);
+    void rotatebodyupdate(int nodenum,int stepnum);
     int getvariable();
     void setallmuscleinitialeta_gamma();
 

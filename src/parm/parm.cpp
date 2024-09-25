@@ -327,9 +327,9 @@ void Parm::addmuslcesolution(const std::vector<double>& solution){
     }
 }
 
-void Parm::rotatebodyupdate(int nodenum){
+void Parm::rotatebodyupdate(int nodenum,int stepnum){
     for(int i=0;i<alljoint.size();i++){
-        alljoint[i]->updateall(nodenum);
+        alljoint[i]->updateall(nodenum,stepnum);
     }
     for(int i=0;i<allbody.size();i++){
         if(allbody[i]->getbodybasic()->getrotatestatus()){

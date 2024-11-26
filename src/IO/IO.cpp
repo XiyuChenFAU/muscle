@@ -24,11 +24,9 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
             file << typenamevalue << "\t";
             file << rownum << "\t";
             for (int j=0;j<value.size();j++) {
-                std::cout << value[j][i] << "\t";
                 file << value[j][i] << "\t";
             }
             file << "\n";
-            std::cout << "\n";
             rownum++;
         }
     } else {

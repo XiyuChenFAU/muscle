@@ -110,6 +110,10 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
     Sphericaljointpage->setGeometry(820, 180, 300, 480);
     stackedWidget->addWidget(Sphericaljointpage);
 
+    Translationjointpage = new translationjointpage(this);
+    Translationjointpage->setGeometry(820, 180, 300, 480);
+    stackedWidget->addWidget(Translationjointpage);
+
     stackedWidget->setGeometry(820, 180, 300, 480);
 
     buttonGrouptype = new QButtonGroup;
@@ -180,6 +184,7 @@ jointpage::~jointpage(){
     delete newjointbutton;
     delete Revolutejointpage;
     delete Sphericaljointpage;
+    delete Translationjointpage;
     delete stackedWidget;
 }
 
@@ -257,11 +262,13 @@ void jointpage::setalltextedit(const std::string& jointnamevalue, const std::str
         stackedWidget->setCurrentIndex(findtypeindex);
         Revolutejointpage->setforjointi(jointindex);
         Sphericaljointpage->setforjointi(jointindex);
+        Translationjointpage->setforjointi(jointindex);
     }
     else{
         stackedWidget->setCurrentIndex(0);
         Revolutejointpage->setforjointi(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints());
         Sphericaljointpage->setforjointi(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints());
+        Translationjointpage->setforjointi(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints());
     }
 
 }
@@ -294,6 +301,17 @@ void jointpage::savesetting(){
             double angle2value=alleditsspher[4]->text().toDouble(); 
             double angle3value=alleditsspher[5]->text().toDouble();
             setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
+        }
+        if(selectedValuetype==2){
+            
+            std::vector<QLineEdit *> alleditsspher=Translationjointpage->getqedits();
+            double initialtranslation1value=alleditsspher[0]->text().toDouble();
+            double initialtranslation2value=alleditsspher[1]->text().toDouble(); 
+            double initialtranslation3value=alleditsspher[2]->text().toDouble();
+            double translation1value=alleditsspher[3]->text().toDouble();
+            double translation2value=alleditsspher[4]->text().toDouble(); 
+            double translation3value=alleditsspher[5]->text().toDouble();
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], initialtranslation1value, initialtranslation2value, initialtranslation3value, translation1value, translation2value, translation3value);
         }
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setstepnum(stepnumstringEdit->text().toInt());
 

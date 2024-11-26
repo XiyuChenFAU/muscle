@@ -60,7 +60,7 @@ Or you can compile it based on the compile
 * cd casadi
 * mkdir build
 * cd build
-* cmake -DWITH_PYTHON=ON -DWITH_IPOPT=ON ..
+* cmake -DWITH_IPOPT=ON ..
 * make
 * sudo make install
 

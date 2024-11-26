@@ -24,9 +24,11 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
             file << typenamevalue << "\t";
             file << rownum << "\t";
             for (int j=0;j<value.size();j++) {
+                std::cout << value[j][i] << "\t";
                 file << value[j][i] << "\t";
             }
             file << "\n";
+            std::cout << "\n";
             rownum++;
         }
     } else {
@@ -45,8 +47,8 @@ void IO::writemusclebodyresultToFileAll(model* Model){
 
     std::vector<body*> allbody=Model->getparm()->getallbody();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
     
     //writebody
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_body_result.txt";
@@ -112,8 +114,8 @@ void IO::writephiToFile(model* Model){
     std::vector<std::vector<std::vector<double>>> phiall = Model->getPostprocessing()->getphiall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<body*> allbody=Model->getparm()->getallbody();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
     
 
     //phiall
@@ -143,8 +145,8 @@ void IO::writelengthToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> lengthall = Model->getPostprocessing()->getlengthall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
 
     //lengthall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_length_result.txt";
@@ -171,8 +173,8 @@ void IO::writeforcenodeToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> forceallnode = Model->getPostprocessing()->getforceallnode();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
 
     //forceallnode
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_forcenode_result.txt";
@@ -199,8 +201,8 @@ void IO::writetotalforceToFile(model* Model){
 
     std::vector<std::vector<double>> totalforceall = Model->getPostprocessing()->gettotalforceall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
 
     //totalforceall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_totalforce_result.txt";
@@ -233,8 +235,8 @@ void IO::writebody_stateToFile(model* Model){
     }
 
     std::vector<body*> allbody=Model->getparm()->getallbody();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
 
     //body_state
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_bodystate_result.txt";
@@ -318,8 +320,8 @@ void IO::writemomentarmnodeToFile(model* Model){
     std::vector<std::vector<std::vector<double>>> momentarmnodeall = Model->getPostprocessing()->getmomentarmnodeall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
     
 
     //phiall
@@ -329,12 +331,17 @@ void IO::writemomentarmnodeToFile(model* Model){
     file6 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file6 << rotation[i] << "\t";}
     file6 << "\n";
+    std::cout<< "test1\n";
     //writevalue
     for(int i =0;i<Model->getparm()->getn_muscles();i++){
         for(int j =0;j<Model->getparm()->getn_joints();j++){
-            write2DvalueToFile(momentarmnodeall[i*Model->getparm()->getn_joints()+j],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
+            if(alljoint[j]->getwritemomentarm()){
+                std::cout<< alljoint[j]->getname() <<" "<<alljoint[j]->getwritemomentarm()<<std::endl;
+                write2DvalueToFile(momentarmnodeall[i*Model->getparm()->getn_joints()+j],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
+            }
         }
     }
+    std::cout<< "test\n";
     file6.close();
 }
 
@@ -350,8 +357,8 @@ void IO::writemomentarmToFile(model* Model){
     std::vector<std::vector<double>> momentarmall = Model->getPostprocessing()->getmomentarmall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
-    std::vector<double> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getallrotationangle();}
+    std::vector<int> rotation;
+    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
     
 
     //phiall
@@ -364,11 +371,13 @@ void IO::writemomentarmToFile(model* Model){
     //writevalue
     for(int i =0;i<Model->getparm()->getn_muscles();i++){
         for(int j =0;j<Model->getparm()->getn_joints();j++){
-            file7 << allmuscle[i]->getname()+"-"+alljoint[j]->getname() << "\t"<<"moment_arm"<<"\t"<<1<<"\t";
-            for(int k =0;k<momentarmall[i*Model->getparm()->getn_joints()+j].size();k++){
-                file7 << momentarmall[i*Model->getparm()->getn_joints()+j][k]<<"\t";
+            if(alljoint[j]->getwritemomentarm()){
+                file7 << allmuscle[i]->getname()+"-"+alljoint[j]->getname() << "\t"<<"moment_arm"<<"\t"<<1<<"\t";
+                for(int k =0;k<momentarmall[i*Model->getparm()->getn_joints()+j].size();k++){
+                    file7 << momentarmall[i*Model->getparm()->getn_joints()+j][k]<<"\t";
+                }
+                file7 << "\n";
             }
-            file7 << "\n";
         }
     }
     file7.close();
@@ -439,6 +448,7 @@ void IO::writejson(model* Model){
 
     Json::Value jointArray(Json::arrayValue);
     for (int i=0;i<Model->getparm()->getn_joints();i++) {
+
         Json::Value jointObject;
         jointObject["joint_name"] = Model->getparm()->getjointindex(i)->getname();
         jointObject["rotate_body_name"] = Model->getparm()->getjointindex(i)->getbodyname();
@@ -465,6 +475,18 @@ void IO::writejson(model* Model){
             rotationanglevalue.append(value);
         }
         jointObject["rotation_angle"] = rotationanglevalue;
+
+        Json::Value initial_translationvalue(Json::arrayValue);
+        for (const auto& value : Model->getparm()->getjointindex(i)->getinitialtranslation()) {
+            initial_translationvalue.append(value);
+        }
+        jointObject["initial_translation"] = initial_translationvalue;
+
+        Json::Value translationvalue(Json::arrayValue);
+        for (const auto& value : Model->getparm()->getjointindex(i)->gettranslation()) {
+            translationvalue.append(value);
+        }
+        jointObject["translation"] = translationvalue;
         jointArray.append(jointObject);
     }
     root["joint"] = jointArray;
@@ -605,7 +627,19 @@ model* IO::readmodel(const std::string&  jsonfilename){
         for (const Json::Value& value : rotation_angleArray) {
             rotation_anglevalue.push_back(value.asDouble());
         }
-        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, initial_rotation_anglevalue, rotation_anglevalue);
+
+        std::vector<double> initial_translationvalue;
+        const Json::Value& initial_translationArray = jointObject["initial_translation"];
+        for (const Json::Value& value : initial_translationArray) {
+            initial_translationvalue.push_back(value.asDouble());
+        }
+
+        std::vector<double> translationvalue;
+        const Json::Value& translationArray = jointObject["translation"];
+        for (const Json::Value& value : translationArray) {
+            translationvalue.push_back(value.asDouble());
+        }
+        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, initial_rotation_anglevalue, rotation_anglevalue, initial_translationvalue, translationvalue);
     }
 
     //setipopt

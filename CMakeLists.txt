@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #cmake .. -DCMAKE_TOOLCHAIN_FILE=/Users/xiyuchen/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 
-set(Qt5_DIR /Users/xiyuchen/Qt5.14.2/5.14.2/clang_64/lib/cmake/Qt5)
+set(Qt5_DIR /Users/xiyu/Documents/Qt5.14.2/5.14.2/clang_64/lib/cmake/Qt5)
 include_directories("/usr/local/include")
 
 find_package(CasADi REQUIRED)

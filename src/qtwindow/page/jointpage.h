@@ -18,6 +18,7 @@ Xiyu Chen
 #include "../../run_model.h"
 #include "jointtype/revolutejointpage.h"
 #include "jointtype/sphericaljointpage.h"
+#include "jointtype/translationjointpage.h"
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QStackedWidget>
@@ -65,6 +66,7 @@ private:
     QStackedWidget *stackedWidget=nullptr;
     revolutejointpage *Revolutejointpage = nullptr;
     sphericaljointpage *Sphericaljointpage = nullptr;
+    translationjointpage *Translationjointpage = nullptr;
     int selectedValuetype=-1;
     int selectedValuebody=-1;
 

@@ -29,6 +29,8 @@ std::vector<double> vector3plus(const std::vector<double>& vector1, const std::v
 std::vector<double> vector3minus(const std::vector<double>& vector1, const std::vector<double>& vector2);
 double sumvector(const std::vector<double>& vector1);
 double vectortime1(const std::vector<double>& vector1, const std::vector<double>& vector2);
+double vector_module(const std::vector<double>& vector1);
+std::vector<double> vector_unit(const std::vector<double>& vector1);
 std::vector<std::vector<double>> matrixplus(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2);
 std::vector<std::vector<double>> matrixminus(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2);
 std::vector<std::vector<double>> matrixtime(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2);

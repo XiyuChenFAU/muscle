@@ -6,8 +6,8 @@ Xiyu Chen
 
 */
 
-#ifndef SPHERICALJOINTPAGE_H
-#define SPHERICALJOINTPAGE_H
+#ifndef TRANSLATIONJOINTPAGE_H
+#define TRANSLATIONJOINTPAGE_H
 
 #include <QWidget>
 #include <QLabel>
@@ -18,13 +18,13 @@ Xiyu Chen
 
 class jointpage;
 
-class sphericaljointpage : public QWidget
+class translationjointpage : public QWidget
 {
     Q_OBJECT
 
 public:
-    sphericaljointpage(jointpage *Jointpage, QWidget *parent = nullptr);
-    ~sphericaljointpage();
+    translationjointpage(jointpage *Jointpage, QWidget *parent = nullptr);
+    ~translationjointpage();
     QLineEdit* settext(const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
     void setlabel(const std::string& labelname, int x, int y, int fontsize);
     QLineEdit* settextandlabel(const std::string& labelname, const std::string& textdefault, int x, int y, int textwidth, int textheight, int fontsize);
@@ -39,4 +39,4 @@ private:
     jointpage *Jointpage=nullptr;
 };
 
-#endif // SPHERICALJOINTPAGE_H
+#endif // TRANSLATIONJOINTPAGE_H

@@ -157,6 +157,14 @@ double vectortime1(const std::vector<double>& vector1, const std::vector<double>
     return value;
 }
 
+double vector_module(const std::vector<double>& vector1){
+    return std::sqrt(vectortime1(vector1,vector1));
+}
+
+std::vector<double> vector_unit(const std::vector<double>& vector1){
+    return vector3timeconstant(vector1,1.0/vector_module(vector1));
+}
+
 std::vector<std::vector<double>> matrixplus(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2){
     std::vector<std::vector<double>> matrixnew;
     for(int i=0; i<matrix1.size(); i++){

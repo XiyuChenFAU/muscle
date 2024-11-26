@@ -11,6 +11,7 @@ Xiyu Chen
 using namespace std;
 using namespace casadi;
 
+
 objective::objective(){
     casenum=0;
 }
@@ -42,8 +43,8 @@ SX objective::getlengthdisdiff(muscle* Muscle, const std::vector<std::vector<SX>
     SX f_length=0;
     for(int j=0;j<Muscle->getnodenum()-1;j++){
         std::vector<SX> gammaallnodemuscle1; 
-        f_length=f_length+(gammaallnode[j+1][0] -gammaallnode[j][0]) *(gammaallnode[j+1][0] -gammaallnode[j][0])+(gammaallnode[j+1][1] -gammaallnode[j][1]) *(gammaallnode[j+1][1] -gammaallnode[j][1])+(gammaallnode[j+1][2] -gammaallnode[j][2]) *(gammaallnode[j+1][2] -gammaallnode[j][2]);
-        f_length=f_length-((gammalaststep[j*3+3]-gammalaststep[j*3])*(gammalaststep[j*3+3]-gammalaststep[j*3])+(gammalaststep[j*3+4]-gammalaststep[j*3+1])*(gammalaststep[j*3+4]-gammalaststep[j*3+1])+(gammalaststep[j*3+5]-gammalaststep[j*3+2])*(gammalaststep[j*3+5]-gammalaststep[j*3+2]));
+        f_length=f_length + abs((gammaallnode[j+1][0] -gammaallnode[j][0]) *(gammaallnode[j+1][0] -gammaallnode[j][0])+(gammaallnode[j+1][1] -gammaallnode[j][1]) *(gammaallnode[j+1][1] -gammaallnode[j][1])+(gammaallnode[j+1][2] -gammaallnode[j][2]) *(gammaallnode[j+1][2] -gammaallnode[j][2]) -
+            ((gammalaststep[j*3+3]-gammalaststep[j*3])*(gammalaststep[j*3+3]-gammalaststep[j*3])+(gammalaststep[j*3+4]-gammalaststep[j*3+1])*(gammalaststep[j*3+4]-gammalaststep[j*3+1])+(gammalaststep[j*3+5]-gammalaststep[j*3+2])*(gammalaststep[j*3+5]-gammalaststep[j*3+2])));
     }
     return f_length;
 }

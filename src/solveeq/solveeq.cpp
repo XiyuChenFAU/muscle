@@ -101,7 +101,7 @@ void solveeq::solvesignorini(Parm* parm){
         loopnum=0;
     }
     for(int i=0;i<loopnum;i++){
-        parm->rotatebodyupdate(loopnum-1,i);
+        parm->rotatebodyupdate(stepnum,i);
         if(i==0){
             parm->setallmuscleinitialeta_gamma();
             solvesignorinirotate(parm,1);

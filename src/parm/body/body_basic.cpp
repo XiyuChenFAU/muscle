@@ -44,6 +44,7 @@ void bodybasic::setbodybasic(const std::vector<double>& q0){
     else{
         axisangle_ref[0]=matrix_to_axisangle_ref_fix_space();
     }
+    body_temporary_update={};
     //PrintParameters(q0);
 }
 
@@ -78,6 +79,7 @@ void bodybasic::setbodybasic(const std::vector<double>& positionglobal, const st
     else{
         axisangle_ref[0]=matrix_to_axisangle_ref_fix_space();
     }
+    body_temporary_update={};
     //PrintParameters(q[q.size()-1]);
 }
 
@@ -113,6 +115,7 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
     else{
         axisangle_ref[0]=matrix_to_axisangle_ref_fix_space();
     }
+    body_temporary_update={};
     //PrintParameters(q[q.size()-1]);
 }
 
@@ -193,14 +196,14 @@ void bodybasic::setrotatestatus(int newstatus){
     rotatestatus=newstatus;
 }
 
-void bodybasic::setpoistionaxis(const std::vector<double>& q){
+void bodybasic::setpoistionaxis(const std::vector<double>& q_0){
     std::vector<double> positionnew;
     std::vector<std::vector<double>> axisnew;
     for(int i=0; i<3; i++){
-        positionnew.push_back(q[i]);
+        positionnew.push_back(q_0[i]);
         std::vector<double> axisnew1;
         for (int j = 3+i*3; j < 6+i*3 ; j++) {
-            axisnew1.push_back(q[j]);
+            axisnew1.push_back(q_0[j]);
         }
         axisnew.push_back(axisnew1);
     }
@@ -208,16 +211,24 @@ void bodybasic::setpoistionaxis(const std::vector<double>& q){
     axis=axisnew;
 }
 
-std::vector<double> bodybasic::pushback(std::vector<double>& q, const std::vector<double>& value){
+std::vector<double> bodybasic::pushback(std::vector<double>& q_0, const std::vector<double>& value){
     for(int i=0; i<value.size(); i++){
-        q.push_back(value[i]);
+        q_0.push_back(value[i]);
     }
-    return q;
+    return q_0;
 }
 
 void bodybasic::norotateaddvalue(){
-    q.push_back(q[q.size()-1]);
-    axisangle_ref.push_back(axisangle_ref[axisangle_ref.size()-1]);
+    q.push_back(q.back());
+    axisangle_ref.push_back(axisangle_ref.back());
+}
+
+void bodybasic::rotateaddvalue(){
+    rotatestatus=0;
+    q.push_back(body_temporary_update);
+    setpoistionaxis(body_temporary_update);
+    axisangle_ref.push_back(matrix_to_axisangle_ref_fix_space());
+    body_temporary_update={};
 }
 
 void bodybasic::addnewbodybasic(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis){
@@ -230,6 +241,19 @@ void bodybasic::addnewbodybasic(const std::vector<double>& newbodyposition, cons
     q.push_back(qnewall);
     setpoistionaxis(qnewall);
     axisangle_ref.push_back(matrix_to_axisangle_ref_fix_space());
+}
+
+void bodybasic::setbody_temporary_update(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis){
+    std::vector<double> qnewall;
+    qnewall=pushback(qnewall, newbodyposition);
+    for(int i=0; i<3; i++){
+        qnewall=pushback(qnewall, newbodyaxis[i]);
+    }
+    body_temporary_update=qnewall;
+}
+    
+std::vector<double> bodybasic::getbody_temporary_update(){
+    return body_temporary_update;
 }
 
 void bodybasic::PrintParameters(const std::vector<double>& q0){

@@ -1,4 +1,0 @@
-/Users/xiyuchen/Desktop/muscle_project/musclewindow/muscle/build/CMakeFiles/muscle_path.dir
-/Users/xiyuchen/Desktop/muscle_project/musclewindow/muscle/build/CMakeFiles/edit_cache.dir
-/Users/xiyuchen/Desktop/muscle_project/musclewindow/muscle/build/CMakeFiles/rebuild_cache.dir
-/Users/xiyuchen/Desktop/muscle_project/musclewindow/muscle/build/CMakeFiles/muscle_path_autogen.dir

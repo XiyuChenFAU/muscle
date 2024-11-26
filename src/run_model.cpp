@@ -45,6 +45,7 @@ void runmodel::setrunmodel(const std::string& jsonfile, int json){
 double runmodel::runprogram(){
     clock_t start_time = clock();
     Model->solve_signorini();
+    
     Model->do_postprocessing();
 
     io->writemusclebodyresultToFileAll(Model);

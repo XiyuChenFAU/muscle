@@ -34,10 +34,13 @@ public:
     std::vector<std::vector<double>> getaxisangle_ref();
     std::vector<double> getglobalnaxis(bodybasic* parentbodybasic);
     void setrotatestatus(int newstatus);
-    void  setpoistionaxis(const std::vector<double>& q);
-    std::vector<double> pushback(std::vector<double>& q, const std::vector<double>& value);
+    void  setpoistionaxis(const std::vector<double>& q_0);
+    std::vector<double> pushback(std::vector<double>& q_0, const std::vector<double>& value);
     void norotateaddvalue();
+    void rotateaddvalue();
     void  addnewbodybasic(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis);
+    void setbody_temporary_update(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis);
+    std::vector<double> getbody_temporary_update();
     void PrintParameters(const std::vector<double>& q0);
     std::vector<double> matrix_to_axisangle_ref_fix_space();
     void resetforrecalc();
@@ -52,7 +55,8 @@ private:
     int rotatestatus;
     std::vector<double> initialsetting_naxis;
     double initialsetting_angle;
-    
+    std::vector<double> body_temporary_update={};
+
 };
 
 #endif // BODY_BASIC_H

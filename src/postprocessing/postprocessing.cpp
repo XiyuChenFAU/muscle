@@ -20,21 +20,23 @@ void postprocessing::get_momentarmall(Parm* parm){
     std::vector<std::vector<double>> momentarmallres;
     for(int i=0;i<allmuscle.size();i++){
         for(int j=0;j<alljoint.size();j++){
-            std::vector<std::vector<double>> gammaall=get_momentarm_per_muscle(allmuscle[i]->getgammaall(),alljoint[j]);
-            momentarmallnoderes.push_back(gammaall);
-            std::vector<double> moment_re;
-            for(int k=0;k<gammaall.size();k++){
-                double minimum_abs=fabs(gammaall[k][0]);
-                double minimum_no_abs=gammaall[k][0];
-                for(int l=1;l<gammaall[k].size();l++){
-                    if(fabs(gammaall[k][l])<minimum_abs){
-                        minimum_abs=fabs(gammaall[k][l]);
-                        minimum_no_abs=gammaall[k][l];
+            if(alljoint[j]->getwritemomentarm()){
+                std::vector<std::vector<double>> gammaall=get_momentarm_per_muscle(allmuscle[i]->getgammaall(),alljoint[j]);
+                momentarmallnoderes.push_back(gammaall);
+                std::vector<double> moment_re;
+                for(int k=0;k<gammaall.size();k++){
+                    double minimum_abs=fabs(gammaall[k][0]);
+                    double minimum_no_abs=gammaall[k][0];
+                    for(int l=1;l<gammaall[k].size();l++){
+                        if(fabs(gammaall[k][l])<minimum_abs){
+                            minimum_abs=fabs(gammaall[k][l]);
+                            minimum_no_abs=gammaall[k][l];
+                        }
                     }
+                    moment_re.push_back(minimum_no_abs);
                 }
-                moment_re.push_back(minimum_no_abs);
+                momentarmallres.push_back(moment_re);
             }
-            momentarmallres.push_back(moment_re);
         }
     }
     momentarmall=momentarmallres;
@@ -53,30 +55,28 @@ std::vector<std::vector<double>> postprocessing::get_momentarm_per_muscle(const 
 std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint){
     int gammasize=gamma.size()/3;
     std::vector<double> gammaallnode;
-    if(Joint->getjoint_type() =="revolute joint"){
-        for(int i=0;i<gammasize;i++){
-            std::vector<double> forcedir;
-            if(i==0){
-                forcedir=vector3minus({gamma[3*(i+1)],gamma[3*(i+1)+1],gamma[3*(i+1)+2]}, {gamma[3*i],gamma[3*i+1],gamma[3*i+2]});
-            }
-            else if(i==gammasize-1){
-                forcedir=vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, {gamma[3*(i-1)],gamma[3*(i-1)+1],gamma[3*(i-1)+2]});
-            }
-            else{
-                forcedir=vector3minus({gamma[3*(i+1)],gamma[3*(i+1)+1],gamma[3*(i+1)+2]}, {gamma[3*(i-1)],gamma[3*(i-1)+1],gamma[3*(i-1)+2]});
-            }
-            double forcedir_value=-1.0*std::sqrt(vectortime1(forcedir,forcedir)); //-1.0 direction from insertion to origin
-            std::vector<double> forcedir_unit=vector3timeconstant(forcedir,1.0/forcedir_value);
-            std::vector<double> rotationangle=Joint->getrotationangle();
-            std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
-            double angle_vhange_value=(rotationangle[0]-initialrotationangle[0])/fabs((rotationangle[0]-initialrotationangle[0]));
-            double axis_value=angle_vhange_value*std::sqrt(vectortime1(Joint->getabsolute_axisvector(),Joint->getabsolute_axisvector()));
-            std::vector<double> axis_unit=vector3timeconstant(Joint->getabsolute_axisvector(),1.0/axis_value);
-
-            std::vector<double> r_cross_F=crossProduct(vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, Joint->getabsolute_pos()),forcedir_unit);
-            double gamma_one_node_res=vectortime1(r_cross_F,axis_unit);
-            gammaallnode.push_back(gamma_one_node_res);
+    for(int i=0;i<gammasize;i++){
+        std::vector<double> forcedir;
+        if(i==0){
+            forcedir=vector3minus({gamma[3*(i+1)],gamma[3*(i+1)+1],gamma[3*(i+1)+2]}, {gamma[3*i],gamma[3*i+1],gamma[3*i+2]});
         }
+        else if(i==gammasize-1){
+            forcedir=vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, {gamma[3*(i-1)],gamma[3*(i-1)+1],gamma[3*(i-1)+2]});
+        }
+        else{
+            forcedir=vector3minus({gamma[3*(i+1)],gamma[3*(i+1)+1],gamma[3*(i+1)+2]}, {gamma[3*(i-1)],gamma[3*(i-1)+1],gamma[3*(i-1)+2]});
+        }
+        double forcedir_value=-1.0*std::sqrt(vectortime1(forcedir,forcedir)); //-1.0 direction from insertion to origin
+        std::vector<double> forcedir_unit=vector3timeconstant(forcedir,1.0/forcedir_value);
+        std::vector<double> rotationangle=Joint->getrotationangle();
+        std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
+        double angle_vhange_value=(rotationangle[0]-initialrotationangle[0])/fabs((rotationangle[0]-initialrotationangle[0]));
+        double axis_value=angle_vhange_value*std::sqrt(vectortime1(Joint->getabsolute_axisvector(),Joint->getabsolute_axisvector()));
+        std::vector<double> axis_unit=vector3timeconstant(Joint->getabsolute_axisvector(),1.0/axis_value);
+
+        std::vector<double> r_cross_F=crossProduct(vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, Joint->getabsolute_pos()),forcedir_unit);
+        double gamma_one_node_res=vectortime1(r_cross_F,axis_unit);
+        gammaallnode.push_back(gamma_one_node_res);
     }
     return gammaallnode;    
 }

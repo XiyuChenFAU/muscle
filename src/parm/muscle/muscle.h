@@ -40,6 +40,8 @@ public:
     std::vector<double> getrho_i_position();
     std::vector<double> getrho_o_position_initial_global();
     std::vector<double> getrho_i_position_initial_global();
+    body* getrhoo_body();
+    body* getrhoi_body();
 
     void addgamma(const std::vector<std::vector<double>>& gammanew);
     void addeta(const std::vector<std::vector<double>>& etanew);

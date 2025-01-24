@@ -37,19 +37,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 65,
+				"line" : 67,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 71,
+				"line" : 73,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 72,
+				"line" : 74,
 				"parent" : 0
 			},
 			{
@@ -382,9 +382,9 @@
 				1,
 				3,
 				5,
-				9,
-				10,
+				7,
 				11,
+				12,
 				13,
 				15,
 				17,
@@ -396,7 +396,7 @@
 				29,
 				31,
 				33,
-				36,
+				35,
 				38,
 				40,
 				42,
@@ -408,7 +408,8 @@
 				54,
 				56,
 				58,
-				60
+				60,
+				62
 			]
 		}
 	],
@@ -516,9 +517,9 @@
 				1,
 				3,
 				5,
-				9,
-				10,
+				7,
 				11,
+				12,
 				13,
 				15,
 				17,
@@ -530,7 +531,7 @@
 				29,
 				31,
 				33,
-				36,
+				35,
 				38,
 				40,
 				42,
@@ -542,7 +543,8 @@
 				54,
 				56,
 				58,
-				60
+				60,
+				62
 			]
 		},
 		{
@@ -552,9 +554,9 @@
 				2,
 				4,
 				6,
-				7,
 				8,
-				12,
+				9,
+				10,
 				14,
 				16,
 				18,
@@ -566,7 +568,7 @@
 				30,
 				32,
 				34,
-				37,
+				36,
 				39,
 				41,
 				43,
@@ -579,14 +581,15 @@
 				57,
 				59,
 				61,
-				62
+				63,
+				64
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				35
+				37
 			]
 		}
 	],
@@ -630,6 +633,17 @@
 		{
 			"backtrace" : 1,
 			"path" : "src/constraint/constraintshape.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/initial_guess/initialguess.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "src/initial_guess/initialguess.h",
 			"sourceGroupIndex" : 1
 		},
 		{

@@ -59,11 +59,19 @@ private:
     std::vector<QRadioButton *> radioButtons;
     QButtonGroup *buttonGroup1 = nullptr;
     int selectedValue = 0;
+    std::vector<QRadioButton *> radioButtons_mode;
+    QButtonGroup *buttonGroup_initial_mode = nullptr;
+    int selectedValue_mode = 0;
+    std::vector<QRadioButton *> radioButtons_body;
+    QButtonGroup *buttonGroup_initial_body = nullptr;
+    int selectedValue_body = 0;
 
 private slots:
     void savesetting();
     void openFolderDialog();
     void handleButtonClicked(QAbstractButton* button);
+    void handleButtonClicked_mode(QAbstractButton* button);
+    void handleButtonClicked_body(QAbstractButton* button);
 };
 
 #endif // SOLVESETTINGPAGE_H

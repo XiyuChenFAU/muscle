@@ -12,6 +12,12 @@ using namespace std;
 
 std::vector<std::string> bodybasic::alltype={"local","global"};
 
+/* 
+axis 10T=[[d1]
+          [d2]
+          [d3]]
+*/
+
 bodybasic::bodybasic(const std::vector<double>& q0){
     setbodybasic(q0);
     //PrintParameters(q0);

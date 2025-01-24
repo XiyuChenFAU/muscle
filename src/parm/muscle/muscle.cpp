@@ -124,6 +124,13 @@ std::vector<double> muscle::getrho_i(){
     return rho_i;
 }
 
+body* muscle::getrhoo_body(){
+    return rhoo_body;
+}
+body* muscle::getrhoi_body(){
+    return rhoi_body;
+}
+
 std::vector<double> muscle::getrho_o_position_initial_global(){
     std::vector<std::vector<double>> rhoo_q=rhoo_body->getbodybasic()->getq();
     std::vector<double> gamma_o = localtoglobal({rhoo_q[0][0],rhoo_q[0][1],rhoo_q[0][2]},{{rhoo_q[0][3],rhoo_q[0][4],rhoo_q[0][5]},{rhoo_q[0][6],rhoo_q[0][7],rhoo_q[0][8]},{rhoo_q[0][9],rhoo_q[0][10],rhoo_q[0][11]}}, rho_o);

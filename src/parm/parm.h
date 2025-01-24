@@ -24,6 +24,7 @@ public:
     int getn_bodies();
     int getn_muscles();
     int getn_joints();
+    int get_write_moment_joints();
     std::vector<body*> getallbody();
     body* getbodyindex(int index);
     std::vector<muscle*> getallmuscle();

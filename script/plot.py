@@ -43,8 +43,7 @@ class Postprocess:
         
     def rotate_vector(self,vector, axis, angle):
         # Normalize the axis vector
-        if np.linalg.norm(axis):
-            axis = axis / np.linalg.norm(axis)
+        axis = axis / np.linalg.norm(axis)
 
         # Calculate the rotation matrix
         cos_theta = np.cos(angle)
@@ -120,7 +119,7 @@ class Postprocess:
         nodenum = []
         for i in range(len(lines)):
             row = lines[i].strip().split('\t')
-            if (row[0] not in muscles) and (row[0] != 'rotation angle'):
+            if (row[0] not in muscles) and (row[0] != 'rotation_angle'):
                 muscles.append(row[0])  # find all muscles
                 lock = 1
             if lock == 1:
@@ -145,13 +144,13 @@ class Postprocess:
                     if row[0] == muscles[i]:
                         rowdata = []
                         for j in range(len(row)-3-inital):
-                                rowdata.append(float(row[j+3+inital]))
+                            rowdata.append(float(row[j+3+inital]))
                         muscledata.append(rowdata)
                 allmuscledata.append(muscledata)
         else:
             for line in lines:
                 row = line.strip().split('\t')
-                if row[0] != 'rotation angle':
+                if row[0] != 'rotation_angle':
                     muscledata = []
                     for j in range(len(row)-3-inital):
                         muscledata.append(float(row[j+3+inital]))
@@ -178,7 +177,7 @@ class Postprocess:
         fig = plt.figure()
         plt.pcolormesh(x, y, data2d, cmap='viridis')
         plt.colorbar()
-        plt.gca().xaxis.set_major_locator(MultipleLocator(10))
+        plt.gca().xaxis.set_major_locator(MultipleLocator(120))
         plt.yticks(y)
         plt.xlabel('angle')
         plt.ylabel(ylabelname)
@@ -206,7 +205,7 @@ class Postprocess:
                         plt.plot(x, data[i][0], label=linename[i],color=colors[i%len(colors)])
                 else:
                     plt.plot(x, data[i], label=linename[i],color=colors[i%len(colors)])
-        plt.gca().xaxis.set_major_locator(MultipleLocator(10))
+        plt.gca().xaxis.set_major_locator(MultipleLocator(120))
         plt.gca().xaxis.set_minor_locator(AutoLocator())
         plt.xlabel('angle')
         plt.ylabel(ylabelname)

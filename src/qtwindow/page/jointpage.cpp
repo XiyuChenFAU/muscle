@@ -85,17 +85,24 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
     radioButtonbodynull->setVisible(false);
     radioButtonsbody.push_back(radioButtonbodynull);
     buttonGroupbody->addButton(radioButtonsbody[0], -1);
+
+    QRadioButton* radioButtonfix = new QRadioButton(QString::fromStdString("fix_space"), this);
+    radioButtonsbody.push_back(radioButtonfix);
+    radioButtonsbody[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtonsbody[1]->setGeometry(10, 390, 340, 30);
+    buttonGroupbody->addButton(radioButtonsbody[1], 0);
+
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonsbody.push_back(radioButton);
-        radioButtonsbody[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsbody[i+1]->setGeometry(10, 390+i*40, 340, 30);
-        buttonGroupbody->addButton(radioButtonsbody[i+1], i);
+        radioButtonsbody[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsbody[i+2]->setGeometry(10, 390+(i+1)*40, 340, 30);
+        buttonGroupbody->addButton(radioButtonsbody[i+2], 1);
     }
     connect(buttonGroupbody, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &jointpage::handleButtonClickedbody);
     int findbodyrotate=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rotatebodyname);
-    radioButtonsbody[findbodyrotate+1]->setChecked(true);
-    selectedValuebody=findbodyrotate;
+    radioButtonsbody[findbodyrotate+2]->setChecked(true);
+    selectedValuebody=findbodyrotate+1;
     setlabel("step number for all joints", 660, 110, allfontsize);
     stepnumstringEdit=settext(stepnumstring, 850, 110, 260, 30 ,allfontsize);
     setlabel("joint type", 660, 150, allfontsize);
@@ -251,8 +258,8 @@ void jointpage::setalltextedit(const std::string& jointnamevalue, const std::str
     stepnumstringEdit->setText(QString::fromStdString(std::to_string(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum())));
 
     int findbodyrotate=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(bodynamevalue);
-    radioButtonsbody[findbodyrotate+1]->setChecked(true);
-    selectedValuebody=findbodyrotate;
+    radioButtonsbody[findbodyrotate+2]->setChecked(true);
+    selectedValuebody=findbodyrotate+1;
     
 
     int findtypeindex=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(0)->getjointtypeindex(jointtypevalue);
@@ -289,7 +296,7 @@ void jointpage::savesetting(){
             std::vector<double> axisvectorvalue={alleditsrevo[0]->text().toDouble(),alleditsrevo[1]->text().toDouble(),alleditsrevo[2]->text().toDouble()};
             double initialanglevalue=alleditsrevo[3]->text().toDouble();
             double anglevalue=alleditsrevo[4]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, initialanglevalue, anglevalue);
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, initialanglevalue, anglevalue);
         }
         if(selectedValuetype==1){
             
@@ -300,7 +307,7 @@ void jointpage::savesetting(){
             double angle1value=alleditsspher[3]->text().toDouble();
             double angle2value=alleditsspher[4]->text().toDouble(); 
             double angle3value=alleditsspher[5]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
         }
         if(selectedValuetype==2){
             
@@ -311,7 +318,7 @@ void jointpage::savesetting(){
             double translation1value=alleditsspher[3]->text().toDouble();
             double translation2value=alleditsspher[4]->text().toDouble(); 
             double translation3value=alleditsspher[5]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody)->getname(), joint::alljoint_type[selectedValuetype], initialtranslation1value, initialtranslation2value, initialtranslation3value, translation1value, translation2value, translation3value);
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], initialtranslation1value, initialtranslation2value, initialtranslation3value, translation1value, translation2value, translation3value);
         }
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setstepnum(stepnumstringEdit->text().toInt());
 

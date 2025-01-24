@@ -11,6 +11,7 @@ Xiyu Chen
 
 #include "../constraint/constraint.h"
 #include "../objective/objective.h"
+#include "../initial_guess/initialguess.h"
 #include "../parm/parm.h"
 #include "ipopt.h"
 
@@ -23,6 +24,7 @@ public:
     void setstepnum(int stepnumvalue);
     int getstepnum();
     objective* getObjective();
+    initialguess* getInitialguess();
     void solvesignorinirotate(Parm* parm, int initialstart=0);
     void solvesignorini(Parm* parm);
     
@@ -31,6 +33,7 @@ private:
     IPOPT* ipopt=nullptr;
     constraint* Constraint=nullptr;
     objective* Objective=nullptr;
+    initialguess* Initialguess=nullptr;
     int stepnum;
 };
 

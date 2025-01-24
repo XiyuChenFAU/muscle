@@ -52,7 +52,7 @@ void IO::writemusclebodyresultToFileAll(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_body_result.txt";
     std::ofstream file1(filename);
     //write titel
-    file1 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file1 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file1 << rotation[i] << "\t";}
     file1 << "\n";
     //writevalue
@@ -65,7 +65,7 @@ void IO::writemusclebodyresultToFileAll(model* Model){
     filename = folderoutput+"/"+Model->getmodelname()+"_muscle_gamma_result.txt";
     std::ofstream file2(filename);
     //write titel
-    file2 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file2 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file2 << rotation[i] << "\t";}
     file2 << "\n";
     //writevalue
@@ -78,7 +78,7 @@ void IO::writemusclebodyresultToFileAll(model* Model){
     filename = folderoutput+"/"+Model->getmodelname()+"_muscle_eta_result.txt";
     std::ofstream file3(filename);
     //write titel
-    file3 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file3 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file3 << rotation[i] << "\t";}
     file3 << "\n";
     //writevalue
@@ -120,7 +120,7 @@ void IO::writephiToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_phi_result.txt";
     std::ofstream file1(filename);
     //write titel
-    file1 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file1 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file1 << rotation[i] << "\t";}
     file1 << "\n";
     //writevalue
@@ -150,7 +150,7 @@ void IO::writelengthToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_length_result.txt";
     std::ofstream file2(filename);
     //write titel
-    file2 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file2 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file2 << rotation[i] << "\t";}
     file2 << "\n";
     //writevalue
@@ -178,7 +178,7 @@ void IO::writeforcenodeToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_forcenode_result.txt";
     std::ofstream file3(filename);
     //write titel
-    file3 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t";
+    file3 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t";
     for(int i=0;i<rotation.size();i++){file3 << rotation[i] << "\t";}
     file3 << "\n";
     //writevalue
@@ -206,7 +206,7 @@ void IO::writetotalforceToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_totalforce_result.txt";
     std::ofstream file4(filename);
     //write titel
-    file4 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t";
+    file4 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t";
     for(int i=0;i<rotation.size();i++){file4 << rotation[i] << "\t";}
     file4 << "\n";
     //writevalue
@@ -240,7 +240,7 @@ void IO::writebody_stateToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_bodystate_result.txt";
     std::ofstream file5(filename);
     //write titel
-    file5 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file5 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file5 << rotation[i] << "\t";}
     file5 << "\n";
     //writevalue
@@ -320,26 +320,22 @@ void IO::writemomentarmnodeToFile(model* Model){
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
     std::vector<int> rotation;
     if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
-    
 
     //phiall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarmnode_result.txt";
     std::ofstream file6(filename);
     //write titel
-    file6 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file6 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file6 << rotation[i] << "\t";}
     file6 << "\n";
-    std::cout<< "test1\n";
     //writevalue
     for(int i =0;i<Model->getparm()->getn_muscles();i++){
         for(int j =0;j<Model->getparm()->getn_joints();j++){
             if(alljoint[j]->getwritemomentarm()){
-                std::cout<< alljoint[j]->getname() <<" "<<alljoint[j]->getwritemomentarm()<<std::endl;
-                write2DvalueToFile(momentarmnodeall[i*Model->getparm()->getn_joints()+j],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
+                write2DvalueToFile(momentarmnodeall[i*(Model->getparm()->get_write_moment_joints())+j],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
             }
         }
     }
-    std::cout<< "test\n";
     file6.close();
 }
 
@@ -351,7 +347,6 @@ void IO::writemomentarmToFile(model* Model){
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
     }
-
     std::vector<std::vector<double>> momentarmall = Model->getPostprocessing()->getmomentarmall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
@@ -363,7 +358,7 @@ void IO::writemomentarmToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarm_result.txt";
     std::ofstream file7(filename);
     //write titel
-    file7 << "rotation angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file7 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
     for(int i=0;i<rotation.size();i++){file7 << rotation[i] << "\t";}
     file7 << "\n";
     //writevalue
@@ -371,8 +366,8 @@ void IO::writemomentarmToFile(model* Model){
         for(int j =0;j<Model->getparm()->getn_joints();j++){
             if(alljoint[j]->getwritemomentarm()){
                 file7 << allmuscle[i]->getname()+"-"+alljoint[j]->getname() << "\t"<<"moment_arm"<<"\t"<<1<<"\t";
-                for(int k =0;k<momentarmall[i*Model->getparm()->getn_joints()+j].size();k++){
-                    file7 << momentarmall[i*Model->getparm()->getn_joints()+j][k]<<"\t";
+                for(int k =0;k<momentarmall[i*Model->getparm()->get_write_moment_joints()+j].size();k++){
+                    file7 << momentarmall[i*Model->getparm()->get_write_moment_joints()+j][k]<<"\t";
                 }
                 file7 << "\n";
             }
@@ -503,6 +498,11 @@ void IO::writejson(model* Model){
     objective["solvercase"] = Model->getSolveeq()->getObjective()->getcasenum();
     objective["length_constant"] = Model->getSolveeq()->getObjective()->getlengthconstant();
     root["objective"]=objective;
+
+    Json::Value initial;
+    initial["mode_number"] = Model->getSolveeq()->getInitialguess()->getmode_nr();
+    initial["select_body"] = Model->getSolveeq()->getInitialguess()->getselect_bodyname();
+    root["initial_guess"]=initial;
 
     Json::Value postprocessing;
     postprocessing["tol"]=Model->getPostprocessing()->gettol();
@@ -659,6 +659,13 @@ model* IO::readmodel(const std::string&  jsonfilename){
     Model->getSolveeq()->getObjective()->setcasenum(solvercase);
     double length_constant=obj["length_constant"].asDouble();
     Model->getSolveeq()->getObjective()->setlengthconstant(length_constant);
+
+    //initial guess setting
+    const Json::Value& initial = root["initial_guess"];
+    int mode_initial=initial["mode_number"].asInt();
+    Model->getSolveeq()->getInitialguess()->setmode_nr(mode_initial);
+    std::string select_body_name = initial["select_body"].asString();
+    Model->getSolveeq()->getInitialguess()->setselect_bodyname(select_body_name);
 
     //postprocessing
     const Json::Value& postprocessingvalue = root["postprocessing"];

@@ -45,6 +45,16 @@ int Parm::getn_joints(){
     return n_joints;
 }
 
+int Parm::get_write_moment_joints(){
+    int write_moment_joints_nr=0;
+    for(int i=0;i<alljoint.size();i++){
+        if(alljoint[i]->getwritemomentarm()){
+            write_moment_joints_nr+=1;
+        }
+    }
+    return write_moment_joints_nr;
+}
+
 std::vector<body*> Parm::getallbody(){
     return allbody;
 }

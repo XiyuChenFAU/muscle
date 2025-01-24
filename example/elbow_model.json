@@ -80,6 +80,11 @@
 			}
 		}
 	],
+	"initial_guess" : 
+	{
+		"mode_number" : 2,
+		"select_body" : "fix_space"
+	},
 	"ipoptsetting" : 
 	{
 		"hessian_approximation" : "limited-memory",

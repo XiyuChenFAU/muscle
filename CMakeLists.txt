@@ -34,6 +34,8 @@ file(GLOB SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/parm/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/parm/body/*.h"
     "${PROJECT_SOURCE_DIR}/src/parm/body/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/initial_guess/*.h"
+    "${PROJECT_SOURCE_DIR}/src/initial_guess/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/parm/muscle/*.h"
     "${PROJECT_SOURCE_DIR}/src/parm/muscle/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/parm/joint/*.h"

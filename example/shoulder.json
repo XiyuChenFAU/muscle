@@ -80,6 +80,11 @@
 			}
 		}
 	],
+	"initial_guess" : 
+	{
+		"mode_number" : 2,
+		"select_body" : "fix_space"
+	},
 	"ipoptsetting" : 
 	{
 		"hessian_approximation" : "limited-memory",
@@ -120,9 +125,9 @@
 			],
 			"rotation_axis_relative_rotate_body" : 
 			[
-				-0.19808910892494599,
-				0.94994895290483505,
-				0.241573367324149
+				-0.19808910892494605,
+				0.94994895290483528,
+				0.24157336732414905
 			],
 			"translation" : 
 			[

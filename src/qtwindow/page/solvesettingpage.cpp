@@ -80,6 +80,62 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
         lenghtspringlabel->setVisible(false);
     }
 
+    
+    buttonGroup_initial_body = new QButtonGroup;
+    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtoni->setVisible(false);
+    radioButtons_body.push_back(radioButtoni);
+    buttonGroup_initial_body->addButton(radioButtons_body[0], -1);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1;i++){
+        QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
+        radioButtons_body.push_back(radioButton_body);
+        radioButtons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtons_body[i+1]->setGeometry(360, 700+i*40, 340, 30);
+        buttonGroup_initial_body->addButton(radioButtons_body[i+1], i);
+    }
+    connect(buttonGroup_initial_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_body);
+    std::string initialbodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getselect_bodyname();
+
+    int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(initialbodyname);
+    radioButtons_body[findbodyi+1]->setChecked(true);
+    selectedValue_body=findbodyi+1;
+
+
+    setlabel("local parameterization",10, 670, allfontsize);
+    buttonGroup_initial_mode = new QButtonGroup;
+
+    QRadioButton* radioButton1_mode_1 = new QRadioButton("no local", this);
+    radioButtons_mode.push_back(radioButton1_mode_1);
+    radioButtons_mode[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_mode[0]->setGeometry(10, 700, 340, 30);
+    QRadioButton* radioButton1_mode_2 = new QRadioButton("local", this);
+    radioButtons_mode.push_back(radioButton1_mode_2);
+    radioButtons_mode[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_mode[1]->setGeometry(10, 740, 340, 30);
+    QRadioButton* radioButton1_mode_3 = new QRadioButton("auto local", this);
+    radioButtons_mode.push_back(radioButton1_mode_3);
+    radioButtons_mode[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_mode[2]->setGeometry(10, 780, 340, 30);
+    selectedValue_mode = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getmode_nr();
+    buttonGroup_initial_mode->addButton(radioButtons_mode[0], 0);
+    buttonGroup_initial_mode->addButton(radioButtons_mode[1], 1);
+    buttonGroup_initial_mode->addButton(radioButtons_mode[2], 2); 
+    connect(buttonGroup_initial_mode, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_mode);
+    radioButtons_mode[selectedValue_mode]->setChecked(true);
+
+    if(selectedValue_mode==1){
+        for (int i = 1; i < radioButtons_body.size(); ++i) {
+            radioButtons_body[i]->setVisible(true);
+        }
+    }
+    else{
+        for (int i =  1; i < radioButtons_body.size(); ++i) {
+            radioButtons_body[i]->setVisible(false);
+        }
+    }
+
+    
+
     //Casadi setting
     setlabel("Casadi setting", 660, 110,20);
     tolEdit=settextandlabel("tolerance",tol_string, 660, 150, 450, 30, allfontsize);
@@ -124,6 +180,15 @@ solvesettingpage::~solvesettingpage(){
     }
     delete buttonGroup1;
 
+    for(int i=0;i<radioButtons_mode.size();i++){
+        delete radioButtons_mode[i];
+    }
+    delete buttonGroup_initial_mode;
+
+    for(int i=0;i<radioButtons_body.size();i++){
+        delete radioButtons_body[i];
+    }
+    delete buttonGroup_initial_body;
 }
 
 QLineEdit* solvesettingpage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -180,6 +245,10 @@ void solvesettingpage::savesetting(){
         setmodelwin->getRunmodel()->getio()->setfolderpath(savepathEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setipoptoption(tolEdit->text().toDouble(),max_iterEdit->text().toInt(),linear_solverEdit->text().toStdString(),print_levelEdit->text().toInt(),hessian_approximationEdit->text().toStdString());
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setmode_nr(selectedValue_mode);
+        if(selectedValue_mode==1){
+            setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setselect_bodyname(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValue_body-1)->getname());
+        }
     }
 }
 
@@ -207,4 +276,22 @@ void solvesettingpage::handleButtonClicked(QAbstractButton* button){
         lengthconstEdit->setVisible(false);
         lenghtspringlabel->setVisible(false);
     }
+}
+
+void solvesettingpage::handleButtonClicked_mode(QAbstractButton* button){
+    selectedValue_mode = buttonGroup_initial_mode->id(button);
+    if(selectedValue_mode==1){
+        for (int i = 1; i < radioButtons_body.size(); ++i) {
+            radioButtons_body[i]->setVisible(true);
+        }
+    }
+    else{
+        for (int i =  1; i < radioButtons_body.size(); ++i) {
+            radioButtons_body[i]->setVisible(false);
+        }
+    }
+}
+
+void solvesettingpage::handleButtonClicked_body(QAbstractButton* button){
+    selectedValue_body = buttonGroup_initial_body->id(button);
 }

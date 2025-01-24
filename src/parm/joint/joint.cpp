@@ -177,7 +177,7 @@ void joint::setwritemomentarm(){
 void joint::absolute_pos_axis_update(){
     absolute_pos = localtoglobal(currentbody->getbodybasic()->getposition(), currentbody->getbodybasic()->getaxis(), relative_pos);
     absolute_axisvector=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), axisvector);
-    absolute_translation=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), vector3minus(translation,initialtranslation));
+    //absolute_translation=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), vector3minus(translation,initialtranslation));
 }
 
 std::vector<std::vector<double>> joint::rotation_matrix_update(double rotation_angle){
@@ -193,12 +193,13 @@ std::vector<std::vector<double>> joint::rotation_matrix_update(double rotation_a
         rotation_angle=initialrotationangle[0];
     }
         
-    if(rotation_angle<3){
+    if(rotation_angle<10){
         R=CayleyMap(vector3timeconstant(absolute_axisvector, rotation_angle/180.0*M_PI));
     }
     else{
         R=RodriguesMap(vector3timeconstant(absolute_axisvector, rotation_angle/180.0*M_PI));
     }
+
     return R;
 }
 
@@ -293,31 +294,35 @@ void joint::translational_update(body* Body, std::vector<double> translation_per
         currentstep.push_back(currentstep.back()+1);
     }
     if(currentstep.size()==1){
-        translation_per_step=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), initialtranslation);;
+        //translation_per_step=matrix33time31sepcol(currentbody->getbodybasic()->getaxis(), initialtranslation);
+        translation_per_step=initialtranslation;
     }
+
+    if(Body->getname()!="fix_space"){
+        std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
+        if (body_update.empty()){
+            body_update = Body->getbodybasic()->getq().back();
+        }
+
+        std::vector<double> oldposition;
+        std::vector<std::vector<double>> oldaxis;
+        for(int i=0; i<3; i++){
+            oldposition.push_back(body_update[i]);
+            std::vector<double> oldaxis1;
+            for (int j = 3+i*3; j < 6+i*3 ; j++) {
+                oldaxis1.push_back(body_update[j]);
+            }
+            oldaxis.push_back(oldaxis1);
+        }
+
+        std::vector<double> position_new=vector3plus(translation_per_step,oldposition);
+        Body->getbodybasic()->setbody_temporary_update(position_new,oldaxis);
+        Body->getbodybasic()->setrotatestatus(1);
+    }
+
     if(Body->getchild().size()>0){
         std::vector<body*> allchild=Body->getchild();
         for(int i=0;i<Body->getchild().size();i++){
-
-            std::vector<double> body_update = allchild[i]->getbodybasic()->getbody_temporary_update();
-            if (body_update.empty()){
-                body_update = allchild[i]->getbodybasic()->getq().back();
-            }
-
-            std::vector<double> oldposition;
-            std::vector<std::vector<double>> oldaxis;
-            for(int i=0; i<3; i++){
-                oldposition.push_back(body_update[i]);
-                std::vector<double> oldaxis1;
-                for (int j = 3+i*3; j < 6+i*3 ; j++) {
-                    oldaxis1.push_back(body_update[j]);
-                }
-                oldaxis.push_back(oldaxis1);
-            }
-
-            std::vector<double> position_new=vector3plus(translation_per_step,oldposition);
-            Body->getbodybasic()->setbody_temporary_update(position_new,oldaxis);
-            Body->getbodybasic()->setrotatestatus(1);
             translational_update(allchild[i], translation_per_step);
         }
     }
@@ -337,11 +342,13 @@ void joint::updateall(int stepnum,int currentstepnum){
     if(joint_type=="translate joint"){
         absolute_pos_axis_update();
         std::vector<double> translation_per_step=vector3timeconstant(absolute_translation,1.0/stepnum);
+        /*
         body* findroot = currentbody;
         while(findroot->getparent()!=nullptr){
             findroot=findroot->getparent();
         }
-        translational_update(findroot, translation_per_step);
+        */
+        translational_update(currentbody, translation_per_step);
     }
 }
 

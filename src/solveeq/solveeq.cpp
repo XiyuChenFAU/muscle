@@ -13,12 +13,14 @@ solveeq::solveeq(){
     Constraint=new constraint();
     setstepnum(0);
     Objective=new objective();
+    Initialguess=new initialguess(2);
 }
     
 solveeq::~solveeq(){
     delete ipopt;
     delete Constraint;
     delete Objective;
+    delete Initialguess;
 }
 
 IPOPT* solveeq::getipopt(){
@@ -43,6 +45,10 @@ int solveeq::getstepnum(){
 
 objective* solveeq::getObjective(){
     return Objective;
+}
+
+initialguess* solveeq::getInitialguess(){
+    return Initialguess;
 }
 
 void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
@@ -80,8 +86,8 @@ void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
             allmuscle[i]->deletegammaalllast();
         }
         else{
-            std::vector<std::vector<double>> muscleparmall=allmuscle[i]->getmuscleparm();
-            x0.insert(x0.end(), muscleparmall[muscleparmall.size()-1].begin(), muscleparmall[muscleparmall.size()-1].end());
+            std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
+            x0.insert(x0.end(), initial.begin(), initial.end());
         }
         arg["x0"] = x0;
         // Solve the NLP
@@ -104,8 +110,10 @@ void solveeq::solvesignorini(Parm* parm){
         parm->rotatebodyupdate(stepnum,i);
         if(i==0){
             parm->setallmuscleinitialeta_gamma();
+            Initialguess->setpartition(parm);
             solvesignorinirotate(parm,1);
         }else{
+            Initialguess->set_initialguessvalue(parm);
             solvesignorinirotate(parm,0);
         }
     }

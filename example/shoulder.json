@@ -312,5 +312,6 @@
 	{
 		"tol" : 0.001
 	},
-	"stepnum" : 100
+	"stepnum" : 100,
+	"save_interval" : 1
 }

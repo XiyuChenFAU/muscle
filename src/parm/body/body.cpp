@@ -54,6 +54,10 @@ std::vector<double> body::getbodyglobalnaxis(){
     return BodyBasic->getglobalnaxis(parent->getbodybasic());
 }
 
+std::vector<double> body::get_local_axis_angle_pos(int i){
+    return BodyBasic->ref_parent_axis_angle_pos(i,parent->getbodybasic());
+}
+
 void body::setid(int idvalue){
     id=idvalue;
 }

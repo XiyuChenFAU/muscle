@@ -286,6 +286,59 @@ std::vector<double> bodybasic::matrix_to_axisangle_ref_fix_space(){
     return naxis_ref;
 }
 
+std::vector<double> bodybasic::ref_parent_axis_angle_pos(int index, bodybasic* parentbodybasic){
+    std::vector<std::vector<double>> parent_q=parentbodybasic->getq();
+    std::vector<double> position_parent;
+    std::vector<std::vector<double>> axis_parent;
+    for(int i=0; i<3; i++){
+        position_parent.push_back(parent_q[index][i]);
+        std::vector<double> axis_parent1;
+        for (int j = 3+i*3; j < 6+i*3 ; j++) {
+            axis_parent1.push_back(parent_q[index][j]);
+        }
+        axis_parent.push_back(axis_parent1);
+    }
+
+    std::vector<double> position_body;
+    std::vector<std::vector<double>> axis_body;
+    for(int i=0; i<3; i++){
+        position_body.push_back(q[index][i]);
+        std::vector<double> axis_body1;
+        for (int j = 3+i*3; j < 6+i*3 ; j++) {
+            axis_body1.push_back(q[index][j]);
+        }
+        axis_body.push_back(axis_body1);
+    }
+
+    std::vector<std::vector<double>> axislocal;
+    for(int i=0; i<3; i++){
+        std::vector<double> axisi = matrix33time31tog(axis_parent, axis_body[i]);
+        axislocal.push_back(axisi);
+    }
+    std::vector<double> ref_parent=matrix_to_axisangle_ref_fix_space(axislocal);
+    std::vector<double> ref_pos=vector3minus(position_body, position_parent);
+    ref_parent=pushback(ref_parent,matrix33time31tog(axis_parent, ref_pos));
+    return ref_parent;
+}
+
+std::vector<double> bodybasic::matrix_to_axisangle_ref_fix_space(const std::vector<std::vector<double>>& bodyaxis){
+    std::vector<std::vector<double>> R=matrixtranspose(bodyaxis);
+    std::vector<double> naxis_ref1={R[2][1]-R[1][2],R[0][2]-R[2][0],R[1][0]-R[0][1]};
+    double naxis_ref_value=std::sqrt(vectortime1(naxis_ref1,naxis_ref1));
+    std::vector<double> naxis_ref;
+    double rotation_sin=naxis_ref_value/2.0;
+    double rotation_cos=(R[0][0]+R[1][1]+R[2][2]-1)/2.0;
+    double angle=std::atan2(rotation_sin,rotation_cos);
+    if(angle){
+        naxis_ref=vector3timeconstant(naxis_ref1,1.0/naxis_ref_value);
+    }
+    else{
+        naxis_ref={0.0,0.0,0.0};
+    }
+    naxis_ref.push_back(angle/M_PI*180);
+    return naxis_ref;
+}
+
 void bodybasic::resetforrecalc(){    
     if (q.size() > 1) {
         setpoistionaxis(q[0]);

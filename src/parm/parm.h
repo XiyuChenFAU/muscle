@@ -32,6 +32,8 @@ public:
     std::vector<joint*> getalljoint();
     joint* getjointindex(int index);
     Fsolve* getfsolve();
+    int get_read_muscle_value();
+    void set_read_muscle_value(int value);
     void addbody(body* Body, const std::string& parentbodyname);
     void addbody(const std::string& bodyname, const std::vector<double>& q0);
     void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename,int global=0);
@@ -41,6 +43,7 @@ public:
 
     void addmuscle(muscle* Muscle);
     void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global=0);
+    void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue);
 
     void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue);
     void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value);
@@ -69,6 +72,7 @@ private:
     std::vector<joint*> alljoint;
     Fsolve* fsolve=nullptr;
     int variablenum;
+    int read_muscle_value=0;
 };
 
 #endif // PARM_H

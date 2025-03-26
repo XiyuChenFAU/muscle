@@ -21,6 +21,7 @@ runmodel::runmodel(const std::string& jsonfile, int json){
     
     io=new IO();
     Model= io->readmodel(jsonfile);
+    std::cout<<jsonfile<<std::endl;
 }
 
 void runmodel::setrunmodel(const std::string& modelname){
@@ -42,22 +43,27 @@ void runmodel::setrunmodel(const std::string& jsonfile, int json){
     }
 }
 
-double runmodel::runprogram(){
+double runmodel::runprogramm(){
+    io->writejson(Model,0,0);
     clock_t start_time = clock();
     Model->solve_signorini();
+    clock_t end_time = clock();
+    double elapsed_time = static_cast<double>(end_time - start_time) / CLOCKS_PER_SEC;
     
-    Model->do_postprocessing();
+    Model->do_postprocessing(elapsed_time);
 
     io->writemusclebodyresultToFileAll(Model);
     io->writeanalyzeresultToFileAll(Model);
+    int interval=Model->get_save_interval();
+    for(int i=0;interval*i<Model->getSolveeq()->getstepnum()+0.5;i++){
+        io->writejson(Model,1,interval*i+1);
+    }
 
-    clock_t end_time = clock();
-    double elapsed_time = static_cast<double>(end_time - start_time) / CLOCKS_PER_SEC;
     return elapsed_time;
 }
 
 void runmodel::savemodel(){
-    io->writejson(Model);
+    io->writejson(Model,0,0);
 }
 
 runmodel::~runmodel(){

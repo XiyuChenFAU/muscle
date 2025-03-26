@@ -43,6 +43,8 @@ public:
     std::vector<double> getbody_temporary_update();
     void PrintParameters(const std::vector<double>& q0);
     std::vector<double> matrix_to_axisangle_ref_fix_space();
+    std::vector<double> ref_parent_axis_angle_pos(int index, bodybasic* parentbodybasic);
+    std::vector<double> matrix_to_axisangle_ref_fix_space(const std::vector<std::vector<double>>& bodyaxis);
     void resetforrecalc();
     static std::vector<std::string> alltype;
 

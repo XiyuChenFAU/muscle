@@ -85,6 +85,14 @@ Fsolve* Parm::getfsolve(){
     return fsolve;
 }
 
+int Parm::get_read_muscle_value(){
+    return read_muscle_value;
+}
+
+void Parm::set_read_muscle_value(int value){
+    read_muscle_value=value;
+}
+
 void Parm::addbody(body* Body, const std::string& parentbodyname){
     int addnew=1;
     for(int i=0;i<allbody.size();i++){
@@ -250,6 +258,33 @@ void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo
         }
         else{
             Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum);
+        }
+        allmuscle.push_back(Muscle);
+        n_muscles=n_muscles+1;
+    }   
+}
+
+void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue){
+    int add_muscle=1;
+    for(int i=0;i<allmuscle.size();i++){
+        if(allmuscle[i]->getname()==name){
+            if(global){
+                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global, gammavalue, etavalue);
+            }
+            else{
+                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, gammavalue, etavalue);
+            }
+            add_muscle=0;
+            break;
+        }
+    }
+    if(add_muscle){
+        muscle* Muscle=nullptr;
+        if(global){
+            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global, gammavalue, etavalue);
+        }
+        else{
+            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, gammavalue, etavalue);
         }
         allmuscle.push_back(Muscle);
         n_muscles=n_muscles+1;

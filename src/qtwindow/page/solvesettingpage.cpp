@@ -14,7 +14,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     setmodelwin(setmodelwin)
 {
     std::string modelname_string=setmodelwin->getRunmodel()->getModel()->getmodelname();
-    std::string savepath_string=setmodelwin->getRunmodel()->getio()->getfolderpath();
+    std::string savepath_string=setmodelwin->getRunmodel()->getModel()->getfolderpath();
     std::string length_cons_string=doubletostring(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getlengthconstant());
 
     std::string tolpostprocessing=doubletostring(setmodelwin->getRunmodel()->getModel()->getPostprocessing()->gettol());
@@ -242,7 +242,7 @@ void solvesettingpage::savesetting(){
             setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->setlengthconstant(lengthconstEdit->text().toDouble());
         }
         setmodelwin->getRunmodel()->getModel()->setmodelname(modelnameEdit->text().toStdString());
-        setmodelwin->getRunmodel()->getio()->setfolderpath(savepathEdit->text().toStdString());
+        setmodelwin->getRunmodel()->getModel()->setfolderpath(savepathEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setipoptoption(tolEdit->text().toDouble(),max_iterEdit->text().toInt(),linear_solverEdit->text().toStdString(),print_levelEdit->text().toInt(),hessian_approximationEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setmode_nr(selectedValue_mode);
@@ -263,7 +263,9 @@ void solvesettingpage::errorbox(std::string errormessage){
 
 void solvesettingpage::openFolderDialog() {
     QString folderPath = QFileDialog::getExistingDirectory(this, "select folder", QDir::homePath());
-    savepathEdit->setText(folderPath);
+    if (!folderPath.isEmpty()) {
+        savepathEdit->setText(folderPath);
+    } 
 }
 
 void solvesettingpage::handleButtonClicked(QAbstractButton* button){

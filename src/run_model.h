@@ -19,7 +19,7 @@ public:
     runmodel(const std::string& jsonfile, int json);
     void setrunmodel(const std::string& modelname);
     void setrunmodel(const std::string& jsonfile, int json);
-    double runprogram();
+    double runprogramm();
     void savemodel();
     ~runmodel();
     IO* getio();

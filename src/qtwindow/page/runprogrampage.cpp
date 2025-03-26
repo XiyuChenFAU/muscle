@@ -14,6 +14,7 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     QWidget(parent),
     setmodelwin(setmodelwin)
 {
+    std::string save_interval=std::to_string(setmodelwin->getRunmodel()->getModel()->get_save_interval());
     int colornum=255;
     for (int i = 0; i < 80; i++) {
         QColor* color=new QColor(255-colornum, colornum, 255-colornum);
@@ -39,8 +40,10 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     exportbutton->setGeometry(120, 30, 100, 50);
     connect(exportbutton, &QPushButton::clicked, this, &runprogrampage::saveModel);
 
+    save_intervalEdit=settextandlabel("save interval",save_interval, 230, 10, 80, 40, 15);
+
     runtimelabel=setlabel("", 10, 155 ,15);
-    runtimelabel->setGeometry(230, 40, 200, 30);
+    runtimelabel->setGeometry(320, 40, 200, 30);
 
     scaleedit=settext("", 450, 30, 100, 50 ,15);
     scaleeditbutton = new QPushButton("zoom figure", this);
@@ -152,7 +155,8 @@ runprogrampage::~runprogrampage()
     }
     delete cameraEntity;
     delete view;
-    delete container ;
+    delete container;
+    delete save_intervalEdit;
 }
 
 void runprogrampage::deleteentitiesnotroot(){
@@ -164,7 +168,8 @@ void runprogrampage::deleteentitiesnotroot(){
 void runprogrampage::runModelFunction()
 {
     setmodelwin->getRunmodel()->getModel()->getparm()->resetallforrecalc();
-    double runtime=setmodelwin->getRunmodel()->runprogram();
+    setmodelwin->getRunmodel()->getModel()->set_save_interval(save_intervalEdit->text().toInt());
+    double runtime=setmodelwin->getRunmodel()->runprogramm();
     runtimelabel->setText(QString::fromStdString(doubletostring(runtime)+" s")); 
 }
 

@@ -57,7 +57,8 @@ void model::solve_signorini(){
     Solveeq->solvesignorini(parm);
 }
 
-void model::do_postprocessing(){
+void model::do_postprocessing(double timevalue){
+    elapsed_time=timevalue;
     Postprocessing->do_postprocessingall(parm);
 }
 
@@ -66,4 +67,39 @@ std::vector<double> model::pushback(std::vector<double>& q, const std::vector<do
         q.push_back(value[i]);
     }
     return q;
+}
+
+int model::get_save_interval(){
+    return save_interval;
+}
+
+void model::set_save_interval(int value){
+    save_interval=value;
+}
+
+double model::get_elapsed_time(){
+    return elapsed_time;
+}
+
+void model::set_elapsed_time(double timevalue){
+    elapsed_time=timevalue;
+}
+
+void model::setfolderpath(const std::string& folderpathvalue){
+    folderpath=folderpathvalue;
+    if (!folderpath.empty()) {
+        for (char &c : folderpath) {
+            if (c == '\\') {
+                c = '/';
+            }
+        }
+
+        if (folderpath.back() != '/') {
+            folderpath += '/';
+        }
+    }
+}
+
+std::string model::getfolderpath(){
+    return folderpath;
 }

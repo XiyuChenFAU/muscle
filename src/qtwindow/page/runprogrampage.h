@@ -55,6 +55,8 @@ private:
     QPushButton *runButton=nullptr;
     QPushButton *exportbutton=nullptr;
 
+    QLineEdit *save_intervalEdit=nullptr;
+
     int currentrotationangle=0;
     std::vector<QSlider *> sliders;
     std::vector<QLabel *> labels;

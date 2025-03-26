@@ -17,19 +17,24 @@ MainWindow::MainWindow(QWidget *parent):
     setStyleSheet("background-color: #CCCCCC;");
 
     jsonFilePathLineEdit = settextandlabel("Select exist model", "", 200, 40, 500, 60);
-
     selectJsonButton = new QPushButton("Select model", this);
     selectJsonButton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
     selectJsonButton->setGeometry(610, 65, 100, 60);
     connect(selectJsonButton, SIGNAL(clicked()), this, SLOT(selectJsonFile()));
 
-    setlabel("OR", 400, 180);
+    setlabel("OR", 400, 140);
+    jsonFolderPathLineEdit = settextandlabel("Select folder run multiple model", "", 200, 170, 500, 60);
+    selectFolderButton = new QPushButton("Select folder", this);
+    selectFolderButton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
+    selectFolderButton->setGeometry(610, 195, 100, 60);
+    connect(selectFolderButton, SIGNAL(clicked()), this, SLOT(selectFolder()));
 
-    newmodelEdit = settextandlabel("Set new model", "", 200, 235, 400, 40);
+    setlabel("OR", 400, 270);
+    newmodelEdit = settextandlabel("Set new model", "", 200, 300, 400, 40);
 
     runButton = new QPushButton("Comfirm", this);
     runButton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    runButton->setGeometry(350, 330, 100, 50);
+    runButton->setGeometry(350, 400, 100, 50);
     connect(runButton, SIGNAL(clicked()), this, SLOT(runModel()));
 }
 /*
@@ -62,8 +67,10 @@ MainWindow::~MainWindow()
 {
     delete selectJsonButton;
     delete runButton;
+    delete selectFolderButton;
     delete jsonFilePathLineEdit;
     delete newmodelEdit;
+    delete jsonFolderPathLineEdit;
     for(int i=0;i<qlabels.size();i++){
         delete qlabels[i];
     }
@@ -74,9 +81,18 @@ void MainWindow::selectJsonFile() {
     jsonFilePathLineEdit->setText(jsonFilePath);
 }
 
+void MainWindow::selectFolder() {
+    QString folderPath = QFileDialog::getExistingDirectory(this, "Select Folder", "");
+    if (!folderPath.isEmpty()) {
+        jsonFolderPathLineEdit->setText(folderPath);
+    }
+}
+
 void MainWindow::runModel() {
     QString jsonFilePath = jsonFilePathLineEdit->toPlainText();
     std::string jsonFilePathStdString = jsonFilePath.toStdString();
+    QString jsonFolderPath = jsonFolderPathLineEdit->toPlainText();
+    std::string jsonFolderPathstring = jsonFolderPath.toStdString();
     QString newmodelname = newmodelEdit->toPlainText();
     std::string newmodelnamestring = newmodelname.toStdString();
     if(jsonFilePathStdString!=""){
@@ -94,6 +110,17 @@ void MainWindow::runModel() {
         setmodelWindow->show();
         this->close();
     }
+
+    if(jsonFolderPathstring!=""){
+        for (const auto& entry : std::filesystem::directory_iterator(jsonFolderPathstring)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                std::string jsonFile = entry.path().string();
+                runmodel model(jsonFile,1);
+                double time= model.runprogramm();
+            }
+        }
+        QMessageBox::information(this, "task complete", "programm finish");
+    }
 }
 
 QTextEdit* MainWindow::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight) {
@@ -106,7 +133,7 @@ QTextEdit* MainWindow::settext(const std::string& textdefault, int x, int y, int
 void MainWindow::setlabel(const std::string& labelname, int x, int y) {
     QLabel *body_namelabel = new QLabel(this);
     body_namelabel->setText(QString::fromStdString(labelname)); 
-    body_namelabel->move(x, y);
+    body_namelabel->setGeometry(x, y, 200, 20);
     body_namelabel->setStyleSheet("QLabel { color : black; background-color : #CCCCCC; }");
     qlabels.push_back(body_namelabel);
 }

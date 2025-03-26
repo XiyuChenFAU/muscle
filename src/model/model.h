@@ -24,7 +24,13 @@ public:
     std::string getmodelname();
     postprocessing* getPostprocessing();
     void solve_signorini();
-    void do_postprocessing();
+    void do_postprocessing(double timevalue);
+    int get_save_interval();
+    double get_elapsed_time();
+    std::string getfolderpath();
+    void setfolderpath(const std::string& folderpath);
+    void set_elapsed_time(double timevalue);
+    void set_save_interval(int value);
     std::vector<double> pushback(std::vector<double>& q, const std::vector<double>& value);
 
 private:
@@ -32,6 +38,9 @@ private:
     Parm* parm=nullptr;
     solveeq* Solveeq=nullptr;
     postprocessing* Postprocessing=nullptr;
+    int save_interval=0;
+    double elapsed_time=0.0;
+    std::string folderpath="";
 };
 
 #endif // MODEL_H

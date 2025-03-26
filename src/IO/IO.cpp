@@ -37,7 +37,7 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
 void IO::writemusclebodyresultToFileAll(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -98,12 +98,13 @@ void IO::writeanalyzeresultToFileAll(model* Model){
     writebody_stateToFile(Model);
     writemomentarmnodeToFile(Model);
     writemomentarmToFile(Model);
+    writerunningtimeToFile(Model);
 }
 
 void IO::writephiToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -135,7 +136,7 @@ void IO::writephiToFile(model* Model){
 void IO::writelengthToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -163,7 +164,7 @@ void IO::writelengthToFile(model* Model){
 void IO::writeforcenodeToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -191,7 +192,7 @@ void IO::writeforcenodeToFile(model* Model){
 void IO::writetotalforceToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -226,7 +227,7 @@ void IO::writetotalforceToFile(model* Model){
 void IO::writebody_stateToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -309,7 +310,7 @@ void IO::writebody_stateToFile(model* Model){
 void IO::writemomentarmnodeToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -342,7 +343,7 @@ void IO::writemomentarmnodeToFile(model* Model){
 void IO::writemomentarmToFile(model* Model){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -376,10 +377,28 @@ void IO::writemomentarmToFile(model* Model){
     file7.close();
 }
 
-void IO::writejson(model* Model){
+void IO::writerunningtimeToFile(model* Model){
+    //create folder
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_runningtime_result.txt";
+    std::ofstream file8(filename);
+    //write titel
+    file8 << "run_time" << Model->get_elapsed_time() <<"\n";
+    file8.close();
+}
+
+void IO::writejson(model* Model, int write_gamma, int currentstepnum){
 
     //create folder
-    std::string folderoutput=folderpath+"output_"+Model->getmodelname();
+    std::string folderoutput="";
+
+    folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
+    
     if (!std::filesystem::exists(folderoutput)) {
         std::filesystem::create_directory(folderoutput);
         std::cout << "save result to folder " << folderoutput << std::endl;
@@ -394,17 +413,34 @@ void IO::writejson(model* Model){
         Json::Value bodyObject;
         bodyObject["body_name"] = allbody[i+1]->getname();
         bodyObject["body_parent_name"] = allbody[i+1]->getparent()->getname();
-        Json::Value naxis(Json::arrayValue);
-        for (const auto& value : allbody[i+1]->getbodybasic()->getinitialsetting_naxis()) {
-            naxis.append(value);
+        if(write_gamma){
+            std::vector<double> localvalue=allbody[i+1]->get_local_axis_angle_pos(currentstepnum);
+            std::vector<double> naxisvalue={localvalue[0],localvalue[1],localvalue[2]};
+            Json::Value naxis(Json::arrayValue);
+            for (const auto& value : naxisvalue) {
+                naxis.append(value);
+            }
+            bodyObject["rotation_axis_relative_parent_coordinate"] = naxis;
+            bodyObject["rotation_angle"] = localvalue[3];
+            std::vector<double> rhobodyvalue={localvalue[4],localvalue[5],localvalue[6]};
+            Json::Value rhobody(Json::arrayValue);
+            for (const auto& value : rhobodyvalue) {
+                rhobody.append(value);
+            }
+            bodyObject["position_relative_parent_coordinate"] = rhobody;
+        } else {
+            Json::Value naxis(Json::arrayValue);
+            for (const auto& value : allbody[i+1]->getbodybasic()->getinitialsetting_naxis()) {
+                naxis.append(value);
+            }
+            bodyObject["rotation_axis_relative_parent_coordinate"] = naxis;
+            bodyObject["rotation_angle"] = allbody[i+1]->getbodybasic()->getinitialsetting_angle();
+            Json::Value rhobody(Json::arrayValue);
+            for (const auto& value : allbody[i+1]->getbodybasic()->getrhobody()) {
+                rhobody.append(value);
+            }
+            bodyObject["position_relative_parent_coordinate"] = rhobody;
         }
-        bodyObject["rotation_axis_relative_parent_coordinate"] = naxis;
-        bodyObject["rotation_angle"] = allbody[i+1]->getbodybasic()->getinitialsetting_angle();
-        Json::Value rhobody(Json::arrayValue);
-        for (const auto& value : allbody[i+1]->getbodybasic()->getrhobody()) {
-            rhobody.append(value);
-        }
-        bodyObject["position_relative_parent_coordinate"] = rhobody;
         Json::Value shapeObject;
         shapeObject["shape_name"] = allbody[i+1]->getshape()->getshapename();
         shapeObject["a"] = allbody[i+1]->getshape()->geta();
@@ -435,7 +471,24 @@ void IO::writejson(model* Model){
         muscleObject["rho_insertion"]=rhoi;
         muscleObject["insertion_relative_body"]=allmuscle[i]->getrhoi_bodyname();
         muscleObject["node_number"]=allmuscle[i]->getnodenum();
+
+        if(write_gamma){
+            std::vector<std::vector<double>> gammaall = allmuscle[i]->getgammaall();
+            Json::Value gamma(Json::arrayValue);
+            for (const auto& value : gammaall[currentstepnum]) {
+                gamma.append(value);
+            }
+            muscleObject["gamma"] = gamma;
+
+            std::vector<std::vector<double>> etaall = allmuscle[i]->getetaall();
+            Json::Value eta(Json::arrayValue);
+            for (const auto& value : etaall[currentstepnum]) {
+                eta.append(value);
+            }
+            muscleObject["eta"] = eta;
+        } 
         muscleArray.append(muscleObject);
+
     }
     root["muscle"] = muscleArray;
 
@@ -508,35 +561,28 @@ void IO::writejson(model* Model){
     postprocessing["tol"]=Model->getPostprocessing()->gettol();
     root["postprocessing"] = postprocessing;
 
+    root["save_interval"] = Model->get_save_interval();
+    root["output_path"] = Model->getfolderpath();
+
     // change json object to string
     Json::StreamWriterBuilder writer;
     std::string jsonString = Json::writeString(writer, root);
-    std::string filename = folderpath+"output_"+Model->getmodelname()+"/"+Model->getmodelname()+".json";
+    std::string filename = "";
+    if(write_gamma){
+        filename = Model->getfolderpath()+"output_"+Model->getmodelname()+"/"+Model->getmodelname()+"_step_"+std::to_string(currentstepnum-1)+".json";
+    }
+    else{
+        filename = Model->getfolderpath()+"output_"+Model->getmodelname()+"/"+Model->getmodelname()+".json";
+    }
+
     std::ofstream file(filename);
     file << jsonString;
     file.close();
 }
 
-void IO::setfolderpath(const std::string& folderpathvalue){
-    folderpath=folderpathvalue;
-    if (!folderpath.empty()) {
-        for (char &c : folderpath) {
-            if (c == '\\') {
-                c = '/';
-            }
-        }
-
-        if (folderpath.back() != '/') {
-            folderpath += '/';
-        }
-    }
-}
-
-std::string IO::getfolderpath(){
-    return folderpath;
-}
-
 model* IO::readmodel(const std::string&  jsonfilename){
+
+    std::cout<<jsonfilename<<std::endl;
 
     std::ifstream file(jsonfilename);
     if (!file.is_open()) {
@@ -597,7 +643,26 @@ model* IO::readmodel(const std::string&  jsonfilename){
         std::string rho_ibodyname = muscleObject["insertion_relative_body"].asString();
         std::string musclename = muscleObject["muscle_name"].asString();
         int nodenumber = muscleObject["node_number"].asInt();
-        Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0);
+
+        std::vector<double> gammavalue;
+        std::vector<double> etavalue;
+        if (muscleObject.isMember("gamma")) {
+            const Json::Value& gammaArray = muscleObject["gamma"];
+            for (const Json::Value& value : gammaArray) { 
+                gammavalue.push_back(value.asDouble());
+            }
+
+            const Json::Value& etaArray = muscleObject["eta"];
+            for (const Json::Value& value : etaArray) {
+                etavalue.push_back(value.asDouble());
+            }
+            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0, gammavalue, etavalue);
+            Model->getparm()->set_read_muscle_value(1);
+        }
+        else{
+            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0);
+            Model->getparm()->set_read_muscle_value(0);
+        }
     }
     //joint
     const Json::Value& jointArray = root["joint"];
@@ -654,6 +719,10 @@ model* IO::readmodel(const std::string&  jsonfilename){
     int stepnum=stepnumvalue.asInt();
     Model->getSolveeq()->setstepnum(stepnum);
 
+    const Json::Value& saveintervalvalue = root["save_interval"];
+    int saveinterval=saveintervalvalue.asInt();
+    Model->set_save_interval(saveinterval);
+
     const Json::Value& obj = root["objective"];
     int solvercase=obj["solvercase"].asInt();
     Model->getSolveeq()->getObjective()->setcasenum(solvercase);
@@ -671,5 +740,16 @@ model* IO::readmodel(const std::string&  jsonfilename){
     const Json::Value& postprocessingvalue = root["postprocessing"];
     double tol = postprocessingvalue["tol"].asDouble();
     Model->getPostprocessing()->settol(tol);
+    
+    //folder path
+    if (root.isMember("output_path")) {
+        std::string output_path_name = root["output_path"].asString();
+        Model->setfolderpath(output_path_name);
+    } else {
+        std::filesystem::path file_path(jsonfilename);
+        std::filesystem::path output_folder_path = file_path.parent_path();
+        Model->setfolderpath(output_folder_path.string());
+    }
+    std::cout<<Model->getfolderpath()<<std::endl;
     return Model;
 }

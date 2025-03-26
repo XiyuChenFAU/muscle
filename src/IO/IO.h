@@ -24,9 +24,7 @@ public:
     ~IO();
     void writemusclebodyresultToFileAll(model* Model);
     void writeanalyzeresultToFileAll(model* Model);
-    void writejson(model* Model);
-    void setfolderpath(const std::string& folderpath);
-    std::string getfolderpath();
+    void writejson(model* Model, int write_gamma, int currentstepnum);
     model* readmodel(const std::string& jsonfilename);
 
 private:
@@ -38,7 +36,7 @@ private:
     void writebody_stateToFile(model* Model);
     void writemomentarmnodeToFile(model* Model);
     void writemomentarmToFile(model* Model);
-    std::string folderpath="";
+    void writerunningtimeToFile(model* Model);
 };
 
 #endif // IO_H

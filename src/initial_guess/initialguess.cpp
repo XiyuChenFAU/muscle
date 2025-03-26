@@ -97,7 +97,6 @@ void initialguess::set_initialguessvalue(Parm* parm){
                     }
                     axisold.push_back(axisold1);
                 }
-
                 std::vector<double> vector_local_diff=globaltolocal(positionold, axisold, node_pos);
                 std::vector<double> node_initial_guess=localtoglobal(body_partition[i][j]->getbodybasic()->getposition(),body_partition[i][j]->getbodybasic()->getaxis(), vector_local_diff);
                 x0.insert(x0.end(), node_initial_guess.begin(), node_initial_guess.end());

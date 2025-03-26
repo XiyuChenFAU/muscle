@@ -27,6 +27,7 @@ public:
     std::vector<body*> getchild();
     std::string getname();
     std::vector<double> getbodyglobalnaxis();
+    std::vector<double> get_local_axis_angle_pos(int i);
     void setid(int idvalue);
     void setparent(body* parentbody);
     void setchild(body* childbody);

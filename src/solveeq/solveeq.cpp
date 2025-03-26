@@ -109,9 +109,16 @@ void solveeq::solvesignorini(Parm* parm){
     for(int i=0;i<loopnum;i++){
         parm->rotatebodyupdate(stepnum,i);
         if(i==0){
-            parm->setallmuscleinitialeta_gamma();
+            if(!parm->get_read_muscle_value()){
+                parm->setallmuscleinitialeta_gamma();
+            }
             Initialguess->setpartition(parm);
-            solvesignorinirotate(parm,1);
+            if(!parm->get_read_muscle_value()){
+                solvesignorinirotate(parm,1);
+            } else {
+                Initialguess->set_initialguessvalue(parm);
+                solvesignorinirotate(parm,0);
+            }
         }else{
             Initialguess->set_initialguessvalue(parm);
             solvesignorinirotate(parm,0);

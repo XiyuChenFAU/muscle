@@ -8,10 +8,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -77,10 +73,10 @@ add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CasADi_INCLUDE_DIRS})
 
-target_compile_definitions(${CMAKE_PROJECT_NAME}
-    PRIVATE
-    $<$<CONFIG:Debug>:ENABLE_DEBUG>
-)
+option(ENABLE_PRINT "Enable printing logs" OFF)
+if(ENABLE_PRINT)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE ENABLE_PRINT)
+endif()
 
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE casadi)

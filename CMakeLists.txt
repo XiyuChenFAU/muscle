@@ -8,6 +8,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -30,6 +34,10 @@ file(GLOB SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/math/*.h"
     "${PROJECT_SOURCE_DIR}/src/math/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/print/*.h"
+    "${PROJECT_SOURCE_DIR}/src/print/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/config/*.h"
+    "${PROJECT_SOURCE_DIR}/src/config/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/parm/*.h"
     "${PROJECT_SOURCE_DIR}/src/parm/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/parm/body/*.h"
@@ -68,6 +76,11 @@ add_executable(${CMAKE_PROJECT_NAME} ${SRC_FILES})
 #add_library(${CMAKE_PROJECT_NAME} OBJECT ${SRC_FILES})
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CasADi_INCLUDE_DIRS})
+
+target_compile_definitions(${CMAKE_PROJECT_NAME}
+    PRIVATE
+    $<$<CONFIG:Debug>:ENABLE_DEBUG>
+)
 
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE casadi)

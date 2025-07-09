@@ -116,10 +116,16 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     radioButtons_mode.push_back(radioButton1_mode_3);
     radioButtons_mode[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
     radioButtons_mode[2]->setGeometry(10, 780, 340, 30);
+    QRadioButton* radioButton1_mode_4 = new QRadioButton("auto local dynamic", this);
+    radioButtons_mode.push_back(radioButton1_mode_4);
+    radioButtons_mode[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_mode[3]->setGeometry(10, 820, 340, 30);
+
     selectedValue_mode = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getmode_nr();
     buttonGroup_initial_mode->addButton(radioButtons_mode[0], 0);
     buttonGroup_initial_mode->addButton(radioButtons_mode[1], 1);
     buttonGroup_initial_mode->addButton(radioButtons_mode[2], 2); 
+    buttonGroup_initial_mode->addButton(radioButtons_mode[3], 3); 
     connect(buttonGroup_initial_mode, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_mode);
     radioButtons_mode[selectedValue_mode]->setChecked(true);
 
@@ -134,7 +140,21 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
         }
     }
 
-    
+    check_collision_CheckBox = new QCheckBox("check collision", this);
+    check_collision_CheckBox->setGeometry(300, 670, 340, 30);
+    check_collision_CheckBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC;}");
+
+    check_collision_Value = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getcollision_check();
+    check_collision_CheckBox->setChecked(check_collision_Value);
+    connect(check_collision_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged);
+
+    if(selectedValue_mode==0){
+        check_collision_CheckBox->setVisible(false);
+    }
+    else{
+        check_collision_CheckBox->setVisible(true);
+    }
+
 
     //Casadi setting
     setlabel("Casadi setting", 660, 110,20);
@@ -189,6 +209,7 @@ solvesettingpage::~solvesettingpage(){
         delete radioButtons_body[i];
     }
     delete buttonGroup_initial_body;
+    delete check_collision_CheckBox;
 }
 
 QLineEdit* solvesettingpage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -246,6 +267,7 @@ void solvesettingpage::savesetting(){
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setipoptoption(tolEdit->text().toDouble(),max_iterEdit->text().toInt(),linear_solverEdit->text().toStdString(),print_levelEdit->text().toInt(),hessian_approximationEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setmode_nr(selectedValue_mode);
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setcollision_check(check_collision_Value);
         if(selectedValue_mode==1){
             setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setselect_bodyname(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValue_body-1)->getname());
         }
@@ -292,8 +314,19 @@ void solvesettingpage::handleButtonClicked_mode(QAbstractButton* button){
             radioButtons_body[i]->setVisible(false);
         }
     }
+    if(selectedValue_mode==0){
+        check_collision_CheckBox->setVisible(false);
+    }
+    else{
+        check_collision_CheckBox->setVisible(true);
+    }
 }
 
 void solvesettingpage::handleButtonClicked_body(QAbstractButton* button){
     selectedValue_body = buttonGroup_initial_body->id(button);
+}
+
+void solvesettingpage::handleCheckBoxChanged(int state)
+{
+    check_collision_Value = (state == Qt::Checked) ? 1 : 0;
 }

@@ -30,10 +30,15 @@ public:
     std::vector<muscle*> getallmuscle();
     muscle* getmuscleindex(int index);
     std::vector<joint*> getalljoint();
+    std::vector<int> getallstep();
     joint* getjointindex(int index);
     Fsolve* getfsolve();
     int get_read_muscle_value();
+    int get_run_total_step();
+    void set_run_total_step(int run_total_step_value);
     void set_read_muscle_value(int value);
+    void set_body_R_initial();
+    void check_body_R();
     void addbody(body* Body, const std::string& parentbodyname);
     void addbody(const std::string& bodyname, const std::vector<double>& q0);
     void addbody(const std::string& bodyname, const std::string& parentbodyname, const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, double a, double b, double c, double length, double radius, const std::string& shapename,int global=0);
@@ -45,15 +50,12 @@ public:
     void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global=0);
     void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue);
 
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, double initialanglevalue, double anglevalue);
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, double initialangle1value, double initialangle2value, double initialangle3value, double angle1value, double angle2value, double angle3value);
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<double>& initialrotationanglevalue, const std::vector<double>& rotationanglevalue, const std::vector<double>& initialtranslationvalue, const std::vector<double>& translationvalue);
-    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, double initialtranslationx, double initialtranslationy, double initialtranslationz, double translationx, double translationy, double translationz);
+    void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value);
 
     body* findbody(const std::string& bodyname);
     int findbodyindex(const std::string& bodyname);
     void addmuslcesolution(const std::vector<double>& solution);
-    void rotatebodyupdate(int nodenum,int stepnum);
+    void rotatebodyupdate(int stepnum);
     int getvariable();
     void setallmuscleinitialeta_gamma();
 
@@ -73,6 +75,7 @@ private:
     Fsolve* fsolve=nullptr;
     int variablenum;
     int read_muscle_value=0;
+    int run_total_step=0;
 };
 
 #endif // PARM_H

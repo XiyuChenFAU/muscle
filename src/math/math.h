@@ -15,6 +15,8 @@ Xiyu Chen
 
 std::vector<double> globaltolocal(const std::vector<double>& position, const std::vector<std::vector<double>>& axis, const std::vector<double>& rho);
 std::vector<double> localtoglobal(const std::vector<double>& position, const std::vector<std::vector<double>>& axis, const std::vector<double>& rho);
+std::vector<double> globaltolocal_q(const std::vector<double>& position, const std::vector<double>& q_value);
+std::vector<double> localtoglobal_q(const std::vector<double>& position, const std::vector<double>& q_value);
 
 std::vector<std::vector<double>> rotationMatrix(const std::vector<double>& axis, double angle);
 std::vector<std::vector<double>> CayleyMap(const std::vector<double>& eta);
@@ -24,6 +26,8 @@ std::vector<std::vector<double>> RodriguesMap(const std::vector<double>& eta);
 
 std::vector<double> matrix33time31sepcol(const std::vector<std::vector<double>>& columnmatrix, const std::vector<double>& vector);//local->global
 std::vector<double> matrix33time31tog(const std::vector<std::vector<double>>& columnmatrix, const std::vector<double>& vector);//global->local
+std::vector<std::vector<double>> matrix33time3Nsepcol(const std::vector<std::vector<double>>& columnmatrix, const std::vector<std::vector<double>>& matrix3N);
+std::vector<std::vector<double>> matrix_dot_times_matrix(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2);
 std::vector<double> vector3timeconstant(const std::vector<double>& vector, double value);
 std::vector<double> vector3plus(const std::vector<double>& vector1, const std::vector<double>& vector2);
 std::vector<double> vector3minus(const std::vector<double>& vector1, const std::vector<double>& vector2);

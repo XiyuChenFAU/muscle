@@ -45,14 +45,14 @@ void postprocessing::get_momentarmall(Parm* parm){
 
 std::vector<std::vector<double>> postprocessing::get_momentarm_per_muscle(const std::vector<std::vector<double>>& gamma, joint* Joint){
     std::vector<std::vector<double>> gammaall;
-    for(int i=0;i<gamma.size();i++){
-        std::vector<double> gammaallnode=get_momentarm_per_node(gamma[i],Joint);
+    for(int i=1;i<gamma.size();i++){
+        std::vector<double> gammaallnode=get_momentarm_per_node(gamma[i],Joint,i-1);
         gammaall.push_back(gammaallnode);
     }
     return gammaall;
 }
 
-std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint){
+std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint, int step){
     int gammasize=gamma.size()/3;
     std::vector<double> gammaallnode;
     for(int i=0;i<gammasize;i++){
@@ -68,13 +68,23 @@ std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<dou
         }
         double forcedir_value=-1.0*std::sqrt(vectortime1(forcedir,forcedir)); //-1.0 direction from insertion to origin
         std::vector<double> forcedir_unit=vector3timeconstant(forcedir,1.0/forcedir_value);
-        std::vector<double> rotationangle=Joint->getrotationangle();
-        std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
-        double angle_vhange_value=(rotationangle[0]-initialrotationangle[0])/fabs((rotationangle[0]-initialrotationangle[0]));
-        double axis_value=angle_vhange_value*std::sqrt(vectortime1(Joint->getabsolute_axisvector(),Joint->getabsolute_axisvector()));
-        std::vector<double> axis_unit=vector3timeconstant(Joint->getabsolute_axisvector(),1.0/axis_value);
 
-        std::vector<double> r_cross_F=crossProduct(vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, Joint->getabsolute_pos()),forcedir_unit);
+        std::vector<std::vector<double>> movement_value=Joint->get_movement();
+        std::vector<std::vector<double>> movement_each_value=Joint->get_movement_per_step();
+
+        int movement_each_value_size=movement_each_value[0].size();
+        if(step>movement_each_value_size-1){step=movement_each_value_size;}
+        double angle_vhange_value=1.0;
+        if(movement_each_value.size()<2 && movement_each_value[0][step]<0){
+            angle_vhange_value=-1.0;
+        }
+
+        std::vector<std::vector<double>> joint_absolute_axisvector=Joint->getabsolute_axisvector();
+        double axis_value=angle_vhange_value*std::sqrt(vectortime1(joint_absolute_axisvector[step],joint_absolute_axisvector[step]));
+        std::vector<double> axis_unit=vector3timeconstant(joint_absolute_axisvector[step],1.0/axis_value);
+        std::vector<std::vector<double>> joint_absolute_pos=Joint->getabsolute_pos();
+        std::vector<double> r_cross_F=crossProduct(vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, joint_absolute_pos[step]),forcedir_unit);
+
         double gamma_one_node_res=vectortime1(r_cross_F,axis_unit);
         gammaallnode.push_back(gamma_one_node_res);
     }
@@ -254,54 +264,7 @@ std::vector<double> postprocessing::phi_shape_allnode(const std::vector<double>&
 }
 
 double postprocessing::phi_shape(const std::vector<double>& gamma, body* Body, int timenum){
-    std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
-    std::vector<double>q = qall[timenum];
-    std::vector<double> x;
-    for (int i = 0; i < 3; i++) {
-        x.push_back(gamma[i] - q[i]);
-    }
-    std::vector<std::vector<double>> axis;
-    for(int i=0; i<3; i++){
-        std::vector<double> axis1;
-        for(int j=0; j<3; j++){
-            axis1.push_back(q[3+3*i+j]);
-        }
-        axis.push_back(axis1);
-    }
-
-    std::vector<double> positionlocal=matrix33time31tog(axis,x);
-
-    double phi=0;
-    if(Body->getshape()->getshapename()=="ellipsoid"){
-        phi = phi_ellipsoid(positionlocal,Body);
-    }
-    if(Body->getshape()->getshapename()=="cylinder"){
-        phi = phi_ellipsoid(positionlocal,Body);
-    }
-    return phi;
-}
-
-double postprocessing::phi_ellipsoid(const std::vector<double>& positionlocal, body* Body){
-    double phi = positionlocal[0] * positionlocal[0] / (Body->getshape()->geta()*Body->getshape()->geta()) +
-        positionlocal[1] * positionlocal[1] / (Body->getshape()->getb()*Body->getshape()->getb()) +
-        positionlocal[2] * positionlocal[2]  / (Body->getshape()->getc()*Body->getshape()->getc()) - 1;
-    return phi;
-}
-
-double postprocessing::phi_cylinder(const std::vector<double>& positionlocal, body* Body){
-    if(positionlocal[2]>= -1.0*Body->getshape()->getc() && positionlocal[2] <= Body->getshape()->getc()){
-        double phi = positionlocal[0] * positionlocal[0] / (Body->getshape()->geta()*Body->getshape()->geta()) +
-        positionlocal[1] * positionlocal[1] / (Body->getshape()->getb()*Body->getshape()->getb()) - 1;
-        return phi;
-    }
-    else{
-        if(positionlocal[2]< -1.0*Body->getshape()->getc() >= -1.0*Body->getshape()->getc()){
-            return  -1.0*Body->getshape()->getc()-positionlocal[2];
-        }
-        else{
-            return positionlocal[2]-Body->getshape()->getc();
-        }
-    }
+    return Body->phi_shape(gamma, timenum);
 }
 
 void postprocessing::settol(double tolvalue){

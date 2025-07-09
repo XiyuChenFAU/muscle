@@ -6,7 +6,7 @@
 			[
 				{
 					"build" : ".",
-					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.10"
@@ -20,7 +20,7 @@
 					]
 				}
 			],
-			"name" : "",
+			"name" : "Debug",
 			"projects" : 
 			[
 				{
@@ -41,14 +41,14 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "muscle_path::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-muscle_path-48eae51ada7218d6e557.json",
+					"jsonFile" : "target-muscle_path-Debug-788df4e74e29d22bf53a.json",
 					"name" : "muscle_path",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "muscle_path_autogen::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-muscle_path_autogen-0534a98226fca7495bb5.json",
+					"jsonFile" : "target-muscle_path_autogen-Debug-0534a98226fca7495bb5.json",
 					"name" : "muscle_path_autogen",
 					"projectIndex" : 0
 				}

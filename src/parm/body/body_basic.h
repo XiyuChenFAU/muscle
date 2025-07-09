@@ -13,6 +13,8 @@ Xiyu Chen
 #include <cmath>
 #include <iostream>
 #include "../../math/math.h"
+#include "../../print/print.h"
+#include "../../config/config.h"
 
 class bodybasic {
 public:
@@ -33,6 +35,11 @@ public:
     double getinitialsetting_angle();
     std::vector<std::vector<double>> getaxisangle_ref();
     std::vector<double> getglobalnaxis(bodybasic* parentbodybasic);
+    std::vector<std::vector<double>> get_R();
+    void set_R(std::vector<std::vector<double>> R_value);
+    void set_R_time(std::vector<std::vector<double>> R_value);
+    bool check_R_value();
+    std::vector<std::vector<double>> q_change_to_axis(const std::vector<double>& q_value);
     void setrotatestatus(int newstatus);
     void  setpoistionaxis(const std::vector<double>& q_0);
     std::vector<double> pushback(std::vector<double>& q_0, const std::vector<double>& value);
@@ -58,6 +65,7 @@ private:
     std::vector<double> initialsetting_naxis;
     double initialsetting_angle;
     std::vector<double> body_temporary_update={};
+    std::vector<std::vector<double>> R={{1,0,0},{0,1,0},{0,0,1}};
 
 };
 

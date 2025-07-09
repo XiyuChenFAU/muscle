@@ -92,13 +92,27 @@ void revolutejointpage::setforjointi(int index){
     else{
         joint* Joint=Jointpage->getrunmodel()->getModel()->getparm()->getjointindex(index);
         std::vector<double> axisvector=Joint->getaxisvector();
-        std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
-        std::vector<double> rotationangle=Joint->getrotationangle();
+        std::vector<std::vector<double>> rotationangle=Joint->get_movement();
         qedits[0]->setText(QString::fromStdString(doubletostring(axisvector[0])));
         qedits[1]->setText(QString::fromStdString(doubletostring(axisvector[1])));
         qedits[2]->setText(QString::fromStdString(doubletostring(axisvector[2])));
-        qedits[3]->setText(QString::fromStdString(doubletostring(initialrotationangle[0])));
-        qedits[4]->setText(QString::fromStdString(doubletostring(rotationangle[0])));
+
+        for(int i=0; i<1;i++){
+            if(rotationangle.size()>i){
+                if(!rotationangle[i].empty()){
+                    qedits[i+3]->setText(QString::fromStdString(doubletostring(rotationangle[i][0])));
+                    qedits[i+4]->setText(QString::fromStdString(doubletostring(rotationangle[i].back())));
+                }
+                else{
+                    qedits[i+3]->setText(QString::fromStdString(doubletostring(0.0)));
+                    qedits[i+4]->setText(QString::fromStdString(doubletostring(0.0)));
+                }
+            }
+            else{
+                qedits[i+3]->setText(QString::fromStdString(doubletostring(0.0)));
+                qedits[i+4]->setText(QString::fromStdString(doubletostring(0.0)));
+            }
+        }
     }
 }
 

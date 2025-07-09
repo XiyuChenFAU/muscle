@@ -45,8 +45,7 @@ void IO::writemusclebodyresultToFileAll(model* Model){
 
     std::vector<body*> allbody=Model->getparm()->getallbody();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
     
     //writebody
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_body_result.txt";
@@ -113,8 +112,7 @@ void IO::writephiToFile(model* Model){
     std::vector<std::vector<std::vector<double>>> phiall = Model->getPostprocessing()->getphiall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<body*> allbody=Model->getparm()->getallbody();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
     
 
     //phiall
@@ -144,8 +142,7 @@ void IO::writelengthToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> lengthall = Model->getPostprocessing()->getlengthall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
 
     //lengthall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_length_result.txt";
@@ -172,8 +169,7 @@ void IO::writeforcenodeToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> forceallnode = Model->getPostprocessing()->getforceallnode();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
 
     //forceallnode
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_forcenode_result.txt";
@@ -200,8 +196,7 @@ void IO::writetotalforceToFile(model* Model){
 
     std::vector<std::vector<double>> totalforceall = Model->getPostprocessing()->gettotalforceall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
 
     //totalforceall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_totalforce_result.txt";
@@ -234,8 +229,7 @@ void IO::writebody_stateToFile(model* Model){
     }
 
     std::vector<body*> allbody=Model->getparm()->getallbody();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
 
     //body_state
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_bodystate_result.txt";
@@ -319,14 +313,13 @@ void IO::writemomentarmnodeToFile(model* Model){
     std::vector<std::vector<std::vector<double>>> momentarmnodeall = Model->getPostprocessing()->getmomentarmnodeall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
 
     //phiall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarmnode_result.txt";
     std::ofstream file6(filename);
     //write titel
-    file6 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file6 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t";
     for(int i=0;i<rotation.size();i++){file6 << rotation[i] << "\t";}
     file6 << "\n";
     //writevalue
@@ -351,15 +344,14 @@ void IO::writemomentarmToFile(model* Model){
     std::vector<std::vector<double>> momentarmall = Model->getPostprocessing()->getmomentarmall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
-    std::vector<int> rotation;
-    if(Model->getparm()->getn_joints()>0){rotation=Model->getparm()->getjointindex(0)->getcurrentstep();}
+    std::vector<int> rotation=Model->getparm()->getallstep();
     
 
     //phiall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarm_result.txt";
     std::ofstream file7(filename);
     //write titel
-    file7 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    file7 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t";
     for(int i=0;i<rotation.size();i++){file7 << rotation[i] << "\t";}
     file7 << "\n";
     //writevalue
@@ -510,29 +502,30 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
         }
         jointObject["rotation_axis_relative_rotate_body"] = axisvectorvalue;
 
-        Json::Value initial_rotationanglevalue(Json::arrayValue);
-        for (const auto& value : Model->getparm()->getjointindex(i)->getinitialrotationangle()) {
-            initial_rotationanglevalue.append(value);
+        Json::Value move_setting_value(Json::arrayValue);
+        for (const auto& matrix : Model->getparm()->getjointindex(i)->get_move_setting()) {
+            Json::Value matrixJson(Json::arrayValue);
+            for (const auto& row : matrix) {
+                Json::Value rowJson(Json::arrayValue);
+                for (const auto& value : row) {
+                    rowJson.append(value);
+                }
+                matrixJson.append(rowJson);
+            }
+            move_setting_value.append(matrixJson);
         }
-        jointObject["initial_rotation_angle"] = initial_rotationanglevalue;
+        jointObject["move_setting"] = move_setting_value;
 
-        Json::Value rotationanglevalue(Json::arrayValue);
-        for (const auto& value : Model->getparm()->getjointindex(i)->getrotationangle()) {
-            rotationanglevalue.append(value);
+        Json::Value movement_value(Json::arrayValue);
+        for (const auto& row : Model->getparm()->getjointindex(i)->get_movement()) {
+            Json::Value rowJson(Json::arrayValue);
+            for (const auto& value : row) {
+                rowJson.append(value);
+            }
+            movement_value.append(rowJson);
         }
-        jointObject["rotation_angle"] = rotationanglevalue;
+        jointObject["movement"] = movement_value;
 
-        Json::Value initial_translationvalue(Json::arrayValue);
-        for (const auto& value : Model->getparm()->getjointindex(i)->getinitialtranslation()) {
-            initial_translationvalue.append(value);
-        }
-        jointObject["initial_translation"] = initial_translationvalue;
-
-        Json::Value translationvalue(Json::arrayValue);
-        for (const auto& value : Model->getparm()->getjointindex(i)->gettranslation()) {
-            translationvalue.append(value);
-        }
-        jointObject["translation"] = translationvalue;
         jointArray.append(jointObject);
     }
     root["joint"] = jointArray;
@@ -545,8 +538,6 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
     ipopt["hessian_approximation"]=Model->getSolveeq()->getipopt()->gethessian_approximation();
     root["ipoptsetting"] = ipopt;
 
-
-    root["stepnum"]=Model->getSolveeq()->getstepnum();
     Json::Value objective;
     objective["solvercase"] = Model->getSolveeq()->getObjective()->getcasenum();
     objective["length_constant"] = Model->getSolveeq()->getObjective()->getlengthconstant();
@@ -555,6 +546,7 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
     Json::Value initial;
     initial["mode_number"] = Model->getSolveeq()->getInitialguess()->getmode_nr();
     initial["select_body"] = Model->getSolveeq()->getInitialguess()->getselect_bodyname();
+    initial["collision_check"] = Model->getSolveeq()->getInitialguess()->getcollision_check();
     root["initial_guess"]=initial;
 
     Json::Value postprocessing;
@@ -680,29 +672,41 @@ model* IO::readmodel(const std::string&  jsonfilename){
         for (const Json::Value& value : rotation_axis_jointArray) {
             rotation_axis_jointvalue.push_back(value.asDouble());
         }
-        std::vector<double> initial_rotation_anglevalue;
-        const Json::Value& initial_rotation_angleArray = jointObject["initial_rotation_angle"];
-        for (const Json::Value& value : initial_rotation_angleArray) {
-            initial_rotation_anglevalue.push_back(value.asDouble());
-        }
-        std::vector<double> rotation_anglevalue;
-        const Json::Value& rotation_angleArray = jointObject["rotation_angle"];
-        for (const Json::Value& value : rotation_angleArray) {
-            rotation_anglevalue.push_back(value.asDouble());
+
+        std::vector<std::vector<double>> movement_value={};
+        if (jointObject.isMember("movement")) {
+            const Json::Value& movement_valueArray = jointObject["movement"];
+            for (const Json::Value& subArray : movement_valueArray) {
+                if (!subArray.isArray()) continue; 
+                std::vector<double> temp;
+                for (const Json::Value& val : subArray) {
+                    temp.push_back(val.asDouble());
+                }
+                movement_value.push_back(temp);
+            }
         }
 
-        std::vector<double> initial_translationvalue;
-        const Json::Value& initial_translationArray = jointObject["initial_translation"];
-        for (const Json::Value& value : initial_translationArray) {
-            initial_translationvalue.push_back(value.asDouble());
+        std::vector<std::vector<std::vector<double>>> move_setting_value;
+        const Json::Value& move_setting_valueArray = jointObject["move_setting"];
+        for (const Json::Value& subArray1 : move_setting_valueArray) {
+            if (!subArray1.isArray()) continue;
+            std::vector<std::vector<double>> temp2D;
+            for (const Json::Value& subArray2 : subArray1) {
+                if (!subArray2.isArray()) continue;
+                std::vector<double> temp;
+                for (const Json::Value& val : subArray2) {
+                    temp.push_back(val.asDouble());
+                }
+                temp2D.push_back(temp);
+            }
+            move_setting_value.push_back(temp2D);
         }
 
-        std::vector<double> translationvalue;
-        const Json::Value& translationArray = jointObject["translation"];
-        for (const Json::Value& value : translationArray) {
-            translationvalue.push_back(value.asDouble());
-        }
-        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, initial_rotation_anglevalue, rotation_anglevalue, initial_translationvalue, translationvalue);
+        // Call addjoint with the correct parameters
+        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value,relative_posvalue, rotation_axis_jointvalue, move_setting_value, movement_value);
+
+        
+        //Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, initial_rotation_anglevalue, rotation_anglevalue, initial_translationvalue, translationvalue);
     }
 
     //setipopt
@@ -713,11 +717,6 @@ model* IO::readmodel(const std::string&  jsonfilename){
     int print_levelvalue= ipopt["print_level"].asInt();
     std::string hessian_approximationvalue = ipopt["hessian_approximation"].asString();
     Model->getSolveeq()->setipoptoption(tolvalue,max_itervalue,linear_solvervalue,print_levelvalue,hessian_approximationvalue);
-
-    //solve_problem
-    const Json::Value& stepnumvalue = root["stepnum"];
-    int stepnum=stepnumvalue.asInt();
-    Model->getSolveeq()->setstepnum(stepnum);
 
     const Json::Value& saveintervalvalue = root["save_interval"];
     int saveinterval=saveintervalvalue.asInt();
@@ -733,6 +732,8 @@ model* IO::readmodel(const std::string&  jsonfilename){
     const Json::Value& initial = root["initial_guess"];
     int mode_initial=initial["mode_number"].asInt();
     Model->getSolveeq()->getInitialguess()->setmode_nr(mode_initial);
+    int collision_check_initial=initial["collision_check"].asInt();
+    Model->getSolveeq()->getInitialguess()->setcollision_check(collision_check_initial);
     std::string select_body_name = initial["select_body"].asString();
     Model->getSolveeq()->getInitialguess()->setselect_bodyname(select_body_name);
 

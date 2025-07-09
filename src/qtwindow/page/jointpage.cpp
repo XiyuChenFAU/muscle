@@ -55,7 +55,7 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
         positionaxis_y=doubletostring(positionrel[1]);
         positionaxis_z=doubletostring(positionrel[2]);
         jointtypename=Joint->getjoint_type();
-        stepnumstring=std::to_string(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()); 
+        stepnumstring=std::to_string(Joint->getjoint_stepnum()); 
 
         newjointbutton->setVisible(false);
     }
@@ -249,13 +249,13 @@ runmodel* jointpage::getrunmodel(){
     return setmodelwin->getRunmodel();
 }
 
-void jointpage::setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex){
+void jointpage::setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex, int stepnum){
 
     jointnameEdit->setText(QString::fromStdString(jointnamevalue));
     positionaxis_xEdit->setText(QString::fromStdString(doubletostring(positionvalue[0])));
     positionaxis_yEdit->setText(QString::fromStdString(doubletostring(positionvalue[1])));
     positionaxis_zEdit->setText(QString::fromStdString(doubletostring(positionvalue[2])));
-    stepnumstringEdit->setText(QString::fromStdString(std::to_string(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum())));
+    stepnumstringEdit->setText(QString::fromStdString(std::to_string(stepnum)));
 
     int findbodyrotate=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(bodynamevalue);
     radioButtonsbody[findbodyrotate+2]->setChecked(true);
@@ -291,12 +291,14 @@ void jointpage::savesetting(){
     }
     else{
         std::vector<double> relative_posvalue={positionaxis_xEdit->text().toDouble(),positionaxis_yEdit->text().toDouble(),positionaxis_zEdit->text().toDouble()};
+        double stepnum_value=stepnumstringEdit->text().toDouble();
         if(selectedValuetype==0){
             std::vector<QLineEdit *> alleditsrevo=Revolutejointpage->getqedits();
             std::vector<double> axisvectorvalue={alleditsrevo[0]->text().toDouble(),alleditsrevo[1]->text().toDouble(),alleditsrevo[2]->text().toDouble()};
             double initialanglevalue=alleditsrevo[3]->text().toDouble();
             double anglevalue=alleditsrevo[4]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, initialanglevalue, anglevalue);
+            std::vector<std::vector<std::vector<double>>> move_setting_value={{{initialanglevalue,anglevalue,stepnum_value,0.0}},{},{}};
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, move_setting_value, {});
         }
         if(selectedValuetype==1){
             
@@ -307,7 +309,9 @@ void jointpage::savesetting(){
             double angle1value=alleditsspher[3]->text().toDouble();
             double angle2value=alleditsspher[4]->text().toDouble(); 
             double angle3value=alleditsspher[5]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, initialangle1value, initialangle2value, initialangle3value, angle1value, angle2value, angle3value);
+            std::vector<double> axisvectorvalue={0,0,0};
+            std::vector<std::vector<std::vector<double>>> move_setting_value={{{initialangle1value,angle1value,stepnum_value,0.0}},{{initialangle2value,angle2value,stepnum_value,0.0}},{{initialangle3value,angle3value,stepnum_value,0.0}}};
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, axisvectorvalue, move_setting_value, {});
         }
         if(selectedValuetype==2){
             
@@ -318,9 +322,11 @@ void jointpage::savesetting(){
             double translation1value=alleditsspher[3]->text().toDouble();
             double translation2value=alleditsspher[4]->text().toDouble(); 
             double translation3value=alleditsspher[5]->text().toDouble();
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], initialtranslation1value, initialtranslation2value, initialtranslation3value, translation1value, translation2value, translation3value);
+            relative_posvalue={0,0,0};
+            std::vector<double> axisvectorvalue={0,0,0};
+            std::vector<std::vector<std::vector<double>>> move_setting_value={{{initialtranslation1value,translation1value,stepnum_value,0.0}},{{initialtranslation2value,translation2value,stepnum_value,0.0}},{{initialtranslation3value,translation3value,stepnum_value,0.0}}};
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, axisvectorvalue, move_setting_value, {});
         }
-        setmodelwin->getRunmodel()->getModel()->getSolveeq()->setstepnum(stepnumstringEdit->text().toInt());
 
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()>jointbuttons.size()){
             newjointbutton->setVisible(false);
@@ -382,7 +388,7 @@ void jointpage::plusbuttonsetting(){
         newjointbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
         newjointbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()*70, 50, 70, 50);
         plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()*70+70, 50, 50, 50);
-        setalltextedit("", "", "", {0.0,0.0,0.0}, setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints());
+        setalltextedit("", "", "", {0.0,0.0,0.0}, setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints(),0);
         for(int i=0;i<jointbuttons.size();i++){
             jointbuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
         }
@@ -394,12 +400,12 @@ void jointpage::newjointbuttonsetting(){
         jointbuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
     }
     newjointbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    setalltextedit("", "", "", {0.0,0.0,0.0}, setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints());
+    setalltextedit("", "", "", {0.0,0.0,0.0}, setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints(),0);
 }
 
 void jointpage::showjointsetting(int index){
     joint* Joint=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(index);
-    setalltextedit(Joint->getname(), Joint->getbodyname(), Joint->getjoint_type(), Joint->getrelative_pos(), index);
+    setalltextedit(Joint->getname(), Joint->getbodyname(), Joint->getjoint_type(), Joint->getrelative_pos(), index, Joint->getjoint_stepnum());
     for(int i=0;i<jointbuttons.size();i++){
         if(index==i){
             jointbuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");

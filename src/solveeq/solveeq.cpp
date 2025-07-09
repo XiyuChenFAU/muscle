@@ -11,9 +11,8 @@ Xiyu Chen
 solveeq::solveeq(){
     ipopt=new IPOPT();
     Constraint=new constraint();
-    setstepnum(0);
     Objective=new objective();
-    Initialguess=new initialguess(2);
+    Initialguess=new initialguess(2,1);
 }
     
 solveeq::~solveeq(){
@@ -35,14 +34,6 @@ void solveeq::setipoptoption(double tolvalue,int max_itervalue,const std::string
     ipopt->sethessian_approximation(hessian_approximationvalue);
 }
 
-void solveeq::setstepnum(int stepnumvalue){
-    stepnum=stepnumvalue;
-}
-
-int solveeq::getstepnum(){
-    return stepnum;
-}
-
 objective* solveeq::getObjective(){
     return Objective;
 }
@@ -54,7 +45,7 @@ initialguess* solveeq::getInitialguess(){
 void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
     std::vector<std::vector<double>> jointnaxisall;
     for(int i=0;i<parm->getn_joints();i++){
-        jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos());
+        jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos().back());
     }
     
     std::vector<muscle*> allmuscle=parm->getallmuscle();
@@ -102,12 +93,17 @@ void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
 }
 
 void solveeq::solvesignorini(Parm* parm){
-    int loopnum = stepnum+1;
-    if(stepnum==0){
+    int loopnum = parm->get_run_total_step()+1;
+    if(parm->get_run_total_step()==0){
         loopnum=0;
     }
     for(int i=0;i<loopnum;i++){
-        parm->rotatebodyupdate(stepnum,i);
+        parm->set_body_R_initial();
+        if(i!=0){
+            Initialguess->setpartition_dynamic(parm);
+        }
+        parm->rotatebodyupdate(i);
+        //parm->check_body_R();
         if(i==0){
             if(!parm->get_read_muscle_value()){
                 parm->setallmuscleinitialeta_gamma();

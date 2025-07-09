@@ -18,6 +18,7 @@ Xiyu Chen
 #include <QFileDialog> 
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QCheckBox>
 #include "../../run_model.h"
 
 
@@ -66,12 +67,16 @@ private:
     QButtonGroup *buttonGroup_initial_body = nullptr;
     int selectedValue_body = 0;
 
+    QCheckBox* check_collision_CheckBox = nullptr;
+    int check_collision_Value = 0;
+
 private slots:
     void savesetting();
     void openFolderDialog();
     void handleButtonClicked(QAbstractButton* button);
     void handleButtonClicked_mode(QAbstractButton* button);
     void handleButtonClicked_body(QAbstractButton* button);
+    void handleCheckBoxChanged(int state);
 };
 
 #endif // SOLVESETTINGPAGE_H

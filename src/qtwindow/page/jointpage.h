@@ -39,7 +39,7 @@ public:
     double stringtodouble(std::string numStr);
     void errorbox(std::string errormessage);
     runmodel* getrunmodel();
-    void setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex);
+    void setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex, int stepnum);
 
 private:
     std::vector<QLabel*> qlabels;

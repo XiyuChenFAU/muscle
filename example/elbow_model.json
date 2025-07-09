@@ -82,6 +82,7 @@
 	],
 	"initial_guess" : 
 	{
+		"collision_check" : 1,
 		"mode_number" : 2,
 		"select_body" : "fix_space"
 	},
@@ -96,20 +97,65 @@
 	"joint" : 
 	[
 		{
-			"initial_rotation_angle" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
-			"initial_translation" : 
-			[
-				0.0,
-				0.0,
-				0.0
-			],
 			"joint_name" : "joint_elbow",
 			"joint_type_name" : "revolute joint",
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						160.0,
+						40.0,
+						0.0
+					]
+				]
+			],
+			"movement" : 
+			[
+				[
+					0.0,
+					4.0,
+					8.0,
+					12.0,
+					16.0,
+					20.0,
+					24.0,
+					28.0,
+					32.0,
+					36.0,
+					40.0,
+					44.0,
+					48.0,
+					52.0,
+					56.0,
+					60.0,
+					64.0,
+					68.0,
+					72.0,
+					76.0,
+					80.0,
+					84.0,
+					88.0,
+					92.0,
+					96.0,
+					100.0,
+					104.0,
+					108.0,
+					112.0,
+					116.0,
+					120.0,
+					124.0,
+					128.0,
+					132.0,
+					136.0,
+					140.0,
+					144.0,
+					148.0,
+					152.0,
+					156.0,
+					160.0
+				]
+			],
 			"position_relative_rotate_body" : 
 			[
 				0.0,
@@ -117,22 +163,10 @@
 				0.0
 			],
 			"rotate_body_name" : "elbow",
-			"rotation_angle" : 
-			[
-				160.0,
-				0.0,
-				0.0
-			],
 			"rotation_axis_relative_rotate_body" : 
 			[
 				0.0,
 				1.0,
-				0.0
-			],
-			"translation" : 
-			[
-				0.0,
-				0.0,
 				0.0
 			]
 		}
@@ -182,10 +216,10 @@
 		"length_constant" : 1.0,
 		"solvercase" : 0
 	},
+	"output_path" : "/Users/xiyu/Desktop/muscle_project/musclewindow/muscle/example/",
 	"postprocessing" : 
 	{
 		"tol" : 0.01
 	},
-	"stepnum" : 40,
 	"save_interval" : 1
 }

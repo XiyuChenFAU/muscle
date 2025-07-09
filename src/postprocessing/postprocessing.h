@@ -18,7 +18,7 @@ public:
     void do_postprocessingall(Parm* parm);
     void get_momentarmall(Parm* parm);
     std::vector<std::vector<double>> get_momentarm_per_muscle(const std::vector<std::vector<double>>& gamma, joint* Joint);
-    std::vector<double> get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint);
+    std::vector<double> get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint, int step);
     void get_force_allmuscle(Parm* parm);
     std::vector<std::vector<std::vector<double>>> get_force_each_muscle(Parm* parm, int musclenum);
     std::vector<std::vector<double>> get_force_each_muscle_each_time(const std::vector<double>& gamma, const std::vector<std::vector<double>>& phi, double lengthchange);
@@ -29,8 +29,6 @@ public:
     std::vector<std::vector<double>> phi_shape_all(const std::vector<std::vector<double>>& gamma, body* Body);
     std::vector<double> phi_shape_allnode(const std::vector<double>& gamma, body* Body, int timenum);
     double phi_shape(const std::vector<double>& gamma, body* Body, int timenum);
-    double phi_ellipsoid(const std::vector<double>& gamma, body* Body);
-    double phi_cylinder(const std::vector<double>& gamma, body* Body);
     void settol(double tolvalue);
     double gettol();
 

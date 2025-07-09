@@ -54,8 +54,8 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     labels.push_back(setlabel("initial", 500, 100 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
     int loopnum;
-    if(setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()){
-        loopnum = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()+1;
+    if(setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step()){
+        loopnum = setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step()+1;
     }
     else{
         loopnum=0;
@@ -68,7 +68,7 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     sliders.push_back(slider);
     QLabel* labelzeroa=setlabel("initial", 10, 155 ,15);
     genrallabels.push_back(labelzeroa);
-    int stepnumall=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum();
+    int stepnumall=setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step();
     labels.push_back(setlabel(std::to_string(stepnumall), 1000, 155 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
 
@@ -344,11 +344,11 @@ std::string runprogrampage::doubletostring(double num) {
 }
 
 void runprogrampage::updatevalue(){
-    int stepnumall=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum();
+    int stepnumall=setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step();
     labels[1]->setText(QString::fromStdString(std::to_string(stepnumall)));
     int loopnum;
     if(stepnumall){
-        loopnum = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getstepnum()+1;
+        loopnum = setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step()+1;
     }
     else{
         loopnum=0;

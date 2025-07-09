@@ -93,14 +93,23 @@ void translationjointpage::setforjointi(int index){
     }
     else{
         joint* Joint=Jointpage->getrunmodel()->getModel()->getparm()->getjointindex(index);
-        std::vector<double> initialtranslation=Joint->getinitialtranslation();
-        std::vector<double> translation=Joint->gettranslation();
-        qedits[0]->setText(QString::fromStdString(doubletostring(initialtranslation[0])));
-        qedits[1]->setText(QString::fromStdString(doubletostring(initialtranslation[1])));
-        qedits[2]->setText(QString::fromStdString(doubletostring(initialtranslation[2])));
-        qedits[3]->setText(QString::fromStdString(doubletostring(translation[0])));
-        qedits[4]->setText(QString::fromStdString(doubletostring(translation[1])));
-        qedits[5]->setText(QString::fromStdString(doubletostring(translation[2])));
+        std::vector<std::vector<double>> translation=Joint->get_movement();
+        for(int i=0; i<3;i++){
+            if(translation.size()>i){
+                if(!translation[i].empty()){
+                    qedits[i]->setText(QString::fromStdString(doubletostring(translation[i][0])));
+                    qedits[i+3]->setText(QString::fromStdString(doubletostring(translation[i].back())));
+                }
+                else{
+                    qedits[i]->setText(QString::fromStdString(doubletostring(0.0)));
+                    qedits[i+3]->setText(QString::fromStdString(doubletostring(0.0)));
+                }
+            }
+            else{
+                qedits[i]->setText(QString::fromStdString(doubletostring(0.0)));
+                qedits[i+3]->setText(QString::fromStdString(doubletostring(0.0)));
+            }
+        }
     }
 }
 

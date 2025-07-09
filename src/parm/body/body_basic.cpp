@@ -127,8 +127,6 @@ void bodybasic::setbodybasic(const std::vector<double>& lastbodyposition, const 
 
 void bodybasic::updatebodybasic(const std::vector<double>& lastbodyposition, const std::vector<std::vector<double>>& lastbodyaxis){
     std::vector<double> n_axis=matrix33time31sepcol(lastbodyaxis, initialsetting_naxis);
-    //n_axis=vector3timeconstant(n_axis, initialsetting_angle/180.0*M_PI);
-    //std::vector<std::vector<double>> R=RodriguesMap(n_axis);
     std::vector<std::vector<double>> R=rotationMatrix(n_axis, initialsetting_angle/180.0*M_PI);
     std::vector<double> qnewall;
     std::vector<double> phi_body1=matrix33time31sepcol(lastbodyaxis, rhobody);
@@ -185,7 +183,7 @@ int bodybasic::getrotatestatus(){
 std::vector<double> bodybasic::getinitialsetting_naxis(){
     return initialsetting_naxis;
 }
-    
+
 double bodybasic::getinitialsetting_angle(){
     return initialsetting_angle;
 }
@@ -197,7 +195,54 @@ std::vector<std::vector<double>> bodybasic::getaxisangle_ref(){
 std::vector<double> bodybasic::getglobalnaxis(bodybasic* parentbodybasic){
     return localtoglobal(parentbodybasic->getposition(),parentbodybasic->getaxis(), initialsetting_naxis);
 }
-    
+
+std::vector<std::vector<double>> bodybasic::get_R(){
+    return R;
+}
+
+void bodybasic::set_R(std::vector<std::vector<double>> R_value){
+    R=R_value;
+}
+
+void bodybasic::set_R_time(std::vector<std::vector<double>> R_value){
+    R = matrix_dot_times_matrix(R_value, R);
+}
+
+bool bodybasic::check_R_value(){
+    if (q.size() >= 2) {
+        std::vector<std::vector<double>> R_check={};
+        std::vector<double>& new_q = q[q.size() - 1];
+        std::vector<double>& old_q = q[q.size() - 2];
+        R_check = matrix_dot_times_matrix(matrixtranspose(q_change_to_axis(new_q)), q_change_to_axis(old_q));
+
+        for (size_t i = 0; i < R_check.size(); ++i) {
+            for (size_t j = 0; j < R_check[i].size(); ++j) {
+                if (std::abs(R_check[i][j] - R[i][j]) > 2e-6) {
+                    print2D("q_value",R_check);
+                    print2D("R_record",R);
+                    std::cout<<"not same value is ***************"<<R_check[i][j]<<" and "<<R[i][j]<<" difference is "<<R_check[i][j] - R[i][j]<<std::endl;
+                    return false;
+                }
+            }
+        }
+        return true;
+    } else {
+        return true;
+    }
+}
+
+std::vector<std::vector<double>> bodybasic::q_change_to_axis(const std::vector<double>& q_value){
+    std::vector<std::vector<double>> axisnew;
+    for(int i=0; i<3; i++){
+        std::vector<double> axisnew1;
+        for (int j = 3+i*3; j < 6+i*3 ; j++) {
+            axisnew1.push_back(q_value[j]);
+        }
+        axisnew.push_back(axisnew1);
+    }
+    return axisnew;
+}
+
 void bodybasic::setrotatestatus(int newstatus){
     rotatestatus=newstatus;
 }

@@ -44,6 +44,38 @@ std::vector<double> globaltolocal(const std::vector<double>& position, const std
     return matrix33time31tog(axis, vector3minus(rho, position));
 }
 
+std::vector<double> localtoglobal_q(const std::vector<double>& q_value, const std::vector<double>& rho){
+    std::vector<double> position;
+    for (int i = 0; i < 3; i++) {
+        position.push_back(q_value[i]);
+    }
+    std::vector<std::vector<double>> axis;
+    for(int i=0; i<3; i++){
+        std::vector<double> axis1;
+        for(int j=0; j<3; j++){
+            axis1.push_back(q_value[3+3*i+j]);
+        }
+        axis.push_back(axis1);
+    }
+    return vector3plus(position, matrix33time31sepcol(axis, rho));
+}
+
+std::vector<double> globaltolocal_q(const std::vector<double>& q_value, const std::vector<double>& rho){
+    std::vector<double> position;
+    for (int i = 0; i < 3; i++) {
+        position.push_back(q_value[i]);
+    }
+    std::vector<std::vector<double>> axis;
+    for(int i=0; i<3; i++){
+        std::vector<double> axis1;
+        for(int j=0; j<3; j++){
+            axis1.push_back(q_value[3+3*i+j]);
+        }
+        axis.push_back(axis1);
+    }
+    return matrix33time31tog(axis, vector3minus(rho, position));
+}
+
 std::vector<std::vector<double>> CayleyMap(const std::vector<double>& eta){
     std::vector<std::vector<double>> A= HatVec(eta);
     std::vector<std::vector<double>> Ahalf= matrixtimeconstant(A,0.5);
@@ -113,6 +145,39 @@ std::vector<double> matrix33time31tog(const std::vector<std::vector<double>>& co
             value=value+columnmatrix[i][j]*vector[j];
         }
         naxis.push_back(value);
+    }
+    return naxis;
+}
+
+//transpose(matrix3N) *(dot) columnmatrix
+std::vector<std::vector<double>> matrix33time3Nsepcol(const std::vector<std::vector<double>>& columnmatrix, const std::vector<std::vector<double>>& matrix3N){
+    std::vector<std::vector<double>> naxis={{},{},{}};
+    double value=0;
+    for(int k=0; k<matrix3N[0].size(); k++){
+        for(int i=0; i<columnmatrix[0].size(); i++){
+            value=0;
+            for(int j=0; j<columnmatrix.size(); j++){
+                value=value+columnmatrix[j][i]*matrix3N[j][k];
+            }
+            naxis[i].push_back(value);
+        }
+    }
+    return naxis;
+}
+
+std::vector<std::vector<double>> matrix_dot_times_matrix(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2){
+    std::vector<std::vector<double>> naxis={};
+    double value=0;
+    for(int k=0; k<matrix1.size(); k++){
+        std::vector<double> naxisrow={};
+        for(int i=0; i<matrix2[0].size(); i++){
+            value=0;
+            for(int j=0; j<matrix2.size(); j++){
+                value=value+matrix2[j][i]*matrix1[k][j];
+            }
+            naxisrow.push_back(value);
+        }
+        naxis.push_back(naxisrow);
     }
     return naxis;
 }

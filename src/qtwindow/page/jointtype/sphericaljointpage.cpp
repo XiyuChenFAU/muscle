@@ -93,14 +93,23 @@ void sphericaljointpage::setforjointi(int index){
     }
     else{
         joint* Joint=Jointpage->getrunmodel()->getModel()->getparm()->getjointindex(index);
-        std::vector<double> initialrotationangle=Joint->getinitialrotationangle();
-        std::vector<double> rotationangle=Joint->getrotationangle();
-        qedits[0]->setText(QString::fromStdString(doubletostring(initialrotationangle[0])));
-        qedits[1]->setText(QString::fromStdString(doubletostring(initialrotationangle[1])));
-        qedits[2]->setText(QString::fromStdString(doubletostring(initialrotationangle[2])));
-        qedits[3]->setText(QString::fromStdString(doubletostring(rotationangle[0])));
-        qedits[4]->setText(QString::fromStdString(doubletostring(rotationangle[1])));
-        qedits[5]->setText(QString::fromStdString(doubletostring(rotationangle[2])));
+        std::vector<std::vector<double>> rotationangle=Joint->get_movement();
+        for(int i=0; i<3;i++){
+            if(rotationangle.size()>i){
+                if(!rotationangle[i].empty()){
+                    qedits[i]->setText(QString::fromStdString(doubletostring(rotationangle[i][0])));
+                    qedits[i+3]->setText(QString::fromStdString(doubletostring(rotationangle[i].back())));
+                }
+                else{
+                    qedits[i]->setText(QString::fromStdString(doubletostring(0.0)));
+                    qedits[i+3]->setText(QString::fromStdString(doubletostring(0.0)));
+                }
+            }
+            else{
+                qedits[i]->setText(QString::fromStdString(doubletostring(0.0)));
+                qedits[i+3]->setText(QString::fromStdString(doubletostring(0.0)));
+            }
+        }
     }
 }
 

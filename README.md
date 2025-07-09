@@ -84,6 +84,9 @@ When you do "mkdir build", please sure it contains the CMakeLists.txtin the curr
 * cmake ..
 * make
 
+# make this project with print information
+* cmake -DCMAKE_BUILD_TYPE=Debug ..
+
 # install via Docker
 Download and install docker via https://docs.docker.com/desktop/
 

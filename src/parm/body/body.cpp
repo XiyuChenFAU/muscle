@@ -152,6 +152,57 @@ void body::setbodybasic(const std::vector<double>& naxis, double rotationangle, 
     }
 }
 
+double body::phi_ellipsoid(const std::vector<double>& positionlocal){
+    double phi = positionlocal[0] * positionlocal[0] / (Shape->geta()*Shape->geta()) +
+        positionlocal[1] * positionlocal[1] / (Shape->getb()*Shape->getb()) +
+        positionlocal[2] * positionlocal[2]  / (Shape->getc()*Shape->getc()) - 1;
+    return phi;
+}
+
+double body::phi_cylinder(const std::vector<double>& positionlocal){
+    if(positionlocal[2]>= -1.0*Shape->getc() && positionlocal[2] <= Shape->getc()){
+        double phi = positionlocal[0] * positionlocal[0] / (Shape->geta()*Shape->geta()) +
+        positionlocal[1] * positionlocal[1] / (Shape->getb()*Shape->getb()) - 1;
+        return phi;
+    }
+    else{
+        if(positionlocal[2]< -1.0*Shape->getc() >= -1.0*Shape->getc()){
+            return  -1.0*Shape->getc()-positionlocal[2];
+        }
+        else{
+            return positionlocal[2]-Shape->getc();
+        }
+    }
+}
+
+double body::phi_shape(const std::vector<double>& gamma, int timenum){
+    std::vector<std::vector<double>>  qall=BodyBasic->getq();
+    std::vector<double>q = qall[timenum];
+    std::vector<double> positionlocal=globaltolocal_q(q, gamma);
+
+    double phi=0;
+    if(Shape->getshapename()=="ellipsoid"){
+        phi = phi_ellipsoid(positionlocal);
+    }
+    if(Shape->getshapename()=="cylinder"){
+        phi = phi_cylinder(positionlocal);
+    }
+    return phi;
+}
+
+double body::phi_shape_current(const std::vector<double>& gamma){
+    std::vector<double> positionlocal=globaltolocal(BodyBasic->getposition(), BodyBasic->getaxis(), gamma);
+
+    double phi=0;
+    if(Shape->getshapename()=="ellipsoid"){
+        phi = phi_ellipsoid(positionlocal);
+    }
+    if(Shape->getshapename()=="cylinder"){
+        phi = phi_cylinder(positionlocal);
+    }
+    return phi;
+}
+
 void body::updatebodybasic(){
     BodyBasic->updatebodybasic(parent->getbodybasic()->getposition(), parent->getbodybasic()->getaxis());
 }

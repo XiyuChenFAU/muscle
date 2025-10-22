@@ -90,7 +90,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
         QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
         radioButtons_body.push_back(radioButton_body);
         radioButtons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtons_body[i+1]->setGeometry(360, 700+i*40, 340, 30);
+        radioButtons_body[i+1]->setGeometry(1100, 150+i*40, 340, 30);
         buttonGroup_initial_body->addButton(radioButtons_body[i+1], i);
     }
     connect(buttonGroup_initial_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_body);
@@ -101,25 +101,25 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     selectedValue_body=findbodyi+1;
 
 
-    setlabel("local parameterization",10, 670, allfontsize);
+    setlabel("local parameterization", 880, 110, 20);
     buttonGroup_initial_mode = new QButtonGroup;
 
     QRadioButton* radioButton1_mode_1 = new QRadioButton("no local", this);
     radioButtons_mode.push_back(radioButton1_mode_1);
     radioButtons_mode[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[0]->setGeometry(10, 700, 340, 30);
+    radioButtons_mode[0]->setGeometry(880, 150, 200, 30);
     QRadioButton* radioButton1_mode_2 = new QRadioButton("local", this);
     radioButtons_mode.push_back(radioButton1_mode_2);
     radioButtons_mode[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[1]->setGeometry(10, 740, 340, 30);
+    radioButtons_mode[1]->setGeometry(880, 190, 200, 30);
     QRadioButton* radioButton1_mode_3 = new QRadioButton("auto local", this);
     radioButtons_mode.push_back(radioButton1_mode_3);
     radioButtons_mode[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[2]->setGeometry(10, 780, 340, 30);
+    radioButtons_mode[2]->setGeometry(880, 230, 200, 30);
     QRadioButton* radioButton1_mode_4 = new QRadioButton("auto local dynamic", this);
     radioButtons_mode.push_back(radioButton1_mode_4);
     radioButtons_mode[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[3]->setGeometry(10, 820, 340, 30);
+    radioButtons_mode[3]->setGeometry(880, 270, 200, 30);
 
     selectedValue_mode = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getmode_nr();
     buttonGroup_initial_mode->addButton(radioButtons_mode[0], 0);
@@ -141,7 +141,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     }
 
     check_collision_CheckBox = new QCheckBox("check collision", this);
-    check_collision_CheckBox->setGeometry(300, 670, 340, 30);
+    check_collision_CheckBox->setGeometry(1100, 110, 340, 30);
     check_collision_CheckBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC;}");
 
     check_collision_Value = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getcollision_check();
@@ -157,16 +157,16 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
 
 
     //Casadi setting
-    setlabel("Casadi setting", 660, 110,20);
-    tolEdit=settextandlabel("tolerance",tol_string, 660, 150, 450, 30, allfontsize);
-    max_iterEdit=settextandlabel("max iteration",max_iter_string, 660, 230, 450, 30, allfontsize);
-    linear_solverEdit=settextandlabel("linear solver",linear_solver_string, 660, 310, 450, 30, allfontsize);
-    print_levelEdit=settextandlabel("print level",print_level_string, 660, 390, 450, 30, allfontsize);
-    hessian_approximationEdit=settextandlabel("hessian approximation",hessian_approximation_string, 660, 470, 450, 30, allfontsize);
+    setlabel("Casadi setting", 570, 110, 20);
+    tolEdit=settextandlabel("tolerance",tol_string, 570, 150, 200, 30, allfontsize);
+    max_iterEdit=settextandlabel("max iteration",max_iter_string, 570, 230, 200, 30, allfontsize);
+    linear_solverEdit=settextandlabel("linear solver",linear_solver_string, 570, 310, 200, 30, allfontsize);
+    print_levelEdit=settextandlabel("print level",print_level_string, 570, 390, 200, 30, allfontsize);
+    hessian_approximationEdit=settextandlabel("hessian approximation",hessian_approximation_string, 570, 470, 200, 30, allfontsize);
 
     //post processing setting
-    setlabel("Post processing setting", 660, 550,20);
-    tolpostprocessingEdit=settextandlabel("contact threshold",tolpostprocessing, 660, 600, 450, 30, allfontsize);
+    setlabel("Post processing setting", 570, 550,20);
+    tolpostprocessingEdit=settextandlabel("contact threshold",tolpostprocessing, 570, 600, 200, 30, allfontsize);
 
     //save button
     savebutton = new QPushButton("Save", this);

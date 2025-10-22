@@ -97,16 +97,16 @@ std::vector<double> objective::getmassmatrix(muscle* Muscle, const std::vector<s
             for(int k=0; k<jointposition.size();k++){
                 double massvaluei=std::sqrt((gammalaststep[3*j+0]-jointposition[k][0])*(gammalaststep[3*j+0]-jointposition[k][0])+(gammalaststep[3*j+1]-jointposition[k][1])*(gammalaststep[3*j+1]-jointposition[k][1])+(gammalaststep[3*j+2]-jointposition[k][2])*(gammalaststep[3*j+2]-jointposition[k][2]));
                 if(massvalue!=0){
-                    massvalue=massvalue+1.0/massvaluei;
+                    double massvaluei_rev=1.0/massvaluei;
+                    if(massvaluei_rev > massvalue){massvalue=massvaluei_rev;}
                 }
                 else{
-                    massvalue=massvalue+1000000;
+                    massvalue=10000000;
                 }
             }
-            double massmatrixvalue=1.0;
-            if(jointposition.size()>0){massmatrixvalue=massvalue/jointposition.size();}
+            if(massvalue == 0.0){massvalue=1.0;}
             for(int k=0;k<3;k++){
-                massmatrix.push_back(massmatrixvalue);
+                massmatrix.push_back(massvalue);
             }
         }            
     }

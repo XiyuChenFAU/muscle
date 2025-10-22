@@ -98,12 +98,12 @@ void solveeq::solvesignorini(Parm* parm){
         loopnum=0;
     }
     for(int i=0;i<loopnum;i++){
-        parm->set_body_R_initial();
+        if(g_enable_print){parm->set_body_R_initial();}
         if(i!=0){
             Initialguess->setpartition_dynamic(parm);
         }
         parm->rotatebodyupdate(i);
-        //parm->check_body_R();
+        if(g_enable_print){parm->check_body_R();}
         if(i==0){
             if(!parm->get_read_muscle_value()){
                 parm->setallmuscleinitialeta_gamma();

@@ -24,7 +24,7 @@ public:
     int getcollision_check();
     int getmode_nr();
     void setselect_bodyname(std::string bodyname);
-    bool check_have_collision(const std::vector<double>& node, Parm* parm);
+    bool check_have_collision(const std::vector<double>& node, Parm* parm, int muscle_num, int node_num);
     std::string getselect_bodyname();
 
     void setpartition(Parm* parm);

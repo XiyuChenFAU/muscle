@@ -140,7 +140,8 @@ std::vector<std::vector<double>> joint::rotation_matrix_update(double rotation_a
 }
 
 void joint::revolute_update(body* Body, std::vector<std::vector<double>> R){
-    Body->getbodybasic()->set_R_time(R);
+    if(g_enable_print){Body->getbodybasic()->set_R_time(R);}
+    
     std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
     if (body_update.empty()){
         body_update = Body->getbodybasic()->getq().back();
@@ -189,7 +190,8 @@ double joint::spherical_axis_angle(double angle1value, double angle2value, doubl
 
 
 void joint::spherical_update(body* Body, std::vector<std::vector<double>> R){
-    Body->getbodybasic()->set_R_time(R);
+    if(g_enable_print){Body->getbodybasic()->set_R_time(R);}
+
     std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
     if (body_update.empty()){
         body_update = Body->getbodybasic()->getq().back();

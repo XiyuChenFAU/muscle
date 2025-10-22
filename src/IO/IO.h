@@ -15,6 +15,7 @@ Xiyu Chen
 #include <sstream>
 #include <string>
 #include <filesystem>
+#include <cstdio>
 #include "../json/json/json.h"
 
 

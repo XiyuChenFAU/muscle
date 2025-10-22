@@ -39,10 +39,12 @@ void initialguess::setselect_bodyname(std::string bodyname){
     select_bodyname=bodyname;
 }
 
-bool initialguess::check_have_collision(const std::vector<double>& node, Parm* parm){
+bool initialguess::check_have_collision(const std::vector<double>& node, Parm* parm, int muscle_num, int node_num){
     std::vector<body*> allbody=parm->getallbody();
     for(int k=1; k<allbody.size(); k++){
-        if(allbody[k]->phi_shape_current(node)<0){
+        double phi_value = allbody[k]->phi_shape_current(node);
+        if(phi_value<-1e-5){
+            if(g_enable_print){std::cout<<"node has penetration for initial guess local parametrization -> muscle name: "<<parm->getallmuscle()[muscle_num]->getname()<<" node number: "<< node_num << " body name: " << allbody[k]->getname()<< " penetration: " <<phi_value<<std::endl;}
             return true;
         }
     }
@@ -85,7 +87,7 @@ void initialguess::setpartition(Parm* parm){
         body_partition.push_back(singlemusclepartition);
     }
     //print
-    //print_partition(allmuscle);
+    if(g_enable_print){print_partition(allmuscle);}
 }
 
 void initialguess::setpartition_dynamic(Parm* parm){
@@ -113,7 +115,7 @@ void initialguess::setpartition_dynamic(Parm* parm){
             body_partition.push_back(singlemusclepartition);
         }
         //print
-        //print_partition(allmuscle);
+        if(g_enable_print){print_partition(allmuscle);}
     }
 }
 
@@ -152,7 +154,7 @@ void initialguess::set_initialguessvalue(Parm* parm){
                     std::vector<double> vector_local_diff=globaltolocal(positionold, axisold, node_pos);
                     std::vector<double> node_initial_guess=localtoglobal(body_partition[i][j]->getbodybasic()->getposition(),body_partition[i][j]->getbodybasic()->getaxis(), vector_local_diff);
                     if(collision_check){
-                        if(check_have_collision(node_initial_guess, parm)){
+                        if(check_have_collision(node_initial_guess, parm, i, j)){
                             x0.insert(x0.end(), node_pos.begin(), node_pos.end());
                         }
                         else{
@@ -187,14 +189,15 @@ void initialguess::resetforrecalc(){
 
 void initialguess::print_partition(const std::vector<muscle*>& allmuscle){
     for(int i=0; i<allmuscle.size();i++){
-        std::cout<<"new muscle"<<std::endl;
-        std::cout<<allmuscle[i]->getname()<<std::endl;
+        std::cout<<"check muscle partition: "<<allmuscle[i]->getname()<<" node number: "<<allmuscle[i]->getnodenum()<<std::endl;
         for(int j=0; j<allmuscle[i]->getnodenum(); j++){
             std::cout<<body_partition[i][j]->getname()<<"\t";
         }
         std::cout<<"\n";
     }
 }
+
+
 
 
 

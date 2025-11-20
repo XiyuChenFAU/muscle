@@ -42,7 +42,7 @@ initialguess* solveeq::getInitialguess(){
     return Initialguess;
 }
 
-void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
+void solveeq::solvesignorinirotate(Parm* parm){
     std::vector<std::vector<double>> jointnaxisall;
     for(int i=0;i<parm->getn_joints();i++){
         jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos().back());
@@ -69,17 +69,9 @@ void solveeq::solvesignorinirotate(Parm* parm, int initialstart){
         arg["ubg"] = Constraint->getupperlimitall();
         std::vector<double> x0;
 
-        if(initialstart){
-            std::vector<std::vector<double>> gammaall_muscle = allmuscle[i]->getgammaall();
-            std::vector<std::vector<double>> etaall_muscle = allmuscle[i]->getetaall();
-            x0.insert(x0.end(), gammaall_muscle.back().begin(), gammaall_muscle.back().end());
-            x0.insert(x0.end(), etaall_muscle.back().begin(), etaall_muscle.back().end());
-            allmuscle[i]->deletegammaalllast();
-        }
-        else{
-            std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
-            x0.insert(x0.end(), initial.begin(), initial.end());
-        }
+        std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
+        x0.insert(x0.end(), initial.begin(), initial.end());
+
         arg["x0"] = x0;
         // Solve the NLP
         res = solver(arg);
@@ -105,20 +97,14 @@ void solveeq::solvesignorini(Parm* parm){
         parm->rotatebodyupdate(i);
         if(g_enable_print){parm->check_body_R();}
         if(i==0){
-            if(!parm->get_read_muscle_value()){
-                parm->setallmuscleinitialeta_gamma();
-            }
+            parm->setallmuscleinitialeta_gamma();
             Initialguess->setpartition(parm);
-            if(!parm->get_read_muscle_value()){
-                solvesignorinirotate(parm,1);
-            } else {
-                Initialguess->set_initialguessvalue(parm);
-                solvesignorinirotate(parm,0);
-            }
+            Initialguess->set_initialguessvalue(parm, 1);
+
         }else{
-            Initialguess->set_initialguessvalue(parm);
-            solvesignorinirotate(parm,0);
+            Initialguess->set_initialguessvalue(parm, 0);
         }
+        solvesignorinirotate(parm);
     }
 }
 

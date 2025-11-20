@@ -636,24 +636,36 @@ model* IO::readmodel(const std::string&  jsonfilename){
         std::string musclename = muscleObject["muscle_name"].asString();
         int nodenumber = muscleObject["node_number"].asInt();
 
-        std::vector<double> gammavalue;
-        std::vector<double> etavalue;
+        std::vector<double> gammavalue={};
+        std::vector<double> etavalue={};
         if (muscleObject.isMember("gamma")) {
             const Json::Value& gammaArray = muscleObject["gamma"];
             for (const Json::Value& value : gammaArray) { 
                 gammavalue.push_back(value.asDouble());
             }
+        }
 
+        if (muscleObject.isMember("eta")) {
             const Json::Value& etaArray = muscleObject["eta"];
             for (const Json::Value& value : etaArray) {
                 etavalue.push_back(value.asDouble());
             }
-            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0, gammavalue, etavalue);
-            Model->getparm()->set_read_muscle_value(1);
+        }
+
+        if (gammavalue.empty() && etavalue.empty()) {
+            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0);
+            Model->getparm()->set_single_read_muscle_value(musclename, 0);
         }
         else{
-            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0);
-            Model->getparm()->set_read_muscle_value(0);
+            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0, gammavalue, etavalue);
+            int read_muscle_value = 3; // has value for both gamma and eta
+            if(gammavalue.empty()){
+                read_muscle_value = 1; // only has value for eta
+            }
+            if(etavalue.empty()){
+                read_muscle_value = 2; // only has value for gamma
+            }
+            Model->getparm()->set_single_read_muscle_value(musclename, read_muscle_value);
         }
     }
     //joint

@@ -23,7 +23,7 @@ public:
     void setipoptoption(double tolvalue,int max_itervalue,const std::string& linear_solvervalue,int print_levelvalue,const std::string& hessian_approximationvalue);
     objective* getObjective();
     initialguess* getInitialguess();
-    void solvesignorinirotate(Parm* parm, int initialstart=0);
+    void solvesignorinirotate(Parm* parm);
     void solvesignorini(Parm* parm);
     
 

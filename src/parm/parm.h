@@ -33,10 +33,8 @@ public:
     std::vector<int> getallstep();
     joint* getjointindex(int index);
     Fsolve* getfsolve();
-    int get_read_muscle_value();
     int get_run_total_step();
     void set_run_total_step(int run_total_step_value);
-    void set_read_muscle_value(int value);
     void set_body_R_initial();
     void check_body_R();
     void addbody(body* Body, const std::string& parentbodyname);
@@ -49,6 +47,7 @@ public:
     void addmuscle(muscle* Muscle);
     void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global=0);
     void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue);
+    void set_single_read_muscle_value(const std::string& name, int read_muscle_value);
 
     void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value);
 
@@ -74,7 +73,6 @@ private:
     std::vector<joint*> alljoint;
     Fsolve* fsolve=nullptr;
     int variablenum;
-    int read_muscle_value=0;
     int run_total_step=0;
 };
 

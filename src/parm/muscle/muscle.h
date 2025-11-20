@@ -46,6 +46,8 @@ public:
     std::vector<double> getrho_i_position_initial_global();
     body* getrhoo_body();
     body* getrhoi_body();
+    void set_read_muscle_value(int value);
+    int get_read_muscle_value();
 
     void addgamma(const std::vector<std::vector<double>>& gammanew);
     void addeta(const std::vector<std::vector<double>>& etanew);
@@ -82,6 +84,7 @@ private:
     std::vector<double> rho_i;
     body* rhoo_body=nullptr;
     body* rhoi_body=nullptr;
+    int read_muscle_value=0;
 };
 
 #endif // MUSCLE_H

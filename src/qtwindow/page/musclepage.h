@@ -38,6 +38,7 @@ public:
 
     void setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal);
     void setlocalglobal();
+    void updatevalue();
 
 private:
     std::vector<QLabel*> qlabels;

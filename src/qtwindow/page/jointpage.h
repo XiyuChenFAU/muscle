@@ -40,6 +40,7 @@ public:
     void errorbox(std::string errormessage);
     runmodel* getrunmodel();
     void setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex, int stepnum);
+    void updatevalue();
 
 private:
     std::vector<QLabel*> qlabels;
@@ -69,6 +70,7 @@ private:
     translationjointpage *Translationjointpage = nullptr;
     int selectedValuetype=-1;
     int selectedValuebody=-1;
+    joint* Joint = nullptr;
 
 
 

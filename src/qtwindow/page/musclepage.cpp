@@ -110,40 +110,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     rhoiaxisyEdit = settextandlabel("axis y",rhoistring_axis_y, 1010, 390, 100, 30, allfontsize);
     rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 1010, 475, 100, 30, allfontsize);
 
-    buttonGroupo = new QButtonGroup;
-    QRadioButton* radioButtono = new QRadioButton(QString::fromStdString("null"), this);
-    radioButtono->setVisible(false);
-    radioButtonso.push_back(radioButtono);
-    buttonGroupo->addButton(radioButtonso[0], -1);
-    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
-        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
-        radioButtonso.push_back(radioButton);
-        radioButtonso[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonso[i+1]->setGeometry(10, 300+i*40, 340, 30);
-        buttonGroupo->addButton(radioButtonso[i+1], i);
-    }
-    connect(buttonGroupo, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedo);
-    int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoobodyname);
-    radioButtonso[findbodyo+1]->setChecked(true);
-    selectedValueo=findbodyo;
-    
-    
-    buttonGroupi = new QButtonGroup;
-    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
-    radioButtoni->setVisible(false);
-    radioButtonsi.push_back(radioButtoni);
-    buttonGroupi->addButton(radioButtonsi[0], -1);
-    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
-        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
-        radioButtonsi.push_back(radioButton);
-        radioButtonsi[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsi[i+1]->setGeometry(660, 300+i*40, 340, 30);
-        buttonGroupi->addButton(radioButtonsi[i+1], i);
-    }
-    connect(buttonGroupi, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedi);
-    int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
-    radioButtonsi[findbodyi+1]->setChecked(true);
-    selectedValuei=findbodyi;
+    updatevalue();
 
     //save button
     savebutton = new QPushButton("Save", this);
@@ -419,6 +386,79 @@ void musclepage::setlocalglobal(){
             }
         }
 
+}
+
+void musclepage::updatevalue(){
+    //delete old information
+    for (QRadioButton* btn : radioButtonso) {
+        if (btn) {delete btn;}
+    }
+    radioButtonso.clear();
+    for (QRadioButton* btn : radioButtonsi) {
+        if (btn) {delete btn;}
+    }
+    radioButtonsi.clear();
+    if (buttonGroupo) {
+        delete buttonGroupo;
+        buttonGroupo = nullptr;
+    }
+    if (buttonGroupi) {
+        delete buttonGroupi;
+        buttonGroupi = nullptr;
+    }
+
+    std::string rhoobodyname="";
+    std::string rhoibodyname="";
+    int musclenum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles();
+    if(musclenum){
+        if(Muscle!=nullptr){
+            rhoobodyname = Muscle->getrhoo_bodyname();
+            rhoibodyname = Muscle->getrhoi_bodyname();
+        }
+    }
+
+    buttonGroupo = new QButtonGroup(this);
+    QRadioButton* radioButtono = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtono->setVisible(false);
+    radioButtonso.push_back(radioButtono);
+    buttonGroupo->addButton(radioButtonso[0], -1);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+        radioButtonso.push_back(radioButton);
+        radioButtonso[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonso[i+1]->setGeometry(10, 300+i*40, 340, 30);
+        radioButtonso[i+1]->show();
+        buttonGroupo->addButton(radioButtonso[i+1], i);
+    }
+    connect(buttonGroupo, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedo);
+    int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoobodyname);
+    radioButtonso[findbodyo+1]->setChecked(true);
+    selectedValueo=findbodyo;
+    
+    
+    buttonGroupi = new QButtonGroup(rectanglemain);
+    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), rectanglemain);
+    radioButtoni->setVisible(false);
+    radioButtonsi.push_back(radioButtoni);
+    buttonGroupi->addButton(radioButtonsi[0], -1);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+        radioButtonsi.push_back(radioButton);
+        radioButtonsi[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsi[i+1]->setGeometry(660, 300+i*40, 340, 30);
+        radioButtonsi[i+1]->show();
+        buttonGroupi->addButton(radioButtonsi[i+1], i);
+    }
+    connect(buttonGroupi, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedi);
+    int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
+    radioButtonsi[findbodyi+1]->setChecked(true);
+    selectedValuei=findbodyi;
+
+    if (rectanglemain) {
+        rectanglemain->update();
+        rectanglemain->show();
+    }
+    this->update();
 }
 
 void musclepage::handleButtonClickedtype(QAbstractButton* button){

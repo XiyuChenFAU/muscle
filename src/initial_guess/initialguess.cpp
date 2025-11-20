@@ -119,56 +119,65 @@ void initialguess::setpartition_dynamic(Parm* parm){
     }
 }
 
-void initialguess::set_initialguessvalue(Parm* parm){
+void initialguess::set_initialguessvalue(Parm* parm, int first_step){
     std::vector<muscle*> allmuscle=parm->getallmuscle();
     initialguessvalue={};
     for(int i=0; i<allmuscle.size();i++){
         std::vector<double> x0={};
         std::vector<std::vector<double>> etaall_muscle = allmuscle[i]->getetaall();
-        if(mode_number==0){
+
+        if(first_step && allmuscle[i]->get_read_muscle_value()<2){
             std::vector<std::vector<double>> gammaall_muscle = allmuscle[i]->getgammaall();
             x0.insert(x0.end(), gammaall_muscle.back().begin(), gammaall_muscle.back().end());
-        }
-        if(mode_number==1 || mode_number==2 || mode_number==3){
-            for(int j=0; j<allmuscle[i]->getnodenum(); j++){
+            x0.insert(x0.end(), etaall_muscle.back().begin(), etaall_muscle.back().end());
+            allmuscle[i]->deletegammaalllast();
+        } else {
+            if(mode_number==0){
                 std::vector<std::vector<double>> gammaall_muscle = allmuscle[i]->getgammaall();
-                std::vector<std::vector<double>> etaall_muscle = allmuscle[i]->getetaall();
-                std::vector<double> gamma_value=gammaall_muscle.back();
-                std::vector<double> node_pos={gamma_value[j*3],gamma_value[j*3+1],gamma_value[j*3+2]};
-                if(j==0 || j==allmuscle[i]->getnodenum()-1){
-                    x0.insert(x0.end(), node_pos.begin(), node_pos.end());
-                } else{
-                    std::vector<std::vector<double>> all_q=body_partition[i][j]->getbodybasic()->getq();
-                    std::vector<double>old_q=all_q[all_q.size()-2];
+                x0.insert(x0.end(), gammaall_muscle.back().begin(), gammaall_muscle.back().end());
+            }
+            if(mode_number==1 || mode_number==2 || mode_number==3){
+                for(int j=0; j<allmuscle[i]->getnodenum(); j++){
+                    std::vector<std::vector<double>> gammaall_muscle = allmuscle[i]->getgammaall();
+                    std::vector<std::vector<double>> etaall_muscle = allmuscle[i]->getetaall();
+                    std::vector<double> gamma_value=gammaall_muscle.back();
+                    std::vector<double> node_pos={gamma_value[j*3],gamma_value[j*3+1],gamma_value[j*3+2]};
+                    if(j==0 || j==allmuscle[i]->getnodenum()-1){
+                        x0.insert(x0.end(), node_pos.begin(), node_pos.end());
+                    } else{
+                        std::vector<std::vector<double>> all_q=body_partition[i][j]->getbodybasic()->getq();
+                        std::vector<double>old_q=all_q[all_q.size()-2];
 
-                    std::vector<double> positionold;
-                    std::vector<std::vector<double>> axisold;
-                    for(int i=0; i<3; i++){
-                        positionold.push_back(old_q[i]);
-                        std::vector<double> axisold1;
-                        for (int j = 3+i*3; j < 6+i*3 ; j++) {
-                            axisold1.push_back(old_q[j]);
+                        std::vector<double> positionold;
+                        std::vector<std::vector<double>> axisold;
+                        for(int i=0; i<3; i++){
+                            positionold.push_back(old_q[i]);
+                            std::vector<double> axisold1;
+                            for (int j = 3+i*3; j < 6+i*3 ; j++) {
+                                axisold1.push_back(old_q[j]);
+                            }
+                            axisold.push_back(axisold1);
                         }
-                        axisold.push_back(axisold1);
-                    }
-                    std::vector<double> vector_local_diff=globaltolocal(positionold, axisold, node_pos);
-                    std::vector<double> node_initial_guess=localtoglobal(body_partition[i][j]->getbodybasic()->getposition(),body_partition[i][j]->getbodybasic()->getaxis(), vector_local_diff);
-                    if(collision_check){
-                        if(check_have_collision(node_initial_guess, parm, i, j)){
-                            x0.insert(x0.end(), node_pos.begin(), node_pos.end());
+                        std::vector<double> vector_local_diff=globaltolocal(positionold, axisold, node_pos);
+                        std::vector<double> node_initial_guess=localtoglobal(body_partition[i][j]->getbodybasic()->getposition(),body_partition[i][j]->getbodybasic()->getaxis(), vector_local_diff);
+                        if(collision_check){
+                            if(check_have_collision(node_initial_guess, parm, i, j)){
+                                x0.insert(x0.end(), node_pos.begin(), node_pos.end());
+                            }
+                            else{
+                                x0.insert(x0.end(), node_initial_guess.begin(), node_initial_guess.end());
+                            }
                         }
                         else{
                             x0.insert(x0.end(), node_initial_guess.begin(), node_initial_guess.end());
                         }
                     }
-                    else{
-                        x0.insert(x0.end(), node_initial_guess.begin(), node_initial_guess.end());
-                    }
+                    
                 }
-                
             }
+            x0.insert(x0.end(), etaall_muscle.back().begin(), etaall_muscle.back().end());
         }
-        x0.insert(x0.end(), etaall_muscle.back().begin(), etaall_muscle.back().end());
+
         initialguessvalue.push_back(x0);
     }
 

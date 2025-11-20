@@ -92,20 +92,12 @@ Fsolve* Parm::getfsolve(){
     return fsolve;
 }
 
-int Parm::get_read_muscle_value(){
-    return read_muscle_value;
-}
-
 int Parm::get_run_total_step(){
     return run_total_step;
 }
 
 void Parm::set_run_total_step(int run_total_step_value){
     run_total_step=run_total_step_value;
-}
-
-void Parm::set_read_muscle_value(int value){
-    read_muscle_value=value;
 }
 
 void Parm::set_body_R_initial(){
@@ -318,6 +310,15 @@ void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo
         allmuscle.push_back(Muscle);
         n_muscles=n_muscles+1;
     }   
+}
+
+void Parm::set_single_read_muscle_value(const std::string& name, int read_muscle_value){
+    for(int i=0;i<allmuscle.size();i++){
+        if(allmuscle[i]->getname()==name){
+            allmuscle[i]->set_read_muscle_value(read_muscle_value);
+            break;
+        }
+    }
 }
     
 void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value){

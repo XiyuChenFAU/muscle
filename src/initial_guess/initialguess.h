@@ -29,7 +29,7 @@ public:
 
     void setpartition(Parm* parm);
     void setpartition_dynamic(Parm* parm);
-    void set_initialguessvalue(Parm* parm);
+    void set_initialguessvalue(Parm* parm, int first_step);
     std::vector<std::vector<double>> get_initialguessvalue();
     std::vector<double> get_initialguessvalueindex(int index);
     void resetforrecalc();

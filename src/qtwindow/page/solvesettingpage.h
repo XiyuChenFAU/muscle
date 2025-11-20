@@ -37,6 +37,7 @@ public:
     std::string doubletostring(double num);
     double stringtodouble(std::string numStr);
     void errorbox(std::string errormessage);
+    void updatevalue();
 
 private:
     std::vector<QLabel*> qlabels;

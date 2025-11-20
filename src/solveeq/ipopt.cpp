@@ -29,11 +29,11 @@ void IPOPT::SetInitialipopt() {
 
 Dict IPOPT::getipoptparm(){
     Dict opts_dict=Dict();
-    opts_dict["ipopt.tol"] = tol;
-    opts_dict["ipopt.max_iter"] = max_iter;
-    opts_dict["ipopt.linear_solver"] = linear_solver;
+    if(!tol){opts_dict["ipopt.tol"] = tol;}
+    if(!max_iter){opts_dict["ipopt.max_iter"] = max_iter;}
+    if(!linear_solver.empty()){opts_dict["ipopt.linear_solver"] = linear_solver;}
     opts_dict["ipopt.print_level"] = print_level;
-    opts_dict["ipopt.hessian_approximation"] = hessian_approximation;
+    if(!hessian_approximation.empty()){opts_dict["ipopt.hessian_approximation"] = hessian_approximation;}    
     return opts_dict;
 }
 

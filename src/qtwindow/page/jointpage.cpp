@@ -46,7 +46,7 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
         plusbutton->setGeometry(jointnum*70, 50, 50, 50);
         jointbuttons[0]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
 
-        joint* Joint=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(0);
+        Joint=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(0);
 
         jointname=Joint->getname();
         rotatebodyname=Joint->getbodyname();
@@ -80,29 +80,11 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
     positionaxis_zEdit = settextandlabel("axis z",positionaxis_z, 320, 270, 140, 30, allfontsize);
 
     setlabel("rotate body name", 10, 360, allfontsize);
-    buttonGroupbody = new QButtonGroup;
-    QRadioButton* radioButtonbodynull = new QRadioButton(QString::fromStdString("null"), this);
-    radioButtonbodynull->setVisible(false);
-    radioButtonsbody.push_back(radioButtonbodynull);
-    buttonGroupbody->addButton(radioButtonsbody[0], -1);
 
-    QRadioButton* radioButtonfix = new QRadioButton(QString::fromStdString("fix_space"), this);
-    radioButtonsbody.push_back(radioButtonfix);
-    radioButtonsbody[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtonsbody[1]->setGeometry(10, 390, 340, 30);
-    buttonGroupbody->addButton(radioButtonsbody[1], 0);
 
-    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
-        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
-        radioButtonsbody.push_back(radioButton);
-        radioButtonsbody[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsbody[i+2]->setGeometry(10, 390+(i+1)*40, 340, 30);
-        buttonGroupbody->addButton(radioButtonsbody[i+2], 1);
-    }
-    connect(buttonGroupbody, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &jointpage::handleButtonClickedbody);
-    int findbodyrotate=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rotatebodyname);
-    radioButtonsbody[findbodyrotate+2]->setChecked(true);
-    selectedValuebody=findbodyrotate+1;
+    updatevalue();
+
+
     setlabel("step number for all joints", 660, 110, allfontsize);
     stepnumstringEdit=settext(stepnumstring, 850, 110, 260, 30 ,allfontsize);
     setlabel("joint type", 660, 150, allfontsize);
@@ -280,6 +262,57 @@ void jointpage::setalltextedit(const std::string& jointnamevalue, const std::str
 
 }
 
+void jointpage::updatevalue(){
+    //delete old information
+    for (QRadioButton* btn : radioButtonsbody) {
+        if (btn) {delete btn;}
+    }
+    radioButtonsbody.clear();
+    if (buttonGroupbody) {
+        delete buttonGroupbody;
+        buttonGroupbody = nullptr;
+    }
+
+    std::string rotatebodyname="";
+    int jointnum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints();;
+    if(jointnum){
+        if(Joint!=nullptr){
+            rotatebodyname = Joint->getbodyname();
+        }
+    }
+
+    buttonGroupbody = new QButtonGroup;
+    QRadioButton* radioButtonbodynull = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtonbodynull->setVisible(false);
+    radioButtonsbody.push_back(radioButtonbodynull);
+    buttonGroupbody->addButton(radioButtonsbody[0], -1);
+
+    QRadioButton* radioButtonfix = new QRadioButton(QString::fromStdString("fix_space"), this);
+    radioButtonsbody.push_back(radioButtonfix);
+    radioButtonsbody[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtonsbody[1]->setGeometry(10, 390, 340, 30);
+    radioButtonsbody[1]->show();
+    buttonGroupbody->addButton(radioButtonsbody[1], 0);
+
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+        radioButtonsbody.push_back(radioButton);
+        radioButtonsbody[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsbody[i+2]->setGeometry(10, 390+(i+1)*40, 340, 30);
+        radioButtonsbody[i+2]->show();
+        buttonGroupbody->addButton(radioButtonsbody[i+2], i+1);
+    }
+    connect(buttonGroupbody, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &jointpage::handleButtonClickedbody);
+    int findbodyrotate=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rotatebodyname);
+    radioButtonsbody[findbodyrotate+2]->setChecked(true);
+    selectedValuebody=findbodyrotate+1;
+    if (rectangle) {
+        rectangle->update();
+        rectangle->show();
+    }
+    this->update();
+}
+
 void jointpage::savesetting(){
     if(selectedValuetype<0 || selectedValuebody<0){
         if(selectedValuebody<0 ){
@@ -404,7 +437,7 @@ void jointpage::newjointbuttonsetting(){
 }
 
 void jointpage::showjointsetting(int index){
-    joint* Joint=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(index);
+    Joint=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(index);
     setalltextedit(Joint->getname(), Joint->getbodyname(), Joint->getjoint_type(), Joint->getrelative_pos(), index, Joint->getjoint_stepnum());
     for(int i=0;i<jointbuttons.size();i++){
         if(index==i){

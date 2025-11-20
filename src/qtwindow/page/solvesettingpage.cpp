@@ -80,27 +80,6 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
         lenghtspringlabel->setVisible(false);
     }
 
-    
-    buttonGroup_initial_body = new QButtonGroup;
-    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
-    radioButtoni->setVisible(false);
-    radioButtons_body.push_back(radioButtoni);
-    buttonGroup_initial_body->addButton(radioButtons_body[0], -1);
-    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1;i++){
-        QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
-        radioButtons_body.push_back(radioButton_body);
-        radioButtons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtons_body[i+1]->setGeometry(1100, 150+i*40, 340, 30);
-        buttonGroup_initial_body->addButton(radioButtons_body[i+1], i);
-    }
-    connect(buttonGroup_initial_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_body);
-    std::string initialbodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getselect_bodyname();
-
-    int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(initialbodyname);
-    radioButtons_body[findbodyi+1]->setChecked(true);
-    selectedValue_body=findbodyi+1;
-
-
     setlabel("local parameterization", 880, 110, 20);
     buttonGroup_initial_mode = new QButtonGroup;
 
@@ -129,16 +108,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     connect(buttonGroup_initial_mode, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_mode);
     radioButtons_mode[selectedValue_mode]->setChecked(true);
 
-    if(selectedValue_mode==1){
-        for (int i = 1; i < radioButtons_body.size(); ++i) {
-            radioButtons_body[i]->setVisible(true);
-        }
-    }
-    else{
-        for (int i =  1; i < radioButtons_body.size(); ++i) {
-            radioButtons_body[i]->setVisible(false);
-        }
-    }
+    updatevalue();
 
     check_collision_CheckBox = new QCheckBox("check collision", this);
     check_collision_CheckBox->setGeometry(1100, 110, 340, 30);
@@ -281,6 +251,54 @@ void solvesettingpage::errorbox(std::string errormessage){
     errorMessage.setIcon(QMessageBox::Critical);
     errorMessage.addButton("Yes", QMessageBox::AcceptRole);
     errorMessage.exec();
+}
+
+void solvesettingpage::updatevalue(){
+    //delete old information
+    for (QRadioButton* btn : radioButtons_body) {
+        if (btn) {delete btn;}
+    }
+    radioButtons_body.clear();
+    if (buttonGroup_initial_body) {
+        delete buttonGroup_initial_body;
+        buttonGroup_initial_body = nullptr;
+    }
+
+
+    buttonGroup_initial_body = new QButtonGroup();
+    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
+    radioButtoni->setVisible(false);
+    radioButtons_body.push_back(radioButtoni);
+    buttonGroup_initial_body->addButton(radioButtons_body[0], -1);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1;i++){
+        QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
+        radioButtons_body.push_back(radioButton_body);
+        radioButtons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtons_body[i+1]->setGeometry(1100, 150+i*40, 340, 30);
+        radioButtons_body[i+1]->show();
+        buttonGroup_initial_body->addButton(radioButtons_body[i+1], i);
+    }
+    connect(buttonGroup_initial_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_body);
+    std::string initialbodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getselect_bodyname();
+    int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(initialbodyname);
+    radioButtons_body[findbodyi+2]->setChecked(true);
+    selectedValue_body=findbodyi+1;
+
+    if(selectedValue_mode==1){
+        for (int i = 1; i < radioButtons_body.size(); ++i) {
+            radioButtons_body[i]->setVisible(true);
+        }
+    }
+    else{
+        for (int i =  1; i < radioButtons_body.size(); ++i) {
+            radioButtons_body[i]->setVisible(false);
+        }
+    }
+    if (rectangle) {
+        rectangle->update();
+        rectangle->show();
+    }
+    this->update();
 }
 
 void solvesettingpage::openFolderDialog() {

@@ -333,7 +333,7 @@ void joint::set_movement_per_step(){
     }
     if(joint_type=="translate joint"){
         std::vector<std::vector<double>> absolute_trans= matrix33time3Nsepcol(currentbody->getbodybasic()->getaxis(), movement);
-        movement_perstep_value={{absolute_trans[0]}, {absolute_trans[1]}, {absolute_trans[2]}};
+        movement_perstep_value={{absolute_trans[0][0]}, {absolute_trans[1][0]}, {absolute_trans[2][0]}};
         for(int j=0;j<3;j++){
             for(int i=0;i<absolute_trans[0].size()-1;i++){
                 movement_perstep_value[j].push_back(absolute_trans[j][i+1]-absolute_trans[j][i]);

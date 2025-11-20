@@ -108,6 +108,30 @@ void setmodelwindow::showpage(int index){
     stackedWidget->setCurrentIndex(index);
     changebuttonstyle(index);
 
+    if (index == 1) {
+        QWidget *currentPage = stackedWidget->currentWidget();
+        musclepage *page = qobject_cast<musclepage *>(currentPage);
+        if (page) {
+            page->updatevalue();
+        }
+    }
+
+    if (index == 2) {
+        QWidget *currentPage = stackedWidget->currentWidget();
+        jointpage *page = qobject_cast<jointpage *>(currentPage);
+        if (page) {
+            page->updatevalue();
+        }
+    }
+
+    if (index == 3) {
+        QWidget *currentPage = stackedWidget->currentWidget();
+        solvesettingpage *page = qobject_cast<solvesettingpage *>(currentPage);
+        if (page) {
+            page->updatevalue();
+        }
+    }
+
     if (index == 4) {
         QWidget *currentPage = stackedWidget->currentWidget();
         runprogrampage *page = qobject_cast<runprogrampage *>(currentPage);

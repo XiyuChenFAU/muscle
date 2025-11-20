@@ -328,6 +328,7 @@ void Parm::addjoint(const std::string& namevalue, const std::string& bodynameval
         if(alljoint[i]->getname() ==namevalue){
             alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value);
             if(run_total_step<alljoint[i]->getjoint_stepnum()){run_total_step=alljoint[i]->getjoint_stepnum();}
+            if(!movement_value.empty()){alljoint[i]->setread_from_movement(1);} else{alljoint[i]->setread_from_movement(0);}
             add_joint=0;
             break;
         }
@@ -335,6 +336,7 @@ void Parm::addjoint(const std::string& namevalue, const std::string& bodynameval
     if(add_joint){
         joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value);
         if(run_total_step<Joint->getjoint_stepnum()){run_total_step=Joint->getjoint_stepnum();}
+        if(!movement_value.empty()){Joint->setread_from_movement(1);} else{Joint->setread_from_movement(0);}
         alljoint.push_back(Joint);
         n_joints=n_joints+1;
     }

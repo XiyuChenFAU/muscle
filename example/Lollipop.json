@@ -126,7 +126,6 @@
 		"length_constant" : 1.0,
 		"solvercase" : 0
 	},
-	"output_path" : "/Users/xiyu/Desktop/muscle_project/musclewindow/muscle/example/",
 	"postprocessing" : 
 	{
 		"tol" : 0.001

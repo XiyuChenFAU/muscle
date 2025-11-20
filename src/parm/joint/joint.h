@@ -36,6 +36,8 @@ public:
     std::vector<std::vector<double>> get_movement_per_step();
     int getwritemomentarm();
     int getjoint_stepnum();
+    int getread_from_movement();
+    void setread_from_movement(int read_from_movement_value);
     void setjoint_stepnum(int joint_stepnum_value);
     void setwritemomentarm();
     std::vector<double> set_movement_single_axis_single_interval(std::vector<double> move_setting_axis_interval, std::vector<double> move_setting_axis_all);
@@ -80,6 +82,7 @@ private:
     std::vector<int> currentstep;
     int writemomentarm = 0;
     int joint_stepnum = 0;
+    int read_from_movement=0;
 };
 
 #endif // JOINT_H

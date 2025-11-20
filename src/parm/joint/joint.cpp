@@ -102,6 +102,14 @@ int joint::getwritemomentarm(){
 int joint::getjoint_stepnum(){
     return joint_stepnum;
 }
+
+int joint::getread_from_movement(){
+    return read_from_movement;
+}
+
+void joint::setread_from_movement(int read_from_movement_value){
+    read_from_movement=read_from_movement_value;
+}
    
 void joint::setjoint_stepnum(int joint_stepnum_value){
     joint_stepnum=joint_stepnum_value;

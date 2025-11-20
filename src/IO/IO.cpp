@@ -516,15 +516,17 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
         }
         jointObject["move_setting"] = move_setting_value;
 
-        Json::Value movement_value(Json::arrayValue);
-        for (const auto& row : Model->getparm()->getjointindex(i)->get_movement()) {
-            Json::Value rowJson(Json::arrayValue);
-            for (const auto& value : row) {
-                rowJson.append(value);
+        if(Model->getparm()->getjointindex(i)->getread_from_movement()){
+            Json::Value movement_value(Json::arrayValue);
+            for (const auto& row : Model->getparm()->getjointindex(i)->get_movement()) {
+                Json::Value rowJson(Json::arrayValue);
+                for (const auto& value : row) {
+                    rowJson.append(value);
+                }
+                movement_value.append(rowJson);
             }
-            movement_value.append(rowJson);
+            jointObject["movement"] = movement_value;
         }
-        jointObject["movement"] = movement_value;
 
         jointArray.append(jointObject);
     }

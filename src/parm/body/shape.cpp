@@ -10,7 +10,7 @@ Xiyu Chen
 
 using namespace std;
 
-std::vector<std::string> shape::allshape={"ellipsoid","cylinder"};
+std::vector<std::string> shape::allshape={"ellipsoid","cylinder","torus"};
 
 shape::shape (){
     a=0;

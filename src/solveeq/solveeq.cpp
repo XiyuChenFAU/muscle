@@ -7,6 +7,7 @@ Xiyu Chen
 */
 
 #include "solveeq.h"
+// #include <omp.h> // new for parallelization
 
 solveeq::solveeq(){
     ipopt=new IPOPT();
@@ -43,6 +44,7 @@ initialguess* solveeq::getInitialguess(){
 }
 
 void solveeq::solvesignorinirotate(Parm* parm){
+    
     std::vector<std::vector<double>> jointnaxisall;
     for(int i=0;i<parm->getn_joints();i++){
         jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos().back());
@@ -81,6 +83,62 @@ void solveeq::solvesignorinirotate(Parm* parm){
         }
         allmuscle[i]->addmuscleparm(solution);
     }
+        
+    
+    // new
+    /*
+    std::vector<std::vector<double>> jointnaxisall;
+    for(int i = 0; i < parm->getn_joints(); i++) {
+        jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos().back());
+    }
+
+    std::vector<muscle*> allmuscle = parm->getallmuscle();
+    int nMuscles = parm->getn_muscles();
+
+    // Ergebniscontainer MUSS vorher auf Größe gesetzt werden
+    std::vector<std::vector<double>> muscleSolutions(nMuscles);
+
+    // ---------- Parallelbereich ----------
+    #pragma omp parallel for num_threads(4) schedule(dynamic)
+    for(int i = 0; i < nMuscles; i++)
+    {
+        int variablenum = allmuscle[i]->getvariablenum(parm->getn_bodies());
+        SX x = SX::sym("x", variablenum);
+
+        SX f = Objective->getobjective(parm, x, jointnaxisall, i);
+
+        std::vector<SX> allconstraint = Constraint->constraints(parm, x, i);
+        SX g = vertcat(allconstraint);
+
+        SXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+        Dict opts_dict = ipopt->getipoptparm();
+
+        Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
+
+        std::map<std::string, DM> arg, res;
+
+        arg["lbg"] = Constraint->getlowerlimitall();
+        arg["ubg"] = Constraint->getupperlimitall();
+
+        // Anfangswerte konsistent pro Muskel
+        std::vector<double> x0 = Initialguess->get_initialguessvalueindex(i);
+        arg["x0"] = x0;
+
+        // Solve
+        res = solver(arg);
+
+        // Ergebnis sichern – **jeder Thread schreibt an unterschiedliche Stelle**
+        muscleSolutions[i].resize(x0.size());
+        for(int k = 0; k < x0.size(); k++) {
+            muscleSolutions[i][k] = static_cast<double>(res.at("x")(k));
+        }
+    }
+
+    // ---------- Ergebnisse ins Muskelobjekt speichern ----------
+    for (int i = 0; i < nMuscles; i++) {
+        allmuscle[i]->addmuscleparm(muscleSolutions[i]);
+    }
+        */
 
 }
 

@@ -40,6 +40,7 @@ public:
     void setbodybasic(const std::vector<double>& naxis, double rotationangle, const std::vector<double>& rhobody, int addnew);
     double phi_ellipsoid(const std::vector<double>& positionlocal);
     double phi_cylinder(const std::vector<double>& positionlocal);
+    double phi_torus(const std::vector<double>& positionlocal);
     double phi_shape(const std::vector<double>& gamma, int timenum);
     double phi_shape_current(const std::vector<double>& gamma);
     void updatebodybasic();

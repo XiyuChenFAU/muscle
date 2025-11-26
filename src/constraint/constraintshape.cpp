@@ -83,7 +83,7 @@ std::vector<SX> constraintshape::Jacobiancylinder(const std::vector<SX>& gamma, 
     return G;
 }
 
-// new torus
+// new torus test
 std::vector<SX> constraintshape::Jacobiantorus(const std::vector<SX> &gamma, body *Body)
 {   
     std::cout << "using Jacobian torus" << std::endl;
@@ -255,7 +255,7 @@ SX constraintshape::constraint_cylinder(const std::vector<SX>& gamma, body* Body
 }
 
 
-// new torus
+// new torus test
 SX constraintshape::constraint_torus(const std::vector<SX> &gamma, body *Body)
 {
     std::cout << "using constraint torus" << std::endl;

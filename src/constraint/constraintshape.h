@@ -31,4 +31,4 @@ public:
     SX constraint_cylinder(const std::vector<SX>& gamma, body* Body);
     SX constraint_torus(const std::vector<SX>& gamma, body* Body); // new torus
 };
-#endif // SHAPE_CONSTRAINT_H
+#endif // SHAPE_CONSTRAINT_H test

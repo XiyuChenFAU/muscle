@@ -175,7 +175,7 @@ double body::phi_cylinder(const std::vector<double>& positionlocal){
     }
 }
 
-// new torus
+// new torus test
 double body::phi_torus(const std::vector<double>& positionlocal){
     double R = Shape->geta(); // Major radius
     double r = Shape->getb(); // Minor radius

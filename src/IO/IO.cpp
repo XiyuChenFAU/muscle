@@ -386,6 +386,9 @@ void IO::writerunningtimeToFile(model* Model){
 
 void IO::writejson(model* Model, int write_gamma, int currentstepnum){
 
+    Model->writejson(write_gamma, currentstepnum);
+
+    /*
     //create folder
     std::string folderoutput="";
 
@@ -572,6 +575,7 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
     std::ofstream file(filename);
     file << jsonString;
     file.close();
+    */
 }
 
 model* IO::readmodel(const std::string&  jsonfilename){

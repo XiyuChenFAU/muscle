@@ -12,6 +12,7 @@ Xiyu Chen
 
 #include "../solveeq/solveeq.h"
 #include "../postprocessing/postprocessing.h"
+#include "../json/json/json.h"
 
 
 class model {
@@ -28,6 +29,7 @@ public:
     int get_save_interval();
     double get_elapsed_time();
     std::string getfolderpath();
+    void writejson(int write_gamma, int currentstepnum);
     void setfolderpath(const std::string& folderpath);
     void set_elapsed_time(double timevalue);
     void set_save_interval(int value);

@@ -24,7 +24,7 @@ public:
     objective* getObjective();
     initialguess* getInitialguess();
     void solvesignorinirotate(Parm* parm);
-    void solvesignorini(Parm* parm);
+    void solvesignorinistep(Parm* parm, int stepnum);
     
 
 private:

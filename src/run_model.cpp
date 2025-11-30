@@ -61,10 +61,6 @@ double runmodel::runprogramm(){
     std::cout.rdbuf(originalCoutBuffer); //terminal output stop writing to file
     io->writemusclebodyresultToFileAll(Model);
     io->writeanalyzeresultToFileAll(Model);
-    int interval=Model->get_save_interval();
-    for(int i=0;interval*i<Model->getparm()->get_run_total_step()+0.5;i++){
-        io->writejson(Model,1,interval*i+1);
-    }
     return elapsed_time;
 }
 

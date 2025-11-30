@@ -84,27 +84,21 @@ void solveeq::solvesignorinirotate(Parm* parm){
 
 }
 
-void solveeq::solvesignorini(Parm* parm){
-    int loopnum = parm->get_run_total_step()+1;
-    if(parm->get_run_total_step()==0){
-        loopnum=0;
+void solveeq::solvesignorinistep(Parm* parm, int stepnum){
+    if(g_enable_print){parm->set_body_R_initial();}
+    if(stepnum!=0){
+        Initialguess->setpartition_dynamic(parm);
     }
-    for(int i=0;i<loopnum;i++){
-        if(g_enable_print){parm->set_body_R_initial();}
-        if(i!=0){
-            Initialguess->setpartition_dynamic(parm);
-        }
-        parm->rotatebodyupdate(i);
-        if(g_enable_print){parm->check_body_R();}
-        if(i==0){
-            parm->setallmuscleinitialeta_gamma();
-            Initialguess->setpartition(parm);
-            Initialguess->set_initialguessvalue(parm, 1);
+    parm->rotatebodyupdate(stepnum);
+    if(g_enable_print){parm->check_body_R();}
+    if(stepnum==0){
+        parm->setallmuscleinitialeta_gamma();
+        Initialguess->setpartition(parm);
+        Initialguess->set_initialguessvalue(parm, 1);
 
-        }else{
-            Initialguess->set_initialguessvalue(parm, 0);
-        }
-        solvesignorinirotate(parm);
+    }else{
+        Initialguess->set_initialguessvalue(parm, 0);
     }
+    solvesignorinirotate(parm);
 }
 

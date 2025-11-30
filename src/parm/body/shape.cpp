@@ -4,13 +4,14 @@ Copyright (C) 2023-2031 Friedrich-Alexander-Universität Erlangen-Nürnberg
 27.10.2023
 Xiyu Chen
 
+
 */
 
 #include "shape.h"
 
 using namespace std;
 
-std::vector<std::string> shape::allshape={"ellipsoid","cylinder"};
+std::vector<std::string> shape::allshape={"ellipsoid","cylinder","torus"};
 
 shape::shape (){
     a=0;

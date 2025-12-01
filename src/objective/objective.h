@@ -27,20 +27,20 @@ public:
     double getlengthconstant();
     int getcasenum();
 
-    SX getlengthdisdiff(muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode);
-    SX getnodelengthdisdiffall(Parm* parm, SX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
+    MX getlengthdisdiff(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode);
+    MX getnodelengthdisdiffall(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
 
-    std::vector<SX> getnodedisdiff(muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode);
+    std::vector<MX> getnodedisdiff(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode);
     std::vector<double> getmassmatrix(muscle* Muscle, const std::vector<std::vector<double>>& jointposition);
-    SX getobjectivemass(const std::vector<SX>& nodediff, const std::vector<double>& massmatrix);
-    SX getnodedisdiffall(Parm* parm, SX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
-    std::vector<std::vector<std::vector<SX>>> rearrange_gamma_eta(Parm* parm, SX x, int musclenum);
-    SX getobjective(Parm* parm, SX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
+    MX getobjectivemass(const std::vector<MX>& nodediff, const std::vector<double>& massmatrix);
+    MX getnodedisdiffall(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
+    std::vector<std::vector<std::vector<MX>>> rearrange_gamma_eta(Parm* parm, MX x, int musclenum);
+    MX getobjective(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum);
 
 private:
     int casenum=0;
     double lengthconstant=1.0;
-    SX f=0;
+    MX f=0;
 };
 
 #endif // OBJECTIVE_H

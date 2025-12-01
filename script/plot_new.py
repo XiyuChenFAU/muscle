@@ -91,6 +91,36 @@ class Plot3D:
         z += translate[2]
         ax.plot_wireframe(x, y, z, linewidth=0.3, color=colorval, rstride=1, cstride=stride)
 
+    def plot_torus(self, ax, a, b, c, axis, rotationangle, translate, colorval, stride=2):
+        u = np.linspace(0, 2 * np.pi, 40)
+        v = np.linspace(0, 2 * np.pi, 40)  # Changed from np.pi to 2*np.pi for torus
+        U, V = np.meshgrid(u, v)
+        
+        # Torus parameterization
+        x = (a + b * np.cos(V)) * np.cos(U)
+        y = (a + b * np.cos(V)) * np.sin(U)
+        z = b * np.sin(V)
+
+        # Reshape to 2D arrays if they're 1D
+        if x.ndim == 1:
+            x = x.reshape(len(u), len(v))
+        if y.ndim == 1:
+            y = y.reshape(len(u), len(v))
+        if z.ndim == 1:
+            z = z.reshape(len(u), len(v))
+
+        # rotate each point
+        for i in range(x.shape[0]):
+            for j in range(x.shape[1]):
+                vec = np.array([x[i, j], y[i, j], z[i, j]])
+                rv = Geometry.rotate_vector(vec, axis, rotationangle)
+                x[i, j], y[i, j], z[i, j] = rv
+
+        x += translate[0]
+        y += translate[1]
+        z += translate[2]
+        ax.plot_wireframe(x, y, z, linewidth=0.3, color=colorval, rstride=stride, cstride=stride)
+
     def plot_elliptical_cylinder(self, ax, a, b, c, axis, rotationangle, translate, colorval, stride=2):
         u = np.linspace(0, 2 * np.pi, 40)
         v = np.linspace(-c, c, 40)
@@ -348,6 +378,9 @@ class Postprocessor:
                 if shapename[j] == "cylinder":
                     self.plot3d.plot_elliptical_cylinder(ax, allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i],
                                                          axis, allmuscledata[j][6][i], translate, colors[(len(colors) - 1 - j) % len(colors)], stride)
+                if shapename[j] == "torus":
+                    self.plot3d.plot_torus(ax, allmuscledata[j][0][i], allmuscledata[j][1][i], allmuscledata[j][2][i],
+                                          axis, allmuscledata[j][6][i], translate, colors[(len(colors) - 1 - j) % len(colors)], stride)
 
             if self.axisplot:
                 self.axisplotfig(ax, i + 1)
@@ -399,6 +432,8 @@ class Postprocessor:
                 self.plot3d.plot_ellipsoid(ax, vals[0], vals[1], vals[2], [vals[3], vals[4], vals[5]], vals[6], [vals[7], vals[8], vals[9]], colors[(len(colors) - 1 - i) % len(colors)], stride)
             if shapename[i] == "cylinder":
                 self.plot3d.plot_elliptical_cylinder(ax, vals[0], vals[1], vals[2], [vals[3], vals[4], vals[5]], vals[6], [vals[7], vals[8], vals[9]], colors[(len(colors) - 1 - i) % len(colors)], stride)
+            if shapename[i] == "torus":
+                self.plot3d.plot_torus(ax, vals[0], vals[1], vals[2], [vals[3], vals[4], vals[5]], vals[6], [vals[7], vals[8], vals[9]], colors[(len(colors) - 1 - i) % len(colors)], stride)
             self.axisplotfig(ax, 0)
 
         self.plot3d.configure_axes_limits(ax)

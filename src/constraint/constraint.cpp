@@ -21,21 +21,21 @@ constraint::~constraint(){
     delete Constraintshape;
 }
 
-std::vector<SX> constraint::constraints_shape_noeta(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode){
-    std::vector<SX> constraintshape;
+std::vector<MX> constraint::constraints_shape_noeta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode){
+    std::vector<MX> constraintshape;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
-        std::vector<SX> constraintshape1=Constraintshape->constraint_shape(gammaallnode[i+1], parm);
+        std::vector<MX> constraintshape1=Constraintshape->constraint_shape(gammaallnode[i+1], parm);
         constraintshape.insert(constraintshape.end(), constraintshape1.begin(), constraintshape1.end());
     }
     return constraintshape;
 }
 
-std::vector<SX> constraint::constraintsnoeq(Parm* parm, const std::vector<std::vector<std::vector<SX>>>& dataall, int musclenum){
-    std::vector<std::vector<SX>> gammaallnode=dataall[0];
-    std::vector<std::vector<SX>> etaall=dataall[1];
+std::vector<MX> constraint::constraintsnoeq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum){
+    std::vector<std::vector<MX>> gammaallnode=dataall[0];
+    std::vector<std::vector<MX>> etaall=dataall[1];
     muscle* Muscle=parm->getmuscleindex(musclenum);
-    std::vector<SX> constraint_noeq;
-    std::vector<SX> constraintsshapenoeta=constraints_shape_noeta(parm, Muscle, gammaallnode);
+    std::vector<MX> constraint_noeq;
+    std::vector<MX> constraintsshapenoeta=constraints_shape_noeta(parm, Muscle, gammaallnode);
     constraint_noeq.insert(constraint_noeq.end(), constraintsshapenoeta.begin(), constraintsshapenoeta.end());
 
     for(int j=0; j<etaall.size();j++){
@@ -46,61 +46,61 @@ std::vector<SX> constraint::constraintsnoeq(Parm* parm, const std::vector<std::v
     return constraint_noeq;
 }
 
-std::vector<SX> constraint::constraints_fix_muscle_two_side_point(muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode) {
-    std::vector<SX> musclefix;
+std::vector<MX> constraint::constraints_fix_muscle_two_side_point(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode) {
+    std::vector<MX> musclefix;
     std::vector<double> gammarhoo=Muscle->getrho_o_position();
     std::vector<double> gammarhoi=Muscle->getrho_i_position();
     for(int j=0;j<3;j++){
-        SX muscleo=gammarhoo[j] - gammaallnode[0][j];
+        MX muscleo=gammarhoo[j] - gammaallnode[0][j];
         musclefix.push_back(muscleo);
     }
     for(int j=0;j<3;j++){
-        SX musclei=gammarhoi[j] - gammaallnode[gammaallnode.size()-1][j];
+        MX musclei=gammarhoi[j] - gammaallnode[gammaallnode.size()-1][j];
         musclefix.push_back(musclei);
     }
     return musclefix;
 }
 
-std::vector<SX> constraint::constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode, const std::vector<std::vector<SX>>& eta){
-    std::vector<SX> constraintshapeeta;
+std::vector<MX> constraint::constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta){
+    std::vector<MX> constraintshapeeta;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
-        std::vector<SX> constraintshapeeta1=constraintshape_time_eta(Constraintshape->constraint_shape(gammaallnode[i+1], parm), eta[i]);
+        std::vector<MX> constraintshapeeta1=constraintshape_time_eta(Constraintshape->constraint_shape(gammaallnode[i+1], parm), eta[i]);
         constraintshapeeta.insert(constraintshapeeta.end(), constraintshapeeta1.begin(), constraintshapeeta1.end());
     }
     return constraintshapeeta;
 }
 
-std::vector<SX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode, int nodenum, const std::vector<std::vector<SX>>& eta) {
-    std::vector<std::vector<SX>> Jacobianshape=Constraintshape->Jacobianshape(gammaallnode[nodenum], parm);
-    std::vector<SX> Jacobian = Jacobian_time_eta(Jacobianshape, eta[nodenum-1]);
-    std::vector<SX> geodesic = geodesic_function(gammaallnode[nodenum-1], gammaallnode[nodenum], gammaallnode[nodenum+1], (Muscle->getnodenum()-1.0)/1.0);
-    std::vector<SX> ELeachnode;
+std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, int nodenum, const std::vector<std::vector<MX>>& eta) {
+    std::vector<std::vector<MX>> Jacobianshape=Constraintshape->Jacobianshape(gammaallnode[nodenum], parm);
+    std::vector<MX> Jacobian = Jacobian_time_eta(Jacobianshape, eta[nodenum-1]);
+    std::vector<MX> geodesic = geodesic_function(gammaallnode[nodenum-1], gammaallnode[nodenum], gammaallnode[nodenum+1], (Muscle->getnodenum()-1.0)/1.0);
+    std::vector<MX> ELeachnode;
     for(int j=0;j<3;j++){
-        SX ELeachnode1=geodesic[j]-1.0/(Muscle->getnodenum()-1.0)*Jacobian[j];
+        MX ELeachnode1=geodesic[j]-1.0/(Muscle->getnodenum()-1.0)*Jacobian[j];
         ELeachnode.push_back(ELeachnode1);
     }
     return ELeachnode;
 }
 
-std::vector<SX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode, const std::vector<std::vector<SX>>& eta){
+std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta){
 
-    std::vector<SX> ELeachmuscle;
+    std::vector<MX> ELeachmuscle;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
-        std::vector<SX> ELeachmuscle1=constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(parm, Muscle, gammaallnode, i+1, eta);
+        std::vector<MX> ELeachmuscle1=constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(parm, Muscle, gammaallnode, i+1, eta);
         ELeachmuscle.insert(ELeachmuscle.end(), ELeachmuscle1.begin(), ELeachmuscle1.end());
     }
     return ELeachmuscle;
 }
 
-std::vector<SX> constraint::constraintseq(Parm* parm, const std::vector<std::vector<std::vector<SX>>>& dataall, int musclenum){
-    std::vector<std::vector<SX>> gammaallnode=dataall[0];
-    std::vector<std::vector<SX>> etaall=dataall[1];
+std::vector<MX> constraint::constraintseq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum){
+    std::vector<std::vector<MX>> gammaallnode=dataall[0];
+    std::vector<std::vector<MX>> etaall=dataall[1];
     muscle* Muscle=parm->getmuscleindex(musclenum);
-    std::vector<SX> constraint_eq;
+    std::vector<MX> constraint_eq;
 
-    std::vector<SX> gEuler = constraints_Discrete_Euler_Lagrange_eachmuscle(parm, Muscle, gammaallnode, etaall);
-    std::vector<SX> constraintshape=constraints_shape_eta(parm, Muscle, gammaallnode, etaall);
-    std::vector<SX> fixtwoside=constraints_fix_muscle_two_side_point(Muscle, gammaallnode);
+    std::vector<MX> gEuler = constraints_Discrete_Euler_Lagrange_eachmuscle(parm, Muscle, gammaallnode, etaall);
+    std::vector<MX> constraintshape=constraints_shape_eta(parm, Muscle, gammaallnode, etaall);
+    std::vector<MX> fixtwoside=constraints_fix_muscle_two_side_point(Muscle, gammaallnode);
 
     
     constraint_eq.insert(constraint_eq.end(), gEuler.begin(), gEuler.end());
@@ -110,20 +110,20 @@ std::vector<SX> constraint::constraintseq(Parm* parm, const std::vector<std::vec
     return constraint_eq;
 }
 
-std::vector<std::vector<std::vector<SX>>> constraint::rearrange_gamma_eta(Parm* parm, SX x, int musclenum){
-    std::vector<std::vector<std::vector<SX>>> dataall;
-    std::vector<std::vector<SX>> gammaallnodemuscle;
-    std::vector<std::vector<SX>> etamuscle;
+std::vector<std::vector<std::vector<MX>>> constraint::rearrange_gamma_eta(Parm* parm, MX x, int musclenum){
+    std::vector<std::vector<std::vector<MX>>> dataall;
+    std::vector<std::vector<MX>> gammaallnodemuscle;
+    std::vector<std::vector<MX>> etamuscle;
 
     muscle* Muscle=parm->getmuscleindex(musclenum);
     for(int j=0;j<Muscle->getnodenum();j++){
-        std::vector<SX> gammaallnodemuscle1;            
+        std::vector<MX> gammaallnodemuscle1;            
         for(int k=0;k<3;k++){
             gammaallnodemuscle1.push_back(x(j*3+k));
         }
         gammaallnodemuscle.push_back(gammaallnodemuscle1);  
         if(j>0 && j<Muscle->getnodenum()-1){
-            std::vector<SX> etamuscle1;
+            std::vector<MX> etamuscle1;
             for(int k=0;k<parm->getn_bodies();k++){
                 etamuscle1.push_back(x(Muscle->getnodenum()*3+(j-1)*parm->getn_bodies()+k));
             }
@@ -137,17 +137,17 @@ std::vector<std::vector<std::vector<SX>>> constraint::rearrange_gamma_eta(Parm* 
     return dataall;
 }
 
-std::vector<SX> constraint::constraints(Parm* parm, SX x, int musclenum){
-    std::vector<std::vector<std::vector<SX>>> dataall= constraint::rearrange_gamma_eta(parm, x, musclenum);
-    std::vector<SX> constraint;
+std::vector<MX> constraint::constraints(Parm* parm, MX x, int musclenum){
+    std::vector<std::vector<std::vector<MX>>> dataall= constraint::rearrange_gamma_eta(parm, x, musclenum);
+    std::vector<MX> constraint;
 
     //eq
-    std::vector<SX> constrainteq=constraintseq(parm, dataall, musclenum);
+    std::vector<MX> constrainteq=constraintseq(parm, dataall, musclenum);
     constrainteqnum=constrainteq.size();
     constraint.insert(constraint.end(), constrainteq.begin(), constrainteq.end());
 
     //noeq
-    std::vector<SX> constraintnoeq=constraintsnoeq(parm, dataall, musclenum);
+    std::vector<MX> constraintnoeq=constraintsnoeq(parm, dataall, musclenum);
     constraintnoeqnum=constraintnoeq.size();
     constraint.insert(constraint.end(), constraintnoeq.begin(), constraintnoeq.end());
     constraintall=constraint;
@@ -172,18 +172,18 @@ std::vector<SX> constraint::constraints(Parm* parm, SX x, int musclenum){
     return constraint;
 }
 
-std::vector<SX> constraint::geodesic_function(const std::vector<SX>& gamma_nm1, const std::vector<SX>& gamma_n, const std::vector<SX>& gamma_np1, double K){
-    std::vector<SX> geodesic(3);
+std::vector<MX> constraint::geodesic_function(const std::vector<MX>& gamma_nm1, const std::vector<MX>& gamma_n, const std::vector<MX>& gamma_np1, double K){
+    std::vector<MX> geodesic(3);
     for(int i=0;i<3;i++){
         geodesic[i] = ( 2*gamma_n[i] - gamma_np1[i] - gamma_nm1[i])*K;
     }
     return geodesic;
 }
 
-std::vector<SX> constraint::Jacobian_time_eta(const std::vector<std::vector<SX>>& Jacobian, const std::vector<SX>& eta){
-    std::vector<SX> Jacobianeta;
+std::vector<MX> constraint::Jacobian_time_eta(const std::vector<std::vector<MX>>& Jacobian, const std::vector<MX>& eta){
+    std::vector<MX> Jacobianeta;
     for(int i=0;i<3;i++){
-        SX Jacobianetaj=Jacobian[0][i]*eta[0];
+        MX Jacobianetaj=Jacobian[0][i]*eta[0];
         for(int j=1; j<Jacobian.size(); j++){
             Jacobianetaj+=Jacobian[j][i]*eta[j];
         }
@@ -192,16 +192,16 @@ std::vector<SX> constraint::Jacobian_time_eta(const std::vector<std::vector<SX>>
     return Jacobianeta;
 }
 
-std::vector<SX> constraint::constraintshape_time_eta(const std::vector<SX>& constraintshape, const std::vector<SX>& eta){
-    std::vector<SX> constraintshapeeta;
+std::vector<MX> constraint::constraintshape_time_eta(const std::vector<MX>& constraintshape, const std::vector<MX>& eta){
+    std::vector<MX> constraintshapeeta;
     for(int i=0;i<constraintshape.size();i++){
-        SX constraintshapeetaj=constraintshape[i]*eta[i];
+        MX constraintshapeetaj=constraintshape[i]*eta[i];
         constraintshapeeta.push_back(constraintshapeetaj);
     }
     return constraintshapeeta;
 }
 
-void constraint::printvalue(const std::vector<std::vector<std::vector<SX>>>& gmmaall){
+void constraint::printvalue(const std::vector<std::vector<std::vector<MX>>>& gmmaall){
     for(int i=0;i<gmmaall.size();i++){
         for(int j=0;j<gmmaall[i].size();j++){
             for(int k=0;k<gmmaall[i][j].size();k++){
@@ -223,7 +223,7 @@ int constraint::getconstraintnoeqnum(){
     return constraintnoeqnum;
 }
 
-std::vector<SX> constraint::getconstraintall(){
+std::vector<MX> constraint::getconstraintall(){
     return constraintall;
 }
 

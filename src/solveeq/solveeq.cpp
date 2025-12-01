@@ -55,14 +55,14 @@ void solveeq::solvesignorinirotate(Parm* parm){
     for(int i=0;i<parm->getn_muscles();i++){
         //variable
         int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
-        SX x = SX::sym("x", variablenum);
+        MX x = MX::sym("x", variablenum);
         //minimum
-        SX f = Objective->getobjective(parm, x,jointnaxisall,i);
+        MX f = Objective->getobjective(parm, x,jointnaxisall,i);
         //constraints
-        std::vector<SX> allconstraint=Constraint->constraints(parm,x,i);
-        SX g = vertcat(allconstraint);
+        std::vector<MX> allconstraint=Constraint->constraints(parm,x,i);
+        MX g = vertcat(allconstraint);
         //set ipopt nlp
-        SXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+        MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
         Dict opts_dict=ipopt->getipoptparm();
         Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
         std::map<std::string, DM> arg, res;
@@ -103,14 +103,14 @@ void solveeq::solvesignorinirotate(Parm* parm){
     for(int i = 0; i < nMuscles; i++)
     {
         int variablenum = allmuscle[i]->getvariablenum(parm->getn_bodies());
-        SX x = SX::sym("x", variablenum);
+        MX x = MX::sym("x", variablenum);
 
-        SX f = Objective->getobjective(parm, x, jointnaxisall, i);
+        MX f = Objective->getobjective(parm, x, jointnaxisall, i);
 
-        std::vector<SX> allconstraint = Constraint->constraints(parm, x, i);
-        SX g = vertcat(allconstraint);
+        std::vector<MX> allconstraint = Constraint->constraints(parm, x, i);
+        MX g = vertcat(allconstraint);
 
-        SXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+        MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
         Dict opts_dict = ipopt->getipoptparm();
 
         Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);

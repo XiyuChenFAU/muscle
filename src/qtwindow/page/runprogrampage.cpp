@@ -393,7 +393,7 @@ void runprogrampage::drawmuscle(int muscleindex, int rotationindex, int previous
         allmuscleentities[i+previousnodenum] = new Qt3DCore::QEntity(allentities[0]);
 
         Qt3DExtras::QCylinderMesh *lineMesh = new Qt3DExtras::QCylinderMesh();
-        lineMesh->setRadius(0.03);
+        lineMesh->setRadius(0.05); // 从 0.03 增加到 0.08，变得更粗
         lineMesh->setLength(currentmusclelength*2);// set linesize
 
         Qt3DCore::QTransform *lineTransform = new Qt3DCore::QTransform();
@@ -407,6 +407,7 @@ void runprogrampage::drawmuscle(int muscleindex, int rotationindex, int previous
         allmuscleentities[i+previousnodenum]->addComponent(lineMaterial);
     }
 }
+
 
 void runprogrampage::updateSquareSize(int size){
     if(size==0){
@@ -562,7 +563,7 @@ Qt3DCore::QEntity* runprogrampage::createAxis(Qt3DCore::QEntity* parent,const QV
     QBuffer *buffer = new QBuffer(geometry);
     buffer->setData(bufferBytes);
 
-    QAttribute *positionAttribute = new QAttribute();
+    Qt3DRender::QAttribute *positionAttribute = new QAttribute();
     positionAttribute->setName(QAttribute::defaultPositionAttributeName());
     positionAttribute->setBuffer(buffer);
     positionAttribute->setVertexBaseType(QAttribute::Float);

@@ -1,0 +1,137 @@
+{
+	"body" : 
+	[
+		{
+			"body_name" : "torus",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.14000000000000001,
+				"b" : 0.080000000000000002,
+				"c" : 1.0,
+				"length" : 2.0,
+				"radius" : 0.11000000000000001,
+				"shape_name" : "torus"
+			}
+		},
+		{
+			"body_name" : "ellipsoid",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : 
+			[
+				4.0,
+				0.0,
+				0.0
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.001,
+				"b" : 0.002,
+				"c" : 0.0030000000000000001,
+				"length" : 0.0060000000000000001,
+				"radius" : 0.0015,
+				"shape_name" : "ellipsoid"
+			}
+		}
+	],
+	"initial_guess" : 
+	{
+		"collision_check" : 1,
+		"mode_number" : 0,
+		"select_body" : "fix_space"
+	},
+	"ipoptsetting" : 
+	{
+		"hessian_approximation" : "",
+		"linear_solver" : "mumps",
+		"max_iter" : 2000,
+		"print_level" : 0,
+		"tol" : 1e-08
+	},
+	"joint" : 
+	[
+		{
+			"joint_name" : "torus_joint",
+			"joint_type_name" : "revolute joint",
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						180.0,
+						180.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"rotate_body_name" : "torus",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		}
+	],
+	"muscle" : 
+	[
+		{
+			"insertion_relative_body" : "ellipsoid",
+			"muscle_name" : "torus_muscle",
+			"node_number" : 40,
+			"origin_relative_body" : "ellipsoid",
+			"rho_insertion" : 
+			[
+				-4.0,
+				0.0,
+				-0.29999999999999999
+			],
+			"rho_origin" : 
+			[
+				-4.0,
+				0.0,
+				0.29999999999999999
+			]
+		}
+	],
+	"name" : "torus",
+	"objective" : 
+	{
+		"length_constant" : 1000.0,
+		"solvercase" : 0
+	},
+	"output_path" : "/Users/xiyu/Desktop/",
+	"postprocessing" : 
+	{
+		"tol" : 0.001
+	},
+	"save_interval" : 10
+}

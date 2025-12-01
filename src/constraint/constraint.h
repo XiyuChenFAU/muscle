@@ -17,29 +17,29 @@ public:
     constraint();
     ~constraint();
     
-    std::vector<SX> constraints_shape_noeta(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode);
-    std::vector<SX> constraintsnoeq(Parm* parm, const std::vector<std::vector<std::vector<SX>>>& dataall, int musclenum);
+    std::vector<MX> constraints_shape_noeta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode);
+    std::vector<MX> constraintsnoeq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum);
 
-    std::vector<SX> constraints_fix_muscle_two_side_point(muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode);
-    std::vector<SX> constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode, const std::vector<std::vector<SX>>& eta);
-    std::vector<SX> constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode, int nodenum, const std::vector<std::vector<SX>>& eta);
-    std::vector<SX> constraints_Discrete_Euler_Lagrange_eachmuscle(Parm* parm, muscle* Muscle, const std::vector<std::vector<SX>>& gammaallnode, const std::vector<std::vector<SX>>& eta);
-    std::vector<SX> constraintseq(Parm* parm, const std::vector<std::vector<std::vector<SX>>>& dataall, int musclenum);
+    std::vector<MX> constraints_fix_muscle_two_side_point(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode);
+    std::vector<MX> constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta);
+    std::vector<MX> constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, int nodenum, const std::vector<std::vector<MX>>& eta);
+    std::vector<MX> constraints_Discrete_Euler_Lagrange_eachmuscle(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta);
+    std::vector<MX> constraintseq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum);
     
-    std::vector<std::vector<std::vector<SX>>> rearrange_gamma_eta(Parm* parm, SX x, int musclenum);
-    std::vector<SX> constraints(Parm* parm, SX x, int musclenum);
+    std::vector<std::vector<std::vector<MX>>> rearrange_gamma_eta(Parm* parm, MX x, int musclenum);
+    std::vector<MX> constraints(Parm* parm, MX x, int musclenum);
 
-    std::vector<SX> geodesic_function(const std::vector<SX>& q_nm1, const std::vector<SX>& q_n, const std::vector<SX>& q_np1, double K);
-    std::vector<SX> Jacobian_time_eta(const std::vector<std::vector<SX>>& Jacobian, const std::vector<SX>& eta);
-    std::vector<SX> constraintshape_time_eta(const std::vector<SX>& constraintshape, const std::vector<SX>& eta);
+    std::vector<MX> geodesic_function(const std::vector<MX>& q_nm1, const std::vector<MX>& q_n, const std::vector<MX>& q_np1, double K);
+    std::vector<MX> Jacobian_time_eta(const std::vector<std::vector<MX>>& Jacobian, const std::vector<MX>& eta);
+    std::vector<MX> constraintshape_time_eta(const std::vector<MX>& constraintshape, const std::vector<MX>& eta);
 
 
-    void printvalue(const std::vector<std::vector<std::vector<SX>>>& gmmaall);
+    void printvalue(const std::vector<std::vector<std::vector<MX>>>& gmmaall);
         
     constraintshape* getConstraintshape();
     int getconstrainteqnum();
     int getconstraintnoeqnum();
-    std::vector<SX> getconstraintall();
+    std::vector<MX> getconstraintall();
     std::vector<double> getlowerlimitall();
     std::vector<double> getupperlimitall();
 
@@ -47,7 +47,7 @@ private:
     constraintshape* Constraintshape;
     int constrainteqnum;
     int constraintnoeqnum;
-    std::vector<SX> constraintall;
+    std::vector<MX> constraintall;
     std::vector<double> lowerlimitall;
     std::vector<double> upperlimitall;
 };

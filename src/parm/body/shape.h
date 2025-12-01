@@ -37,6 +37,9 @@ private:
     double a;
     double b;
     double c;
+    // unused till now
+    float r;
+    float R;
 };
 
 #endif // std::string name;_H

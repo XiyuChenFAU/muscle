@@ -22,6 +22,7 @@ include_directories("/usr/local/include")
 
 find_package(CasADi REQUIRED)
 find_package(Qt5 COMPONENTS Widgets OpenGL 3DCore 3DExtras REQUIRED)
+#find_package(OpenMP REQUIRED)
 
 message("Project source directory: ${PROJECT_SOURCE_DIR}")
 
@@ -81,4 +82,4 @@ endif()
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE casadi)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::OpenGL Qt5::3DCore Qt5::3DExtras)
-
+#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)

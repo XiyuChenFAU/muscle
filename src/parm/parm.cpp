@@ -183,6 +183,7 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
         }
     }
     if(addnew){
+        std::cout << "Adding new body("<< shapename << ") with shapes: " << a << ", " << b << ", " << c << std::endl;
         body* Body=new body(bodyname);
         Body->setid(n_bodies);
         body* parentbody=findbody(parentbodyname);

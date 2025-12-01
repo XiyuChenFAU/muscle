@@ -175,6 +175,16 @@ double body::phi_cylinder(const std::vector<double>& positionlocal){
     }
 }
 
+// new torus test
+double body::phi_torus(const std::vector<double>& positionlocal){
+    double R = Shape->geta(); // Major radius
+    double r = Shape->getb(); // Minor radius
+
+    double sum_sq = positionlocal[0]*positionlocal[0] + positionlocal[1]*positionlocal[1] + positionlocal[2]*positionlocal[2];
+    double phi = (sum_sq + R*R - r*r)*(sum_sq + R*R - r*r) - 4*R*R*(positionlocal[0]*positionlocal[0] + positionlocal[1]*positionlocal[1]);
+    return phi;
+}
+
 double body::phi_shape(const std::vector<double>& gamma, int timenum){
     std::vector<std::vector<double>>  qall=BodyBasic->getq();
     std::vector<double>q = qall[timenum];
@@ -186,6 +196,9 @@ double body::phi_shape(const std::vector<double>& gamma, int timenum){
     }
     if(Shape->getshapename()=="cylinder"){
         phi = phi_cylinder(positionlocal);
+    }
+    if(Shape->getshapename()=="torus"){
+        phi = phi_torus(positionlocal);
     }
     return phi;
 }
@@ -199,6 +212,9 @@ double body::phi_shape_current(const std::vector<double>& gamma){
     }
     if(Shape->getshapename()=="cylinder"){
         phi = phi_cylinder(positionlocal);
+    }
+    if(Shape->getshapename()=="torus"){
+        phi = phi_torus(positionlocal);
     }
     return phi;
 }

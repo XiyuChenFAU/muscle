@@ -32,6 +32,11 @@ std::vector<std::vector<SX>> constraintshape::Jacobianshape(const std::vector<SX
             std::vector<SX> Gbody = Jacobiantorus(gamma,allbody[i+1]);
             G.push_back(Gbody);
         }
+        // new capsule
+        if(allbody[i+1]->getshape()->getshapename()=="capsule"){
+            std::vector<SX> Gbody = Jacobiancapsule(gamma,allbody[i+1]);
+            G.push_back(Gbody);
+        }
     }
     return G;
 }
@@ -186,7 +191,52 @@ std::vector<SX> constraintshape::Jacobiantorus(const std::vector<SX> &gamma, bod
     */
 }
 
+// new capsule test
+std::vector<SX> constraintshape::Jacobiancapsule(const std::vector<SX> &gamma, body *Body)
+{
+    std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+    std::vector<double> q = qall[qall.size()-1];
 
+    std::vector<SX> x(3);
+    for(int i=0;i<3;i++){
+        x[i] = gamma[i] - q[i];
+    }
+
+    std::vector<std::vector<double>> axis = Body->getbodybasic()->getaxis();
+    SX x_x = x[0]*axis[0][0] + x[1]*axis[0][1] + x[2]*axis[0][2];
+    SX x_y = x[0]*axis[1][0] + x[1]*axis[1][1] + x[2]*axis[1][2];
+    SX x_z = x[0]*axis[2][0] + x[1]*axis[2][1] + x[2]*axis[2][2];
+
+    double L = Body->getshape()->getlength();  // total capsule length
+    double r = Body->getshape()->getradius();  // radius
+    double Lhalf = L/2.0 - r;
+
+    SX insideCylinder = if_else(fabs(x_z) <= Lhalf, 1.0, 0.0);
+
+    std::vector<SX> G(3);
+
+    for(int i=0;i<3;i++)
+    {
+        SX ex = axis[0][i];
+        SX ey = axis[1][i];
+        SX ez = axis[2][i];
+
+        // Cylinder gradient
+        SX Gcyl = 2.0*( x_x*ex + x_y*ey ) / (r*r);
+
+        // Sphere gradients
+        SX Gtop    = 2.0*( x_x*ex + x_y*ey + (x_z - Lhalf)*ez ) / (r*r);
+        SX Gbottom = 2.0*( x_x*ex + x_y*ey + (x_z + Lhalf)*ez ) / (r*r);
+
+        // Choose correct hemisphere
+        SX Gcap = if_else(Gtop < Gbottom, Gtop, Gbottom);
+
+        // Result Jacobian
+        G[i] = insideCylinder * Gcyl + (1 - insideCylinder) * Gcap;
+    }
+
+    return G;
+}
 
 std::vector<SX> constraintshape::constraint_shape(const std::vector<SX>& gamma, Parm* parm){
     std::vector<SX> G;
@@ -203,6 +253,11 @@ std::vector<SX> constraintshape::constraint_shape(const std::vector<SX>& gamma, 
         // new torus
         if(allbody[i+1]->getshape()->getshapename()=="torus"){
             SX Gbody = constraint_torus(gamma,allbody[i+1]);
+            G.push_back(Gbody);
+        }
+        // new capsule
+        if(allbody[i+1]->getshape()->getshapename()=="capsule"){
+            SX Gbody = constraint_capsule(gamma,allbody[i+1]);
             G.push_back(Gbody);
         }
     }
@@ -304,4 +359,39 @@ SX constraintshape::constraint_torus(const std::vector<SX> &gamma, body *Body)
     */
 
     return phi;
+}
+
+// new caspule test
+SX constraintshape::constraint_capsule(const std::vector<SX> &gamma, body *Body)
+{
+    std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+    std::vector<double> q = qall[qall.size()-1];
+
+    std::vector<SX> x(3);
+    for(int i=0;i<3;i++){
+        x[i] = gamma[i] - q[i];
+    }
+
+    std::vector<std::vector<double>> axis = Body->getbodybasic()->getaxis();
+    SX x_x = x[0]*axis[0][0] + x[1]*axis[0][1] + x[2]*axis[0][2];
+    SX x_y = x[0]*axis[1][0] + x[1]*axis[1][1] + x[2]*axis[1][2];
+    SX x_z = x[0]*axis[2][0] + x[1]*axis[2][1] + x[2]*axis[2][2];
+
+    double L = Body->getshape()->getlength();  // total capsule length L
+    double r = Body->getshape()->getradius();  // radius
+
+    double Lhalf = L/2.0 - r;
+
+    SX insideCylinder = if_else(fabs(x_z) <= Lhalf, 1.0, 0.0);
+
+    SX Gcyl = (x_x*x_x + x_y*x_y)/(r*r) - 1.0;
+
+    SX Gtop    = (x_x*x_x + x_y*x_y + (x_z - Lhalf)*(x_z - Lhalf)) / (r*r) - 1.0;
+    SX Gbottom = (x_x*x_x + x_y*x_y + (x_z + Lhalf)*(x_z + Lhalf)) / (r*r) - 1.0;
+
+    SX Gcap = if_else(Gtop < Gbottom, Gtop, Gbottom);
+
+    SX G = insideCylinder * Gcyl + (1 - insideCylinder) * Gcap;
+
+    return G;
 }

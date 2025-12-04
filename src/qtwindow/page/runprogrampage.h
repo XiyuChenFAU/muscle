@@ -49,6 +49,7 @@ public:
     void drawellipsoidbody(int index, int rotationindex);
     void drawcylinderbody(int index, int rotationindex);
     void drawTorusBody(int index, int rotationindex); // new torus
+    void drawcapsulebody(int index, int rotationindex); // new torus
     void drawallmuscle(int rotationindex);
     void drawmuscle(int muscleindex, int rotationindex, int previousnodenum);
     QLineEdit* settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize);

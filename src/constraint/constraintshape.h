@@ -24,11 +24,13 @@ public:
     std::vector<SX> Jacobianellipsoid(const std::vector<SX>& gamma, body* Body);
     std::vector<SX> Jacobiancylinder(const std::vector<SX>& gamma, body* Body);
     std::vector<SX> Jacobiantorus(const std::vector<SX>& gamma, body* Body); // new torus
+    std::vector<SX> Jacobiancapsule(const std::vector<SX>& gamma, body* Body); // new capsule
 
     std::vector<SX> constraint_shape(const std::vector<SX>& gamma, Parm* parm);
     
     SX constraint_ellipsoid(const std::vector<SX>& gamma, body* Body);
     SX constraint_cylinder(const std::vector<SX>& gamma, body* Body);
     SX constraint_torus(const std::vector<SX>& gamma, body* Body); // new torus
+    SX constraint_capsule(const std::vector<SX>& gamma, body* Body); // new capsule
 };
 #endif // SHAPE_CONSTRAINT_H test

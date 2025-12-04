@@ -263,6 +263,10 @@ void runprogrampage::drawallbody(int rotationindex){
         if(currentbody->getshape()->getshapename()=="torus"){
             drawTorusBody(i, rotationindex);
         }
+        // new capsule
+        if(currentbody->getshape()->getshapename()=="capsule"){
+            drawcapsulebody(i, rotationindex);
+        }
     }
 }
 
@@ -336,6 +340,89 @@ void runprogrampage::drawTorusBody(int index, int rotationindex) {
 
     // std::cout << "drawing torus: a=" << currentbody->getshape()->geta() << ", b=" << currentbody->getshape()->getb() << ", c=" << currentbody->getshape()->getc() << std::endl;
 }
+
+void runprogrampage::drawcapsulebody(int index, int rotationindex)
+{
+    if (allentities[index+1] != nullptr)
+        delete allentities[index+1];
+
+    Qt3DCore::QEntity *root = new Qt3DCore::QEntity(allentities[0]);
+    allentities[index+1] = root;
+
+    body* currentbody = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
+
+    auto axisangle = currentbody->getbodybasic()->getaxisangle_ref();
+    auto q         = currentbody->getbodybasic()->getq();
+
+    double L = currentbody->getshape()->getlength();   // total capsule length
+    double r = currentbody->getshape()->getradius();
+
+    double cylLength = L - 2*r;      // cylindrical part
+    double halfOffset = cylLength * 0.5;
+
+    // common rotation
+    QQuaternion rot = QQuaternion::fromAxisAndAngle(
+        QVector3D(axisangle[rotationindex][0],
+                  axisangle[rotationindex][1],
+                  axisangle[rotationindex][2]),
+        axisangle[rotationindex][3]
+    );
+
+    QVector3D pos(q[rotationindex][0] * zoomsize,
+                  q[rotationindex][1] * zoomsize,
+                  q[rotationindex][2] * zoomsize);
+
+    // Material
+    Qt3DExtras::QPhongMaterial *material = new Qt3DExtras::QPhongMaterial();
+    material->setDiffuse(*colors[index]);
+
+    // ====================
+    //  CYLINDER
+    // ====================
+    Qt3DCore::QEntity *cylinderEntity = new Qt3DCore::QEntity(root);
+    Qt3DExtras::QCylinderMesh *cyl = new Qt3DExtras::QCylinderMesh();
+    cyl->setRadius(r);
+    cyl->setLength(cylLength);
+
+    Qt3DCore::QTransform *cylTransform = new Qt3DCore::QTransform();
+    cylTransform->setRotation(rot);
+    cylTransform->setTranslation(pos);
+
+    cylinderEntity->addComponent(cyl);
+    cylinderEntity->addComponent(material);
+    cylinderEntity->addComponent(cylTransform);
+
+    // ====================
+    //  TOP SPHERE
+    // ====================
+    Qt3DCore::QEntity *topEntity = new Qt3DCore::QEntity(root);
+    Qt3DExtras::QSphereMesh *sphereTop = new Qt3DExtras::QSphereMesh();
+    sphereTop->setRadius(r);
+
+    Qt3DCore::QTransform *topTransform = new Qt3DCore::QTransform();
+    topTransform->setRotation(rot);
+    topTransform->setTranslation(pos + rot.rotatedVector(QVector3D(0, halfOffset, 0)));
+
+    topEntity->addComponent(sphereTop);
+    topEntity->addComponent(material);
+    topEntity->addComponent(topTransform);
+
+    // ====================
+    //  BOTTOM SPHERE
+    // ====================
+    Qt3DCore::QEntity *bottomEntity = new Qt3DCore::QEntity(root);
+    Qt3DExtras::QSphereMesh *sphereBottom = new Qt3DExtras::QSphereMesh();
+    sphereBottom->setRadius(r);
+
+    Qt3DCore::QTransform *bottomTransform = new Qt3DCore::QTransform();
+    bottomTransform->setRotation(rot);
+    bottomTransform->setTranslation(pos + rot.rotatedVector(QVector3D(0, -halfOffset, 0)));
+
+    bottomEntity->addComponent(sphereBottom);
+    bottomEntity->addComponent(material);
+    bottomEntity->addComponent(bottomTransform);
+}
+
 
 void runprogrampage::drawcylinderbody(int index, int rotationindex){
     if(allentities[index+1]!=nullptr){

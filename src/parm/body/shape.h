@@ -29,6 +29,7 @@ public:
     std::string getshapename();
     static std::vector<std::string> allshape;
     static int getshapeindex(const std::string& shapename);
+    // std::vector<double> setCapsuleShape(double length, double radius);
 
 private:
     std::string shapename;

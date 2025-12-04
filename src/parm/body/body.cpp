@@ -185,6 +185,51 @@ double body::phi_torus(const std::vector<double>& positionlocal){
     return phi;
 }
 
+double body::phi_capsule(const std::vector<double> &positionlocal)
+{
+    double x = positionlocal[0];
+    double y = positionlocal[1];
+    double z = positionlocal[2];
+
+    double a = Shape->geta(); // total capsule length (cylinder + 2 hemispheres)
+    double b = Shape->getb(); // radius
+
+    // half-length of cylinder part
+    double Lhalf = a*0.5 - b;
+
+    // Case 1: inside cylinder region
+    if (z >= -Lhalf && z <= Lhalf)
+    {
+        double phi_cyl =
+            (x*x) / (b*b) +
+            (y*y) / (b*b) - 1.0;
+
+        return phi_cyl;
+    }
+
+    // Case 2: upper hemisphere
+    if (z > Lhalf)
+    {
+        double dz = z - Lhalf;
+        double phi_top =
+            (x*x + y*y + dz*dz) / (b*b) - 1.0;
+
+        return phi_top;
+    }
+
+    // Case 3: lower hemisphere
+    if (z < -Lhalf)
+    {
+        double dz = z + Lhalf;
+        double phi_bottom =
+            (x*x + y*y + dz*dz) / (b*b) - 1.0;
+
+        return phi_bottom;
+    }
+
+    return 0.0;
+}
+
 double body::phi_shape(const std::vector<double>& gamma, int timenum){
     std::vector<std::vector<double>>  qall=BodyBasic->getq();
     std::vector<double>q = qall[timenum];
@@ -199,6 +244,9 @@ double body::phi_shape(const std::vector<double>& gamma, int timenum){
     }
     if(Shape->getshapename()=="torus"){
         phi = phi_torus(positionlocal);
+    }
+    if(Shape->getshapename()=="capsule"){
+        phi = phi_capsule(positionlocal);
     }
     return phi;
 }
@@ -215,6 +263,9 @@ double body::phi_shape_current(const std::vector<double>& gamma){
     }
     if(Shape->getshapename()=="torus"){
         phi = phi_torus(positionlocal);
+    }
+    if(Shape->getshapename()=="capsule"){
+        phi = phi_capsule(positionlocal);
     }
     return phi;
 }

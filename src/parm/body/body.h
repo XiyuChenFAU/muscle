@@ -41,6 +41,7 @@ public:
     double phi_ellipsoid(const std::vector<double>& positionlocal);
     double phi_cylinder(const std::vector<double>& positionlocal);
     double phi_torus(const std::vector<double>& positionlocal); // test
+    double phi_capsule(const std::vector<double>& positionlocal); // new capsule
     double phi_shape(const std::vector<double>& gamma, int timenum);
     double phi_shape_current(const std::vector<double>& gamma);
     void updatebodybasic();

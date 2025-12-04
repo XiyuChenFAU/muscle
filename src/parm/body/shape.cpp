@@ -11,7 +11,7 @@ Xiyu Chen
 
 using namespace std;
 
-std::vector<std::string> shape::allshape={"ellipsoid","cylinder","torus"};
+std::vector<std::string> shape::allshape={"ellipsoid","cylinder","torus","capsule"};
 
 shape::shape (){
     a=0;
@@ -97,4 +97,3 @@ int shape::getshapeindex(const std::string& shapename){
     }
     return index;
 }
-

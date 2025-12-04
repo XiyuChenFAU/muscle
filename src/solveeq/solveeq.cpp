@@ -35,6 +35,10 @@ void solveeq::setipoptoption(double tolvalue,int max_itervalue,const std::string
     ipopt->sethessian_approximation(hessian_approximationvalue);
 }
 
+constraint* solveeq::getConstraint(){
+    return Constraint;
+}
+
 objective* solveeq::getObjective(){
     return Objective;
 }
@@ -73,6 +77,9 @@ void solveeq::solvesignorinirotate(Parm* parm){
 
         std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
         x0.insert(x0.end(), initial.begin(), initial.end());
+        if(g_enable_print){
+            std::cout<<"x0 size: "<<x0.size() <<std::endl;
+        }
 
         arg["x0"] = x0;
         // Solve the NLP

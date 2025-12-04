@@ -63,9 +63,19 @@ std::vector<MX> constraint::constraints_fix_muscle_two_side_point(muscle* Muscle
 
 std::vector<MX> constraint::constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta){
     std::vector<MX> constraintshapeeta;
+    MX plus_value=0.0;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
         std::vector<MX> constraintshapeeta1=constraintshape_time_eta(Constraintshape->constraint_shape(gammaallnode[i+1], parm), eta[i]);
-        constraintshapeeta.insert(constraintshapeeta.end(), constraintshapeeta1.begin(), constraintshapeeta1.end());
+        if(phi_eta_plus){
+            for(int j=0;j<constraintshapeeta1.size();j++){
+                plus_value=plus_value+constraintshapeeta1[j];
+            }
+        } else{
+            constraintshapeeta.insert(constraintshapeeta.end(), constraintshapeeta1.begin(), constraintshapeeta1.end());
+        }
+    }
+    if(phi_eta_plus){
+        constraintshapeeta.push_back(plus_value);
     }
     return constraintshapeeta;
 }
@@ -150,6 +160,7 @@ std::vector<MX> constraint::constraints(Parm* parm, MX x, int musclenum){
     std::vector<MX> constraintnoeq=constraintsnoeq(parm, dataall, musclenum);
     constraintnoeqnum=constraintnoeq.size();
     constraint.insert(constraint.end(), constraintnoeq.begin(), constraintnoeq.end());
+    
     constraintall=constraint;
 
     //set limit
@@ -169,6 +180,14 @@ std::vector<MX> constraint::constraints(Parm* parm, MX x, int musclenum){
     constraintupperlimit.insert(constraintupperlimit.end(), equpperlimit.begin(), equpperlimit.end());
     constraintupperlimit.insert(constraintupperlimit.end(), noequpperlimit.begin(), noequpperlimit.end());
     upperlimitall=constraintupperlimit;
+    if(g_enable_print){
+        std::cout<<"bodynum: "<<parm->getn_bodies()<<std::endl;
+        std::cout<<"musclenum: "<<parm->getn_muscles()<<std::endl;
+        std::cout<<"constrainteqnum: "<<constrainteqnum<< " comment: (K-1)*B (for eta) + (K-1)*B (for phi each node each body)"<<std::endl;
+        std::cout<<"constraintnoeqnum: "<<constraintnoeqnum<< " comment: (K-1)*3 (for geodesic) + 2*3 (for origin and insertion) + (K-1)*B (for eta)"<<std::endl;
+        std::cout<<"lowerlimitall: "<<lowerlimitall.size()<< " comment: (K+1)*3 (for gamma) + (K-1)*B (for eta)"<<std::endl;
+        std::cout<<"upperlimitall: "<<upperlimitall.size()<<std::endl;
+    }
     return constraint;
 }
 
@@ -209,7 +228,15 @@ void constraint::printvalue(const std::vector<std::vector<std::vector<MX>>>& gmm
             }
         }
     }
-}   
+}
+
+void constraint::set_phi_eta_plus(int value){
+    phi_eta_plus = value;
+}
+    
+int constraint::get_phi_eta_plus(){
+    return phi_eta_plus;
+}
 
 constraintshape* constraint::getConstraintshape(){
     return Constraintshape;

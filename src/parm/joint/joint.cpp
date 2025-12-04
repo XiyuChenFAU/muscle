@@ -137,8 +137,9 @@ std::vector<std::vector<double>> joint::rotation_matrix_update(double rotation_a
     absolute_pos_axis_update(currentstepnum);
     std::vector<std::vector<double>> R;
         
-    if(rotation_angle<10){
-        R=CayleyMap(vector3timeconstant(absolute_axisvector[currentstepnum], rotation_angle/180.0*M_PI));
+    if(abs(rotation_angle)<10){
+        //R=CayleyMap(vector3timeconstant(absolute_axisvector[currentstepnum], rotation_angle/180.0*M_PI));
+        R=CayleyMap(vector3timeconstant(absolute_axisvector[currentstepnum], 2 * tan(rotation_angle/360.0*M_PI)));
     }
     else{
         R=RodriguesMap(vector3timeconstant(absolute_axisvector[currentstepnum], rotation_angle/180.0*M_PI));

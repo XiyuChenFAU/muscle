@@ -746,6 +746,13 @@ model* IO::readmodel(const std::string&  jsonfilename){
     double length_constant=obj["length_constant"].asDouble();
     Model->getSolveeq()->getObjective()->setlengthconstant(length_constant);
 
+    if (root.isMember("use_phi_eta_plus_length")) {
+         int use_phi_eta_plus = root["use_phi_eta_plus_length"].asInt();
+         Model->getSolveeq()->getConstraint()->set_phi_eta_plus(use_phi_eta_plus);
+    } else{ //for milimeter cases!!!
+         Model->getSolveeq()->getConstraint()->set_phi_eta_plus(0);
+    }
+
     //initial guess setting
     const Json::Value& initial = root["initial_guess"];
     int mode_initial=initial["mode_number"].asInt();

@@ -33,7 +33,7 @@ Dict IPOPT::getipoptparm(){
     if(!max_iter){opts_dict["ipopt.max_iter"] = max_iter;}
     if(!linear_solver.empty()){opts_dict["ipopt.linear_solver"] = linear_solver;}
     opts_dict["ipopt.print_level"] = print_level;
-    if(!hessian_approximation.empty()){opts_dict["ipopt.hessian_approximation"] = hessian_approximation;}    
+    if(!hessian_approximation.empty()){opts_dict["ipopt.hessian_approximation"] = hessian_approximation;}
     return opts_dict;
 }
 

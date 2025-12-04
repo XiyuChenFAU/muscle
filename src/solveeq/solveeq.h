@@ -21,6 +21,7 @@ public:
     ~solveeq();
     IPOPT* getipopt();
     void setipoptoption(double tolvalue,int max_itervalue,const std::string& linear_solvervalue,int print_levelvalue,const std::string& hessian_approximationvalue);
+    constraint* getConstraint();
     objective* getObjective();
     initialguess* getInitialguess();
     void solvesignorinirotate(Parm* parm);

@@ -39,26 +39,34 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     selectFolderButton->setGeometry(360, 290, 100, 50);
     connect(selectFolderButton, &QPushButton::clicked, this, &solvesettingpage::openFolderDialog);
 
-    setlabel("solver setting", 10, 360,20);
+    check_phi_eta_plus_CheckBox = new QCheckBox("sum phi*eta constraint for hard case convergence", this);
+    check_phi_eta_plus_CheckBox->setGeometry(10, 360, 340, 30);
+    check_phi_eta_plus_CheckBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC;}");
+
+    check_phi_eta_plus_Value = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->get_phi_eta_plus();
+    check_phi_eta_plus_CheckBox->setChecked(check_phi_eta_plus_Value);
+    connect(check_phi_eta_plus_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged_phi_eta_plus);
+
+    setlabel("solver setting", 10, 400,20);
 
     buttonGroup1 = new QButtonGroup;
 
     QRadioButton* radioButton1_1 = new QRadioButton("no objective", this);
     radioButtons.push_back(radioButton1_1);
     radioButtons[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[0]->setGeometry(10, 400, 450, 30);
+    radioButtons[0]->setGeometry(10, 440, 450, 30);
     QRadioButton* radioButton1_2 = new QRadioButton("minimize node distance", this);
     radioButtons.push_back(radioButton1_2);
     radioButtons[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[1]->setGeometry(10, 450, 450, 30);
+    radioButtons[1]->setGeometry(10, 480, 450, 30);
     QRadioButton* radioButton1_3 = new QRadioButton("minimize node distance with weight", this);
     radioButtons.push_back(radioButton1_3);
     radioButtons[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[2]->setGeometry(10, 500, 450, 30);
+    radioButtons[2]->setGeometry(10, 520, 450, 30);
     QRadioButton* radioButton1_4 = new QRadioButton("minimize node distance with length change", this);
     radioButtons.push_back(radioButton1_4);
     radioButtons[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[3]->setGeometry(10, 550, 450, 30);
+    radioButtons[3]->setGeometry(10, 560, 450, 30);
 
     selectedValue = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getcasenum();
     radioButtons[selectedValue]->setChecked(true);
@@ -69,7 +77,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     buttonGroup1->addButton(radioButtons[3], 3); 
     connect(buttonGroup1, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked);
 
-    lengthconstEdit=settextandlabel("lenght spring constant",length_cons_string, 10, 600, 450, 30, allfontsize);
+    lengthconstEdit=settextandlabel("lenght spring constant",length_cons_string, 340, 535, 110, 30, allfontsize-4);
     lenghtspringlabel=qlabels.back();
     if(selectedValue==3){
         lengthconstEdit->setVisible(true);
@@ -116,7 +124,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
 
     check_collision_Value = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getcollision_check();
     check_collision_CheckBox->setChecked(check_collision_Value);
-    connect(check_collision_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged);
+    connect(check_collision_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged_collision);
 
     if(selectedValue_mode==0){
         check_collision_CheckBox->setVisible(false);
@@ -238,6 +246,7 @@ void solvesettingpage::savesetting(){
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setipoptoption(tolEdit->text().toDouble(),max_iterEdit->text().toInt(),linear_solverEdit->text().toStdString(),print_levelEdit->text().toInt(),hessian_approximationEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setmode_nr(selectedValue_mode);
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setcollision_check(check_collision_Value);
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->set_phi_eta_plus(check_phi_eta_plus_Value);
         if(selectedValue_mode==1){
             setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setselect_bodyname(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValue_body-1)->getname());
         }
@@ -344,7 +353,12 @@ void solvesettingpage::handleButtonClicked_body(QAbstractButton* button){
     selectedValue_body = buttonGroup_initial_body->id(button);
 }
 
-void solvesettingpage::handleCheckBoxChanged(int state)
+void solvesettingpage::handleCheckBoxChanged_collision(int state)
 {
     check_collision_Value = (state == Qt::Checked) ? 1 : 0;
+}
+
+void solvesettingpage::handleCheckBoxChanged_phi_eta_plus(int state)
+{
+    check_phi_eta_plus_Value = (state == Qt::Checked) ? 1 : 0;
 }

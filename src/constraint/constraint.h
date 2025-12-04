@@ -36,6 +36,8 @@ public:
 
     void printvalue(const std::vector<std::vector<std::vector<MX>>>& gmmaall);
         
+    void set_phi_eta_plus(int value);
+    int get_phi_eta_plus();
     constraintshape* getConstraintshape();
     int getconstrainteqnum();
     int getconstraintnoeqnum();
@@ -47,6 +49,7 @@ private:
     constraintshape* Constraintshape;
     int constrainteqnum;
     int constraintnoeqnum;
+    int phi_eta_plus = 0;
     std::vector<MX> constraintall;
     std::vector<double> lowerlimitall;
     std::vector<double> upperlimitall;

@@ -16,9 +16,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_TOOLCHAIN_FILE "/Users/xiyuchen/vcpkg/scripts/buildsystems/vcpkg.cmake")
 #cmake .. -DCMAKE_TOOLCHAIN_FILE=/Users/xiyuchen/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-
+#qt5 path need change
 set(Qt5_DIR /Users/xiyu/Documents/Qt5.14.2/5.14.2/clang_64/lib/cmake/Qt5)
-include_directories("/usr/local/include")
+#casadi path need change
+set(CasADi_INCLUDE_DIRS /usr/local/include)
+set(CasADi_LIBRARIES /usr/local/lib/libcasadi.dylib)
 
 find_package(CasADi REQUIRED)
 find_package(Qt5 COMPONENTS Widgets OpenGL 3DCore 3DExtras REQUIRED)
@@ -79,7 +81,7 @@ if(ENABLE_PRINT)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE ENABLE_PRINT)
 endif()
 
-
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE casadi)
+#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE casadi)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${CasADi_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt5::Widgets Qt5::OpenGL Qt5::3DCore Qt5::3DExtras)
 #target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)

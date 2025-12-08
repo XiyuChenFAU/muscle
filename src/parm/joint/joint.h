@@ -16,12 +16,11 @@ Xiyu Chen
 
 class joint {
 public:
-    joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value);
+    joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value);
     
     ~joint();
 
-    void setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value);
-
+    void setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value);
     std::string getname();
     std::string getbodyname();
     body* getcurrentbody();
@@ -37,6 +36,8 @@ public:
     int getwritemomentarm();
     int getjoint_stepnum();
     int getread_from_movement();
+    int getmove_all_body();
+    void setmove_all_body(int move_all_body_value);
     void setread_from_movement(int read_from_movement_value);
     void setjoint_stepnum(int joint_stepnum_value);
     void setwritemomentarm();
@@ -58,12 +59,13 @@ public:
 private:
     std::string name;
     std::string bodyname;
-    body* currentbody;
+    body* currentbody=nullptr;
     std::string joint_type;
     std::vector<double> relative_pos={0.0,0.0,0.0};
     std::vector<std::vector<double>> absolute_pos={};
     std::vector<double> axisvector={0.0,0.0,0.0};
     std::vector<std::vector<double>> absolute_axisvector={};
+    int move_all_body=0;
     /*
     save initial and final rotation also stepnum and acceleration
     move_setting={  x:{

@@ -322,12 +322,12 @@ void Parm::set_single_read_muscle_value(const std::string& name, int read_muscle
     }
 }
     
-void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value){
+void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value){
     body* currentbodyvalue=findbody(bodynamevalue);
     int add_joint=1;
     for(int i=0;i<alljoint.size();i++){
         if(alljoint[i]->getname() ==namevalue){
-            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value);
+            alljoint[i]->setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value, move_all_body_value);
             if(run_total_step<alljoint[i]->getjoint_stepnum()){run_total_step=alljoint[i]->getjoint_stepnum();}
             if(!movement_value.empty()){alljoint[i]->setread_from_movement(1);} else{alljoint[i]->setread_from_movement(0);}
             add_joint=0;
@@ -335,7 +335,7 @@ void Parm::addjoint(const std::string& namevalue, const std::string& bodynameval
         }
     }
     if(add_joint){
-        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value);
+        joint* Joint=new joint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value, move_all_body_value);
         if(run_total_step<Joint->getjoint_stepnum()){run_total_step=Joint->getjoint_stepnum();}
         if(!movement_value.empty()){Joint->setread_from_movement(1);} else{Joint->setread_from_movement(0);}
         alljoint.push_back(Joint);

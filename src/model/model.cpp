@@ -230,6 +230,9 @@ void model::writejson(int write_gamma, int currentstepnum){
             axisvectorvalue.append(value);
         }
         jointObject["rotation_axis_relative_rotate_body"] = axisvectorvalue;
+        if(parm->getjointindex(i)->getmove_all_body()){
+            jointObject["move_all_bodys"] = parm->getjointindex(i)->getmove_all_body();
+        }
 
         Json::Value move_setting_value(Json::arrayValue);
         for (const auto& matrix : parm->getjointindex(i)->get_move_setting()) {
@@ -286,6 +289,14 @@ void model::writejson(int write_gamma, int currentstepnum){
 
     root["save_interval"] = save_interval;
     root["output_path"] = folderpath;
+
+    if(Solveeq->getConstraint()->get_phi_eta_plus()){
+        root["use_phi_eta_plus_length"] = 1;
+    }
+
+    if(Solveeq->get_all_muscle_together()){
+        root["calculate_all_muscle_together"] = 1;
+    }
 
     // change json object to string
     Json::StreamWriterBuilder writer;

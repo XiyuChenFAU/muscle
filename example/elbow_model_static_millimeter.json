@@ -10,20 +10,20 @@
 				0.0,
 				0.0
 			],
-			"rotation_angle" : 30.0,
+			"rotation_angle" : 60.0,
 			"rotation_axis_relative_parent_coordinate" : 
 			[
 				0.0,
-				1.0,
+				-1.0,
 				0.0
 			],
 			"shape" : 
 			{
-				"a" : 0.044999999999999998,
-				"b" : 0.044999999999999998,
-				"c" : 0.17385,
-				"length" : 0.34770000000000001,
-				"radius" : 0.044999999999999998,
+				"a" : 173.84999999999999,
+				"b" : 45.0,
+				"c" : 45.0,
+				"length" : 90.0,
+				"radius" : 109.425,
 				"shape_name" : "ellipsoid"
 			}
 		},
@@ -32,11 +32,11 @@
 			"body_parent_name" : "upperarm",
 			"position_relative_parent_coordinate" : 
 			[
+				-173.84999999999997,
 				0.0,
-				0.0,
-				-0.17385
+				0.0
 			],
-			"rotation_angle" : 0.0,
+			"rotation_angle" : 9.0,
 			"rotation_axis_relative_parent_coordinate" : 
 			[
 				0.0,
@@ -45,11 +45,11 @@
 			],
 			"shape" : 
 			{
-				"a" : 0.042999999999999997,
-				"b" : 0.044999999999999998,
-				"c" : 0.037999999999999999,
-				"length" : 0.075999999999999998,
-				"radius" : 0.043999999999999997,
+				"a" : 38.0,
+				"b" : 45.0,
+				"c" : 43.0,
+				"length" : 86.0,
+				"radius" : 41.5,
 				"shape_name" : "ellipsoid"
 			}
 		},
@@ -58,24 +58,24 @@
 			"body_parent_name" : "elbow",
 			"position_relative_parent_coordinate" : 
 			[
+				-141.99999999999994,
 				0.0,
-				0.0,
-				-0.14199999999999999
+				-1.4210854715202004e-14
 			],
 			"rotation_angle" : 0.0,
 			"rotation_axis_relative_parent_coordinate" : 
 			[
 				0.0,
-				1.0,
+				0.0,
 				0.0
 			],
 			"shape" : 
 			{
-				"a" : 0.037999999999999999,
-				"b" : 0.037999999999999999,
-				"c" : 0.14199999999999999,
-				"length" : 0.28399999999999997,
-				"radius" : 0.037999999999999999,
+				"a" : 142.0,
+				"b" : 38.0,
+				"c" : 38.0,
+				"length" : 76.0,
+				"radius" : 90.0,
 				"shape_name" : "ellipsoid"
 			}
 		}
@@ -83,7 +83,7 @@
 	"initial_guess" : 
 	{
 		"collision_check" : 1,
-		"mode_number" : 2,
+		"mode_number" : 0,
 		"select_body" : "fix_space"
 	},
 	"ipoptsetting" : 
@@ -91,7 +91,7 @@
 		"hessian_approximation" : "limited-memory",
 		"linear_solver" : "mumps",
 		"max_iter" : 2000,
-		"print_level" : 0,
+		"print_level" : 5,
 		"tol" : 1e-08
 	},
 	"joint" : 
@@ -108,7 +108,9 @@
 						40.0,
 						0.0
 					]
-				]
+				],
+				[],
+				[]
 			],
 			"position_relative_rotate_body" : 
 			[
@@ -134,15 +136,15 @@
 			"origin_relative_body" : "upperarm",
 			"rho_insertion" : 
 			[
-				0.045600000000000002,
+				127.8,
 				0.0,
-				0.1278
+				-45.600000000000001
 			],
 			"rho_origin" : 
 			[
-				0.044999999999999998,
+				121.69499999999999,
 				0.0,
-				0.121695
+				-45.0
 			]
 		},
 		{
@@ -152,28 +154,29 @@
 			"origin_relative_body" : "upperarm",
 			"rho_insertion" : 
 			[
-				0.0,
-				0.037999999999999999,
-				0.085199999999999998
+				85.200000000000003,
+				38.0,
+				0.0
 			],
 			"rho_origin" : 
 			[
-				-0.044999999999999998,
+				139.08000000000001,
 				0.0,
-				0.13908000000000001
+				45.0
 			]
 		}
 	],
-	"name" : "elbow_model_test",
+	"name" : "elbow_model_static",
 	"objective" : 
 	{
 		"length_constant" : 1.0,
 		"solvercase" : 0
 	},
+	"output_path" : "/Users/xiyu/Desktop/",
 	"postprocessing" : 
 	{
 		"tol" : 0.01
 	},
 	"save_interval" : 1,
-	"use_phi_eta_plus_length": 0
+	"use_phi_eta_plus_length": 1
 }

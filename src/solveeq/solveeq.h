@@ -21,10 +21,13 @@ public:
     ~solveeq();
     IPOPT* getipopt();
     void setipoptoption(double tolvalue,int max_itervalue,const std::string& linear_solvervalue,int print_levelvalue,const std::string& hessian_approximationvalue);
+    constraint* getConstraint();
     objective* getObjective();
     initialguess* getInitialguess();
     void solvesignorinirotate(Parm* parm);
     void solvesignorinistep(Parm* parm, int stepnum);
+    int get_all_muscle_together();
+    void set_all_muscle_together(int value);
     
 
 private:
@@ -32,6 +35,7 @@ private:
     constraint* Constraint=nullptr;
     objective* Objective=nullptr;
     initialguess* Initialguess=nullptr;
+    int all_muscle_together=0;
 };
 
 #endif // SOLVEEQ_H

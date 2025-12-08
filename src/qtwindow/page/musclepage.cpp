@@ -220,15 +220,15 @@ void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::str
     nodenumEdit->setText(QString::fromStdString(std::to_string(nodenum)));
 
     int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoo_bodyname);
-    radioButtonso[findbodyo+1]->setChecked(true);
-    selectedValueo=findbodyo;
+    radioButtonso[findbodyo+2]->setChecked(true);
+    selectedValueo=findbodyo+1;
     rhooaxisxEdit->setText(QString::fromStdString(doubletostring(rho_o[0])));
     rhooaxisyEdit->setText(QString::fromStdString(doubletostring(rho_o[1])));
     rhooaxiszEdit->setText(QString::fromStdString(doubletostring(rho_o[2])));
 
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoi_bodyname);
-    radioButtonsi[findbodyi+1]->setChecked(true);
-    selectedValuei=findbodyi;
+    radioButtonsi[findbodyi+2]->setChecked(true);
+    selectedValuei=findbodyi+1;
 
     rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i[0])));
     rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i[1])));
@@ -267,7 +267,7 @@ void musclepage::savebuttonsetting(){
     else{
         std::vector<double> rhooaxisvalue={rhooaxisxEdit->text().toDouble(),rhooaxisyEdit->text().toDouble(),rhooaxiszEdit->text().toDouble()};
         std::vector<double> rhoiaxisvalue={rhoiaxisxEdit->text().toDouble(),rhoiaxisyEdit->text().toDouble(),rhoiaxiszEdit->text().toDouble()};
-        setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal);
+        setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo-1)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei-1)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal);
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()>musclebuttons.size()){
             newmusclebutton->setVisible(false);
             for(int i=0;i<musclebuttons.size();i++){
@@ -422,37 +422,53 @@ void musclepage::updatevalue(){
     radioButtono->setVisible(false);
     radioButtonso.push_back(radioButtono);
     buttonGroupo->addButton(radioButtonso[0], -1);
+
+    QRadioButton* radioButtonfixo = new QRadioButton(QString::fromStdString("fix_space"), this);
+    radioButtonso.push_back(radioButtonfixo);
+    radioButtonso[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtonso[1]->setGeometry(10, 300, 340, 30);
+    radioButtonso[1]->show();
+    buttonGroupo->addButton(radioButtonso[1], 0);
+
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonso.push_back(radioButton);
-        radioButtonso[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonso[i+1]->setGeometry(10, 300+i*40, 340, 30);
-        radioButtonso[i+1]->show();
-        buttonGroupo->addButton(radioButtonso[i+1], i);
+        radioButtonso[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonso[i+2]->setGeometry(10, 300+(i+1)*40, 340, 30);
+        radioButtonso[i+2]->show();
+        buttonGroupo->addButton(radioButtonso[i+2], i+1);
     }
     connect(buttonGroupo, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedo);
     int findbodyo=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoobodyname);
-    radioButtonso[findbodyo+1]->setChecked(true);
-    selectedValueo=findbodyo;
-    
-    
+    radioButtonso[findbodyo+2]->setChecked(true);
+    selectedValueo=findbodyo+1;
+
     buttonGroupi = new QButtonGroup(rectanglemain);
     QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), rectanglemain);
     radioButtoni->setVisible(false);
     radioButtonsi.push_back(radioButtoni);
     buttonGroupi->addButton(radioButtonsi[0], -1);
+
+    QRadioButton* radioButtonfixi = new QRadioButton(QString::fromStdString("fix_space"), this);
+    radioButtonsi.push_back(radioButtonfixi);
+    radioButtonsi[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtonsi[1]->setGeometry(660, 300, 340, 30);
+    radioButtonsi[1]->show();
+    buttonGroupi->addButton(radioButtonsi[1], 0);
+
+
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonsi.push_back(radioButton);
-        radioButtonsi[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsi[i+1]->setGeometry(660, 300+i*40, 340, 30);
-        radioButtonsi[i+1]->show();
-        buttonGroupi->addButton(radioButtonsi[i+1], i);
+        radioButtonsi[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtonsi[i+2]->setGeometry(660, 300+(i+1)*40, 340, 30);
+        radioButtonsi[i+2]->show();
+        buttonGroupi->addButton(radioButtonsi[i+2], i+1);
     }
     connect(buttonGroupi, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &musclepage::handleButtonClickedi);
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
-    radioButtonsi[findbodyi+1]->setChecked(true);
-    selectedValuei=findbodyi;
+    radioButtonsi[findbodyi+2]->setChecked(true);
+    selectedValuei=findbodyi+1;
 
     if (rectanglemain) {
         rectanglemain->update();

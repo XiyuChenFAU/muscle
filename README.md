@@ -56,12 +56,12 @@ Or you can compile it based on the compile
 # Download and install casadi programm
 
 ## For mac
-* git clone -b 3.6.3 https://github.com/casadi/casadi.git
+* git clone -b 3.7.2 https://github.com/casadi/casadi.git
 * cd casadi
 * mkdir build
 * cd build
 * cmake -DWITH_IPOPT=ON ..
-* make
+* make -j4
 * sudo make install
 
 ### export casadi directory
@@ -69,7 +69,7 @@ export CasADi_DIR=/usr/local/include/casadi
 
 ## For windows
 When you do "mkdir build", please sure it contains the CMakeLists.txtin the current folder
-* git clone -b 3.6.3 https://github.com/casadi/casadi.git
+* git clone -b 3.7.2 https://github.com/casadi/casadi.git
 * cd casadi
 * mkdir build
 * cd build

@@ -704,6 +704,11 @@ model* IO::readmodel(const std::string&  jsonfilename){
             }
         }
 
+        int move_all_body_value = 0;
+        if (jointObject.isMember("move_all_bodys")) {
+            move_all_body_value = jointObject["move_all_bodys"].asInt();
+        }
+
         std::vector<std::vector<std::vector<double>>> move_setting_value;
         const Json::Value& move_setting_valueArray = jointObject["move_setting"];
         for (const Json::Value& subArray1 : move_setting_valueArray) {
@@ -721,8 +726,7 @@ model* IO::readmodel(const std::string&  jsonfilename){
         }
 
         // Call addjoint with the correct parameters
-        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value,relative_posvalue, rotation_axis_jointvalue, move_setting_value, movement_value);
-
+        Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value,relative_posvalue, rotation_axis_jointvalue, move_setting_value, movement_value, move_all_body_value);
         
         //Model->getparm()->addjoint(joint_name_value, rotate_body_name_joint, joint_type_name_value, relative_posvalue, rotation_axis_jointvalue, initial_rotation_anglevalue, rotation_anglevalue, initial_translationvalue, translationvalue);
     }
@@ -751,6 +755,13 @@ model* IO::readmodel(const std::string&  jsonfilename){
          Model->getSolveeq()->getConstraint()->set_phi_eta_plus(use_phi_eta_plus);
     } else{ //for milimeter cases!!!
          Model->getSolveeq()->getConstraint()->set_phi_eta_plus(0);
+    }
+
+    if (root.isMember("calculate_all_muscle_together")) {
+         int all_muscle_together_value = root["calculate_all_muscle_together"].asInt();
+         Model->getSolveeq()->set_all_muscle_together(all_muscle_together_value);
+    } else{ //for milimeter cases!!!
+         Model->getSolveeq()->set_all_muscle_together(0);
     }
 
     //initial guess setting

@@ -23,7 +23,7 @@ void IPOPT::SetInitialipopt() {
     tol = 1e-8;
     max_iter = 2000;
     linear_solver = "mumps";
-    print_level = 0;
+    print_level = 5;
     hessian_approximation = "limited-memory";
 }
 

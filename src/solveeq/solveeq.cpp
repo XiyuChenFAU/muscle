@@ -13,7 +13,7 @@ solveeq::solveeq(){
     ipopt=new IPOPT();
     Constraint=new constraint();
     Objective=new objective();
-    Initialguess=new initialguess(2,1);
+    Initialguess=new initialguess(0,0);
 }
     
 solveeq::~solveeq(){
@@ -56,14 +56,22 @@ void solveeq::solvesignorinirotate(Parm* parm){
     
     std::vector<muscle*> allmuscle=parm->getallmuscle();
     int variablenumall=parm->getvariable();
-    for(int i=0;i<parm->getn_muscles();i++){
+    Constraint->set_dict_constraint_all({});
+    if(all_muscle_together){
         //variable
-        int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
-        MX x = MX::sym("x", variablenum);
+        MX x = MX::sym("x", variablenumall);
         //minimum
-        MX f = Objective->getobjective(parm, x,jointnaxisall,i);
-        //constraints
-        std::vector<MX> allconstraint=Constraint->constraints(parm,x,i);
+        MX f = 0;
+        int start_index_x=0;
+        for(int i=0;i<parm->getn_muscles();i++){
+            int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
+            MX x_single= x(Slice(start_index_x, start_index_x + variablenum));
+            f = f + Objective->getobjective(parm, x_single,jointnaxisall,i);
+            //constraints.
+            std::vector<MX> singlemuscleconstraint=Constraint->constraints(parm,x_single,i);
+            start_index_x=start_index_x+variablenum;
+        }
+        std::vector<MX> allconstraint = Constraint->put_constraints_together();
         MX g = vertcat(allconstraint);
         //set ipopt nlp
         MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
@@ -71,12 +79,15 @@ void solveeq::solvesignorinirotate(Parm* parm){
         Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
         std::map<std::string, DM> arg, res;
         // Set constraint limit
-        arg["lbg"] = Constraint->getlowerlimitall();
-        arg["ubg"] = Constraint->getupperlimitall();
+        std::vector<std::vector<double>> lower_upper_limit = Constraint->set_lower_upper_limit();
+        arg["lbg"] = lower_upper_limit[0];
+        arg["ubg"] = lower_upper_limit[1];
         std::vector<double> x0;
 
-        std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
-        x0.insert(x0.end(), initial.begin(), initial.end());
+        for(int i=0;i<parm->getn_muscles();i++){
+            std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
+            x0.insert(x0.end(), initial.begin(), initial.end());
+        }
         if(g_enable_print){
             std::cout<<"x0 size: "<<x0.size() <<std::endl;
         }
@@ -88,65 +99,52 @@ void solveeq::solvesignorinirotate(Parm* parm){
         for (int i = 0; i < x0.size(); i++) {
             solution.push_back(static_cast<double>(res.at("x")(i)));
         }
-        allmuscle[i]->addmuscleparm(solution);
-    }
-        
-    
-    // new
-    /*
-    std::vector<std::vector<double>> jointnaxisall;
-    for(int i = 0; i < parm->getn_joints(); i++) {
-        jointnaxisall.push_back(parm->getjointindex(i)->getabsolute_pos().back());
-    }
-
-    std::vector<muscle*> allmuscle = parm->getallmuscle();
-    int nMuscles = parm->getn_muscles();
-
-    // Ergebniscontainer MUSS vorher auf Größe gesetzt werden
-    std::vector<std::vector<double>> muscleSolutions(nMuscles);
-
-    // ---------- Parallelbereich ----------
-    #pragma omp parallel for num_threads(4) schedule(dynamic)
-    for(int i = 0; i < nMuscles; i++)
-    {
-        int variablenum = allmuscle[i]->getvariablenum(parm->getn_bodies());
-        MX x = MX::sym("x", variablenum);
-
-        MX f = Objective->getobjective(parm, x, jointnaxisall, i);
-
-        std::vector<MX> allconstraint = Constraint->constraints(parm, x, i);
-        MX g = vertcat(allconstraint);
-
-        MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
-        Dict opts_dict = ipopt->getipoptparm();
-
-        Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
-
-        std::map<std::string, DM> arg, res;
-
-        arg["lbg"] = Constraint->getlowerlimitall();
-        arg["ubg"] = Constraint->getupperlimitall();
-
-        // Anfangswerte konsistent pro Muskel
-        std::vector<double> x0 = Initialguess->get_initialguessvalueindex(i);
-        arg["x0"] = x0;
-
-        // Solve
-        res = solver(arg);
-
-        // Ergebnis sichern – **jeder Thread schreibt an unterschiedliche Stelle**
-        muscleSolutions[i].resize(x0.size());
-        for(int k = 0; k < x0.size(); k++) {
-            muscleSolutions[i][k] = static_cast<double>(res.at("x")(k));
+        //add solution to each muscle
+        int start_index=0;
+        for(int i=0;i<parm->getn_muscles();i++){
+            int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
+            std::vector<double> singlemusclesolution(solution.begin()+start_index,solution.begin()+start_index+variablenum);
+            allmuscle[i]->addmuscleparm(singlemusclesolution);
+            start_index=start_index+variablenum;
         }
     }
+    else{
+        for(int i=0;i<parm->getn_muscles();i++){
+            //variable
+            int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
+            MX x = MX::sym("x", variablenum);
+            //minimum
+            MX f = Objective->getobjective(parm, x,jointnaxisall,i);
+            //constraints
+            std::vector<MX> allconstraint=Constraint->constraints(parm,x,i);
+            MX g = vertcat(allconstraint);
+            //set ipopt nlp
+            MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+            Dict opts_dict=ipopt->getipoptparm();
+            Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
+            std::map<std::string, DM> arg, res;
+            // Set constraint limit
+            std::vector<std::vector<double>> lower_upper_limit = Constraint->set_lower_upper_limit();
+            arg["lbg"] = lower_upper_limit[0];
+            arg["ubg"] = lower_upper_limit[1];
+            std::vector<double> x0;
 
-    // ---------- Ergebnisse ins Muskelobjekt speichern ----------
-    for (int i = 0; i < nMuscles; i++) {
-        allmuscle[i]->addmuscleparm(muscleSolutions[i]);
+            std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
+            x0.insert(x0.end(), initial.begin(), initial.end());
+            if(g_enable_print){
+                std::cout<<"x0 size: "<<x0.size() <<std::endl;
+            }
+
+            arg["x0"] = x0;
+            // Solve the NLP
+            res = solver(arg);
+            vector<double> solution;
+            for (int i = 0; i < x0.size(); i++) {
+                solution.push_back(static_cast<double>(res.at("x")(i)));
+            }
+            allmuscle[i]->addmuscleparm(solution);
+        }
     }
-        */
-
 }
 
 void solveeq::solvesignorinistep(Parm* parm, int stepnum){
@@ -165,5 +163,13 @@ void solveeq::solvesignorinistep(Parm* parm, int stepnum){
         Initialguess->set_initialguessvalue(parm, 0);
     }
     solvesignorinirotate(parm);
+}
+
+int solveeq::get_all_muscle_together(){
+    return all_muscle_together;
+}
+
+void solveeq::set_all_muscle_together(int value){
+    all_muscle_together=value;
 }
 

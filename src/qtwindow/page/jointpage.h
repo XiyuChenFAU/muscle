@@ -39,7 +39,7 @@ public:
     double stringtodouble(std::string numStr);
     void errorbox(std::string errormessage);
     runmodel* getrunmodel();
-    void setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex, int stepnum);
+    void setalltextedit(const std::string& jointnamevalue, const std::string& bodynamevalue, const std::string& jointtypevalue, const std::vector<double>& positionvalue, int jointindex, int stepnum, int moveallbodyindex);
     void updatevalue();
 
 private:
@@ -56,6 +56,8 @@ private:
     QButtonGroup *buttonGroupbody = nullptr;
     std::vector<QRadioButton *> radioButtonstype;
     QButtonGroup *buttonGrouptype = nullptr;
+    std::vector<QRadioButton *> radioButtonsrotateallbody;
+    QButtonGroup *buttonGrouprotateallbody = nullptr;
 
     QFrame* rectangle=nullptr;
     QPushButton *savebutton=nullptr;
@@ -70,6 +72,7 @@ private:
     translationjointpage *Translationjointpage = nullptr;
     int selectedValuetype=-1;
     int selectedValuebody=-1;
+    int selectedValuerotateallbody=-1;
     joint* Joint = nullptr;
 
 
@@ -82,6 +85,7 @@ private slots:
     void showjointsetting(int index);
     void handleButtonClickedbody(QAbstractButton* button);
     void handleButtonClickedtype(QAbstractButton* button);
+    void handleButtonClickedmoveallbody(QAbstractButton* button);
 };
 
 #endif // JOINTPAGE_H

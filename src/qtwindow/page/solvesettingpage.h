@@ -74,6 +74,9 @@ private:
     QCheckBox* check_phi_eta_plus_CheckBox = nullptr;
     int check_phi_eta_plus_Value = 0;
 
+    QCheckBox* check_all_muscle_together_CheckBox = nullptr;
+    int check_all_muscle_together_Value = 0;
+
 private slots:
     void savesetting();
     void openFolderDialog();
@@ -82,6 +85,7 @@ private slots:
     void handleButtonClicked_body(QAbstractButton* button);
     void handleCheckBoxChanged_collision(int state);
     void handleCheckBoxChanged_phi_eta_plus(int state);
+    void handleCheckBoxChanged_all_muscle_together(int state);
 };
 
 #endif // SOLVESETTINGPAGE_H

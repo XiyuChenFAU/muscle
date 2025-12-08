@@ -12,21 +12,22 @@ using namespace std;
 
 std::vector<std::string> joint::alljoint_type = {"revolute joint", "spherical joint", "translate joint"};
 
-joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value){
-    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value);
+joint::joint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value){
+    setjoint(namevalue, bodynamevalue, currentbodyvalue, joint_typevalue, relative_posvalue, axisvectorvalue, move_setting_value, movement_value, move_all_body_value);
 }
     
 joint::~joint(){
 
 }
 
-void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value){
+void joint::setjoint(const std::string& namevalue, const std::string& bodynamevalue, body* currentbodyvalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value){
     name=namevalue;
     bodyname=bodynamevalue;
     currentbody=currentbodyvalue;
     joint_type=joint_typevalue;
     relative_pos=relative_posvalue; // input translation {0,0,0}
     absolute_pos = {};
+    move_all_body=move_all_body_value;
     if(vector_module(axisvectorvalue)){
         axisvector = vector_unit(axisvectorvalue); // input translation {0,0,0} spherical {0,0,0}
     } else{
@@ -107,6 +108,14 @@ int joint::getread_from_movement(){
     return read_from_movement;
 }
 
+int joint::getmove_all_body(){
+    return move_all_body;
+}
+
+void joint::setmove_all_body(int move_all_body_value){
+    move_all_body=move_all_body_value;
+}
+
 void joint::setread_from_movement(int read_from_movement_value){
     read_from_movement=read_from_movement_value;
 }
@@ -118,6 +127,9 @@ void joint::setjoint_stepnum(int joint_stepnum_value){
 void joint::setwritemomentarm(){
     if(joint_type=="revolute joint" || joint_type=="spherical joint"){
         writemomentarm=1;
+    } 
+    if(joint_type=="translate joint") {
+        writemomentarm=0;
     }
 }
 
@@ -137,7 +149,7 @@ std::vector<std::vector<double>> joint::rotation_matrix_update(double rotation_a
     absolute_pos_axis_update(currentstepnum);
     std::vector<std::vector<double>> R;
         
-    if(abs(rotation_angle)<10){
+    if(abs(rotation_angle)<300){
         //R=CayleyMap(vector3timeconstant(absolute_axisvector[currentstepnum], rotation_angle/180.0*M_PI));
         R=CayleyMap(vector3timeconstant(absolute_axisvector[currentstepnum], 2 * tan(rotation_angle/360.0*M_PI)));
     }
@@ -151,32 +163,34 @@ std::vector<std::vector<double>> joint::rotation_matrix_update(double rotation_a
 void joint::revolute_update(body* Body, std::vector<std::vector<double>> R){
     if(g_enable_print){Body->getbodybasic()->set_R_time(R);}
     
-    std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
-    if (body_update.empty()){
-        body_update = Body->getbodybasic()->getq().back();
-    }
-
-    std::vector<double> oldposition;
-    std::vector<std::vector<double>> oldaxis;
-    for(int i=0; i<3; i++){
-        oldposition.push_back(body_update[i]);
-        std::vector<double> oldaxis1;
-        for (int j = 3+i*3; j < 6+i*3 ; j++) {
-            oldaxis1.push_back(body_update[j]);
+    if(Body->getname()!="fix_space"){
+        std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
+        if (body_update.empty()){
+            body_update = Body->getbodybasic()->getq().back();
         }
-        oldaxis.push_back(oldaxis1);
+
+        std::vector<double> oldposition;
+        std::vector<std::vector<double>> oldaxis;
+        for(int i=0; i<3; i++){
+            oldposition.push_back(body_update[i]);
+            std::vector<double> oldaxis1;
+            for (int j = 3+i*3; j < 6+i*3 ; j++) {
+                oldaxis1.push_back(body_update[j]);
+            }
+            oldaxis.push_back(oldaxis1);
+        }
+
+        std::vector<double> rhobody=vector3minus(oldposition,absolute_pos.back());
+
+        std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),oldposition);
+        std::vector<std::vector<double>> axis_new;
+        for(int i=0; i<3; i++){
+            axis_new.push_back(matrix33time31tog(R, oldaxis[i]));
+        }
+
+        Body->getbodybasic()->setbody_temporary_update(position_new,axis_new);
+        Body->getbodybasic()->setrotatestatus(1);
     }
-
-    std::vector<double> rhobody=vector3minus(oldposition,absolute_pos.back());
-
-    std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),oldposition);
-    std::vector<std::vector<double>> axis_new;
-    for(int i=0; i<3; i++){
-        axis_new.push_back(matrix33time31tog(R, oldaxis[i]));
-    }
-
-    Body->getbodybasic()->setbody_temporary_update(position_new,axis_new);
-    Body->getbodybasic()->setrotatestatus(1);
 
     if(Body->getchild().size()>0){
         std::vector<body*> allchild=Body->getchild();
@@ -201,32 +215,34 @@ double joint::spherical_axis_angle(double angle1value, double angle2value, doubl
 void joint::spherical_update(body* Body, std::vector<std::vector<double>> R){
     if(g_enable_print){Body->getbodybasic()->set_R_time(R);}
 
-    std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
-    if (body_update.empty()){
-        body_update = Body->getbodybasic()->getq().back();
-    }
-
-    std::vector<double> oldposition;
-    std::vector<std::vector<double>> oldaxis;
-    for(int i=0; i<3; i++){
-        oldposition.push_back(body_update[i]);
-        std::vector<double> oldaxis1;
-        for (int j = 3+i*3; j < 6+i*3 ; j++) {
-            oldaxis1.push_back(body_update[j]);
+    if(Body->getname()!="fix_space"){
+        std::vector<double> body_update = Body->getbodybasic()->getbody_temporary_update();
+        if (body_update.empty()){
+            body_update = Body->getbodybasic()->getq().back();
         }
-        oldaxis.push_back(oldaxis1);
+
+        std::vector<double> oldposition;
+        std::vector<std::vector<double>> oldaxis;
+        for(int i=0; i<3; i++){
+            oldposition.push_back(body_update[i]);
+            std::vector<double> oldaxis1;
+            for (int j = 3+i*3; j < 6+i*3 ; j++) {
+                oldaxis1.push_back(body_update[j]);
+            }
+            oldaxis.push_back(oldaxis1);
+        }
+
+        std::vector<double> rhobody=vector3minus(oldposition,absolute_pos.back());
+
+        std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),oldposition);
+        std::vector<std::vector<double>> axis_new;
+        for(int i=0; i<3; i++){
+            axis_new.push_back(matrix33time31tog(R, oldaxis[i]));
+        }
+
+        Body->getbodybasic()->setbody_temporary_update(position_new,axis_new);
+        Body->getbodybasic()->setrotatestatus(1);
     }
-
-    std::vector<double> rhobody=vector3minus(oldposition,absolute_pos.back());
-
-    std::vector<double> position_new=vector3plus(vector3minus(matrix33time31tog(R, rhobody),rhobody),oldposition);
-    std::vector<std::vector<double>> axis_new;
-    for(int i=0; i<3; i++){
-        axis_new.push_back(matrix33time31tog(R, oldaxis[i]));
-    }
-
-    Body->getbodybasic()->setbody_temporary_update(position_new,axis_new);
-    Body->getbodybasic()->setrotatestatus(1);
 
     if(Body->getchild().size()>0){
         std::vector<body*> allchild=Body->getchild();
@@ -270,26 +286,29 @@ void joint::translational_update(body* Body, std::vector<double> translation_per
 
 void joint::updateall(int currentstepnum){
     if(currentstepnum<movement_per_step[0].size()){
+        body* startbody=nullptr;
+        if(move_all_body){
+            startbody = currentbody;
+            while(startbody->getparent()!=nullptr){
+                startbody=startbody->getparent();
+            }
+        } else{
+            startbody=currentbody;
+        }
         if(joint_type=="revolute joint"){
             std::vector<std::vector<double>> R = rotation_matrix_update(movement_per_step[0][currentstepnum], currentstepnum);
-            revolute_update(currentbody, R);
+            revolute_update(startbody, R);
         }
         if(joint_type=="spherical joint"){
             double current_rotation_angle=spherical_axis_angle(movement_per_step[0][currentstepnum], movement_per_step[1][currentstepnum], movement_per_step[2][currentstepnum]);
             std::vector<std::vector<double>> R = rotation_matrix_update(current_rotation_angle, currentstepnum);
-            spherical_update(currentbody,R);
+            spherical_update(startbody,R);
         }
         if(joint_type=="translate joint"){
             currentstep.push_back(currentstepnum);
             absolute_pos_axis_update(currentstepnum);
             std::vector<double> translation_per_step={movement_per_step[0][currentstepnum], movement_per_step[1][currentstepnum], movement_per_step[2][currentstepnum]};
-            /*
-            body* findroot = currentbody;
-            while(findroot->getparent()!=nullptr){
-                findroot=findroot->getparent();
-            }
-            */
-            translational_update(currentbody, translation_per_step);
+            translational_update(startbody, translation_per_step);
         }
     }
 }

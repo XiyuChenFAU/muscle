@@ -28,31 +28,24 @@ public:
     
     std::vector<std::vector<std::vector<MX>>> rearrange_gamma_eta(Parm* parm, MX x, int musclenum);
     std::vector<MX> constraints(Parm* parm, MX x, int musclenum);
+    std::vector<MX> put_constraints_together();
+    std::vector<std::vector<double>> set_lower_upper_limit();
 
     std::vector<MX> geodesic_function(const std::vector<MX>& q_nm1, const std::vector<MX>& q_n, const std::vector<MX>& q_np1, double K);
     std::vector<MX> Jacobian_time_eta(const std::vector<std::vector<MX>>& Jacobian, const std::vector<MX>& eta);
     std::vector<MX> constraintshape_time_eta(const std::vector<MX>& constraintshape, const std::vector<MX>& eta);
-
-
     void printvalue(const std::vector<std::vector<std::vector<MX>>>& gmmaall);
         
     void set_phi_eta_plus(int value);
     int get_phi_eta_plus();
+    void set_dict_constraint_all(const std::map<int, std::map<std::string, std::map<std::string, std::vector<MX>>>>& dict);
     constraintshape* getConstraintshape();
-    int getconstrainteqnum();
-    int getconstraintnoeqnum();
-    std::vector<MX> getconstraintall();
-    std::vector<double> getlowerlimitall();
-    std::vector<double> getupperlimitall();
 
 private:
     constraintshape* Constraintshape;
-    int constrainteqnum;
-    int constraintnoeqnum;
     int phi_eta_plus = 0;
-    std::vector<MX> constraintall;
-    std::vector<double> lowerlimitall;
-    std::vector<double> upperlimitall;
+    std::map<std::string, std::map<std::string, std::vector<MX>>> dict_constraint;
+    std::map<int, std::map<std::string, std::map<std::string, std::vector<MX>>>> dict_constraint_all;
 };
 
 #endif // CONSTRAINT_H

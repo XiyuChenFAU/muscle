@@ -110,6 +110,9 @@ void solveeq::solvesignorinirotate(Parm* parm){
     }
     else{
         for(int i=0;i<parm->getn_muscles();i++){
+            if(g_enable_print){
+                std::cout<<"calculate muscle: "<<  allmuscle[i]->getname() <<std::endl;
+            }
             //variable
             int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
             MX x = MX::sym("x", variablenum);

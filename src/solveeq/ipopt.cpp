@@ -34,6 +34,8 @@ Dict IPOPT::getipoptparm(){
     if(!linear_solver.empty()){opts_dict["ipopt.linear_solver"] = linear_solver;}
     opts_dict["ipopt.print_level"] = print_level;
     if(!hessian_approximation.empty()){opts_dict["ipopt.hessian_approximation"] = hessian_approximation;}
+    opts_dict["print_time"] = false;
+    opts_dict["record_time"] = false;
     return opts_dict;
 }
 

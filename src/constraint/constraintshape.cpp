@@ -15,30 +15,44 @@ constraintshape::constraintshape(){
 }
 
 
-std::vector<std::vector<MX>> constraintshape::Jacobianshape(const std::vector<MX>& gamma, Parm* parm){
+std::vector<std::vector<MX>> constraintshape::Jacobianshape(const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var){
     std::vector<std::vector<MX>> G;
     std::vector<body*> allbody=parm->getallbody();
     for(int i=0;i<parm->getn_bodies();i++){
+        std::vector<MX> q_input;
+        if(use_p_variable){
+            for(int j=0;j<12;j++){
+                q_input.push_back(p_var(i*12 + j));
+            }
+        }
         if(allbody[i+1]->getshape()->getshapename()=="ellipsoid"){
-            std::vector<MX> Gbody = Jacobianellipsoid(gamma,allbody[i+1]);
+            std::vector<MX> Gbody = Jacobianellipsoid(gamma,allbody[i+1], use_p_variable, q_input);
             G.push_back(Gbody);
         }
         if(allbody[i+1]->getshape()->getshapename()=="cylinder"){
-            std::vector<MX> Gbody = Jacobiancylinder(gamma,allbody[i+1]);
+            std::vector<MX> Gbody = Jacobiancylinder(gamma,allbody[i+1], use_p_variable, q_input);
             G.push_back(Gbody);
         }
         // new torus
         if(allbody[i+1]->getshape()->getshapename()=="torus"){
-            std::vector<MX> Gbody = Jacobiantorus(gamma,allbody[i+1]);
+            std::vector<MX> Gbody = Jacobiantorus(gamma,allbody[i+1], use_p_variable, q_input);
             G.push_back(Gbody);
         }
     }
     return G;
 }
 
-std::vector<MX> constraintshape::Jacobianellipsoid(const std::vector<MX>& gamma, body* Body){
-    std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
-    std::vector<double>q = qall[qall.size()-1];
+std::vector<MX> constraintshape::Jacobianellipsoid(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input){
+    std::vector<MX> q;
+    if(use_p_variable){
+        q = q_input; 
+    }else{
+        std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+        std::vector<double> q_double = qall[qall.size()-1];
+        for(double v : q_double){
+            q.push_back(MX(v));
+        }
+    }
 
     std::vector<MX> x;
 
@@ -47,7 +61,9 @@ std::vector<MX> constraintshape::Jacobianellipsoid(const std::vector<MX>& gamma,
     }
 
     std::vector<MX> G(3);
-    std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
+    std::vector<std::vector<MX>> axis={{q[3],q[4],q[5]},
+                                     {q[6],q[7],q[8]},
+                                     {q[9],q[10],q[11]}};
 
     for (int i = 0; i < 3; i++) {
         G[i] = 2.0 * ((x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) / (Body->getshape()->geta()*Body->getshape()->geta()) * axis[0][i] +
@@ -57,9 +73,17 @@ std::vector<MX> constraintshape::Jacobianellipsoid(const std::vector<MX>& gamma,
     return G;
 }
 
-std::vector<MX> constraintshape::Jacobiancylinder(const std::vector<MX>& gamma, body* Body){
-    std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
-    std::vector<double>q = qall[qall.size()-1];
+std::vector<MX> constraintshape::Jacobiancylinder(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input){
+    std::vector<MX> q;
+    if(use_p_variable){
+        q = q_input; 
+    }else{
+        std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+        std::vector<double> q_double = qall[qall.size()-1];
+        for(double v : q_double){
+            q.push_back(MX(v));
+        }
+    }
 
     std::vector<MX> x;
 
@@ -68,7 +92,10 @@ std::vector<MX> constraintshape::Jacobiancylinder(const std::vector<MX>& gamma, 
     }
 
     std::vector<MX> G(3);
-    std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
+    std::vector<std::vector<MX>> axis={{q[3],q[4],q[5]},
+                                     {q[6],q[7],q[8]},
+                                     {q[9],q[10],q[11]}};
+
     MX binary_condition = if_else(fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2]) <= Body->getshape()->getc(), 1.0, 0.0);
 
 
@@ -84,12 +111,18 @@ std::vector<MX> constraintshape::Jacobiancylinder(const std::vector<MX>& gamma, 
 }
 
 // new torus test
-std::vector<MX> constraintshape::Jacobiantorus(const std::vector<MX> &gamma, body *Body)
+std::vector<MX> constraintshape::Jacobiantorus(const std::vector<MX> &gamma, body *Body, int use_p_variable, std::vector<MX>& q_input)
 {   
-    std::cout << "using Jacobian torus" << std::endl;
-
-    std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
-    std::vector<double>q = qall[qall.size()-1];
+    std::vector<MX> q;
+    if(use_p_variable){
+        q = q_input; 
+    }else{
+        std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+        std::vector<double> q_double = qall[qall.size()-1];
+        for(double v : q_double){
+            q.push_back(MX(v));
+        }
+    }
 
     std::vector<MX> x;
 
@@ -98,7 +131,9 @@ std::vector<MX> constraintshape::Jacobiantorus(const std::vector<MX> &gamma, bod
     }
 
     std::vector<MX> G(3);
-    std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
+    std::vector<std::vector<MX>> axis={{q[3],q[4],q[5]},
+                                     {q[6],q[7],q[8]},
+                                     {q[9],q[10],q[11]}};
 
     for (int i = 0; i < 3; i++) {
         G[i] = 2 * ((x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) * (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) + (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) * (x[0] * axis[1][0] + x[1] * axis[1][1]+ x[2] * axis[1][2]) + (x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2]) * (x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2]) +
@@ -110,30 +145,44 @@ std::vector<MX> constraintshape::Jacobiantorus(const std::vector<MX> &gamma, bod
 
 
 
-std::vector<MX> constraintshape::constraint_shape(const std::vector<MX>& gamma, Parm* parm){
+std::vector<MX> constraintshape::constraint_shape(const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var){
     std::vector<MX> G;
     std::vector<body*> allbody=parm->getallbody();
     for(int i=0;i<parm->getn_bodies();i++){
+        std::vector<MX> q_input;
+        if(use_p_variable){
+            for(int j=0;j<12;j++){
+                q_input.push_back(p_var(i*12 + j));
+            }
+        }
         if(allbody[i+1]->getshape()->getshapename()=="ellipsoid"){
-            MX Gbody = constraint_ellipsoid(gamma,allbody[i+1]);
+            MX Gbody = constraint_ellipsoid(gamma,allbody[i+1], use_p_variable, q_input);
             G.push_back(Gbody);
         }
         if(allbody[i+1]->getshape()->getshapename()=="cylinder"){
-            MX Gbody = constraint_cylinder(gamma,allbody[i+1]);
+            MX Gbody = constraint_cylinder(gamma,allbody[i+1], use_p_variable, q_input);
             G.push_back(Gbody);
         }
         // new torus
         if(allbody[i+1]->getshape()->getshapename()=="torus"){
-            MX Gbody = constraint_torus(gamma,allbody[i+1]);
+            MX Gbody = constraint_torus(gamma,allbody[i+1], use_p_variable, q_input);
             G.push_back(Gbody);
         }
     }
     return G;
 }
 
-MX constraintshape::constraint_ellipsoid(const std::vector<MX>& gamma, body* Body){
-    std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
-    std::vector<double>q = qall[qall.size()-1];
+MX constraintshape::constraint_ellipsoid(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input){
+    std::vector<MX> q;
+    if(use_p_variable){
+        q = q_input; 
+    }else{
+        std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+        std::vector<double> q_double = qall[qall.size()-1];
+        for(double v : q_double){
+            q.push_back(MX(v));
+        }
+    }
 
     std::vector<MX> x;
 
@@ -141,7 +190,9 @@ MX constraintshape::constraint_ellipsoid(const std::vector<MX>& gamma, body* Bod
         x.push_back(gamma[i] - q[i]);
     }
 
-    std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
+    std::vector<std::vector<MX>> axis={{q[3],q[4],q[5]},
+                                     {q[6],q[7],q[8]},
+                                     {q[9],q[10],q[11]}};
 
 
     MX G = (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) * (x[0] * axis[0][0] + x[1] * axis[0][1]+ x[2] * axis[0][2]) / (Body->getshape()->geta()*Body->getshape()->geta()) +
@@ -150,9 +201,17 @@ MX constraintshape::constraint_ellipsoid(const std::vector<MX>& gamma, body* Bod
     return G;
 }
 
-MX constraintshape::constraint_cylinder(const std::vector<MX>& gamma, body* Body){
-    std::vector<std::vector<double>>  qall=Body->getbodybasic()->getq();
-    std::vector<double>q = qall[qall.size()-1];
+MX constraintshape::constraint_cylinder(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input){
+    std::vector<MX> q;
+    if(use_p_variable){
+        q = q_input; 
+    }else{
+        std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+        std::vector<double> q_double = qall[qall.size()-1];
+        for(double v : q_double){
+            q.push_back(MX(v));
+        }
+    }
 
     std::vector<MX> x;
 
@@ -160,7 +219,9 @@ MX constraintshape::constraint_cylinder(const std::vector<MX>& gamma, body* Body
         x.push_back(gamma[i] - q[i]);
     }
 
-    std::vector<std::vector<double>> axis=Body->getbodybasic()->getaxis();
+    std::vector<std::vector<MX>> axis={{q[3],q[4],q[5]},
+                                     {q[6],q[7],q[8]},
+                                     {q[9],q[10],q[11]}};
 
     MX binary_condition = if_else(fabs(x[0] * axis[2][0] + x[1] * axis[2][1]+ x[2] * axis[2][2]) <= Body->getshape()->getc(), 1.0, 0.0);
 
@@ -178,21 +239,27 @@ MX constraintshape::constraint_cylinder(const std::vector<MX>& gamma, body* Body
 
 
 // new torus test
-MX constraintshape::constraint_torus(const std::vector<MX> &gamma, body *Body)
-{
-    std::cout << "using constraint torus" << std::endl;
-    // body position
-    std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
-    std::vector<double> q = qall.back();
+MX constraintshape::constraint_torus(const std::vector<MX> &gamma, body *Body, int use_p_variable, std::vector<MX>& q_input){
+    std::vector<MX> q;
+    if(use_p_variable){
+        q = q_input; 
+    }else{
+        std::vector<std::vector<double>> qall = Body->getbodybasic()->getq();
+        std::vector<double> q_double = qall[qall.size()-1];
+        for(double v : q_double){
+            q.push_back(MX(v));
+        }
+    }
 
-    // global coords
     std::vector<MX> x;
+
     for (int i = 0; i < 3; i++) {
         x.push_back(gamma[i] - q[i]);
     }
 
-    // local axis
-    std::vector<std::vector<double>> axis = Body->getbodybasic()->getaxis();
+    std::vector<std::vector<MX>> axis={{q[3],q[4],q[5]},
+                                     {q[6],q[7],q[8]},
+                                     {q[9],q[10],q[11]}};
 
     double R = Body->getshape()->geta();   // Major radius
     double r = Body->getshape()->getb();   // Minor radius

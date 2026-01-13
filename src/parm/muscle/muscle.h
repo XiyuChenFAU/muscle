@@ -9,10 +9,7 @@ Xiyu Chen
 #ifndef MUSCLE_H
 #define MUSCLE_H
 
-#include <vector>
-#include <iostream>
-#include "../body/body.h"
-#include "../../math/math.h"
+#include "node.h"
 
 class muscle {
 public:
@@ -49,6 +46,7 @@ public:
     void set_read_muscle_value(int value);
     int get_read_muscle_value();
 
+    void setnodenum(int nodenumvalue);
     void addgamma(const std::vector<std::vector<double>>& gammanew);
     void addeta(const std::vector<std::vector<double>>& etanew);
     void addgammaall(const std::vector<double>& gammanew);
@@ -66,25 +64,29 @@ public:
     void printmuscleinfo();
     void resetforrecalc();
     int getvariablenum(int n_bodies);
+    void deleteallnodes();
 
 
 private:
     int nodenum;
     std::string name;
-    //std::vector<double> rho_o;
-    //std::vector<double> rho_i;
+
     std::vector<std::vector<double>> gammaall;
     std::vector<std::vector<double>> etaall;
     std::vector<std::vector<double>> gamma;
     std::vector<std::vector<double>> eta;
     std::vector<std::vector<double>> muscleparm;
-    std::string rhoo_bodyname;
+
     std::vector<double> rho_o;
     std::string rhoi_bodyname;
     std::vector<double> rho_i;
     body* rhoo_body=nullptr;
     body* rhoi_body=nullptr;
+
+
     int read_muscle_value=0;
+    std::vector<std::string> bodyname_list={};
+    std::vector<node*> all_nodes={};
 };
 
 #endif // MUSCLE_H

@@ -47,6 +47,14 @@ initialguess* solveeq::getInitialguess(){
     return Initialguess;
 }
 
+void solveeq::set_use_p_variable(int value){
+    use_p_variable=value;
+}
+
+int solveeq::get_use_p_variable(){
+    return use_p_variable;
+}
+
 void solveeq::solvesignorinirotate(Parm* parm){
     
     std::vector<std::vector<double>> jointnaxisall;
@@ -55,26 +63,50 @@ void solveeq::solvesignorinirotate(Parm* parm){
     }
     
     std::vector<muscle*> allmuscle=parm->getallmuscle();
+    std::vector<body*> allbody=parm->getallbody();
     int variablenumall=parm->getvariable();
     Constraint->set_dict_constraint_all({});
+    int bodynum=parm->getn_bodies();
     if(all_muscle_together){
         //variable
         MX x = MX::sym("x", variablenumall);
+        //p_variable
+        int p_var_musclenum=0;
+        for(int k=0;k<parm->getn_muscles();k++){
+            p_var_musclenum=p_var_musclenum+3*allmuscle[k]->getnodenum();
+        }
+        int p_var_num=bodynum*12+p_var_musclenum*2;
+        MX p_var = MX::sym("p_var", p_var_num);
         //minimum
         MX f = 0;
         int start_index_x=0;
+        int current_muscle_node_index=0;
         for(int i=0;i<parm->getn_muscles();i++){
             int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
             MX x_single= x(Slice(start_index_x, start_index_x + variablenum));
-            f = f + Objective->getobjective(parm, x_single,jointnaxisall,i);
+            std::vector<MX> p_gamma_previous;
+            std::vector<MX> p_mass_matrix;
+            if(use_p_variable){
+                for(int j=0;j<3*allmuscle[i]->getnodenum();j++){
+                    p_gamma_previous.push_back(p_var(bodynum*12 + current_muscle_node_index + j));
+                    p_mass_matrix.push_back(p_var(bodynum*12 + p_var_musclenum + current_muscle_node_index + j));
+                }
+                current_muscle_node_index=current_muscle_node_index+allmuscle[i]->getnodenum()*3;
+            }
+            f = f + Objective->getobjective(parm, x_single,jointnaxisall,i, use_p_variable, p_gamma_previous, p_mass_matrix);
             //constraints.
-            std::vector<MX> singlemuscleconstraint=Constraint->constraints(parm,x_single,i);
+            std::vector<MX> singlemuscleconstraint=Constraint->constraints(parm,x_single,i, use_p_variable, p_var);
             start_index_x=start_index_x+variablenum;
         }
         std::vector<MX> allconstraint = Constraint->put_constraints_together();
         MX g = vertcat(allconstraint);
         //set ipopt nlp
-        MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+        MXDict nlp;
+        if(use_p_variable){
+            nlp = {{"x", x}, {"p", p_var}, {"f", f}, {"g", g}};
+        }  else {
+            nlp = {{"x", x}, {"f", f}, {"g", g}};
+        }
         Dict opts_dict=ipopt->getipoptparm();
         Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
         std::map<std::string, DM> arg, res;
@@ -82,8 +114,8 @@ void solveeq::solvesignorinirotate(Parm* parm){
         std::vector<std::vector<double>> lower_upper_limit = Constraint->set_lower_upper_limit();
         arg["lbg"] = lower_upper_limit[0];
         arg["ubg"] = lower_upper_limit[1];
+        // Initial guess
         std::vector<double> x0;
-
         for(int i=0;i<parm->getn_muscles();i++){
             std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
             x0.insert(x0.end(), initial.begin(), initial.end());
@@ -93,6 +125,24 @@ void solveeq::solvesignorinirotate(Parm* parm){
         }
 
         arg["x0"] = x0;
+        //p_variable initial
+        if(use_p_variable){
+            std::vector<double> p_var_init;
+            for(int j=0;j<parm->getn_bodies();j++){
+                std::vector<double>  q=allbody[j+1]->getbodybasic()->getq().back();
+                p_var_init.insert(p_var_init.end(), q.begin(), q.end());
+            }
+            for(int j=0;j<parm->getn_muscles();j++){
+                std::vector<std::vector<double>> gammaall = allmuscle[j]->getgammaall();
+                p_var_init.insert(p_var_init.end(), gammaall.back().begin(), gammaall.back().end());
+            }
+            for(int j=0;j<parm->getn_muscles();j++){
+                std::vector<double> mass_matrix = Objective->getmassmatrix(allmuscle[j], jointnaxisall);
+                p_var_init.insert(p_var_init.end(), mass_matrix.begin(), mass_matrix.end());
+            }
+            arg["p"] = p_var_init;
+        }
+
         // Solve the NLP
         res = solver(arg);
         vector<double> solution;
@@ -116,13 +166,29 @@ void solveeq::solvesignorinirotate(Parm* parm){
             //variable
             int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
             MX x = MX::sym("x", variablenum);
+            //p_variable
+            int p_var_num=bodynum*12+3*allmuscle[i]->getnodenum()*2;
+            MX p_var = MX::sym("p_var", p_var_num);
             //minimum
-            MX f = Objective->getobjective(parm, x,jointnaxisall,i);
+            std::vector<MX> p_gamma_previous;
+            std::vector<MX> p_mass_matrix;
+            if(use_p_variable){
+                for(int j=0;j<3*allmuscle[i]->getnodenum();j++){
+                    p_gamma_previous.push_back(p_var(bodynum*12 + j));
+                    p_mass_matrix.push_back(p_var(bodynum*12 + 3*allmuscle[i]->getnodenum() + j));
+                }
+            }
+            MX f = Objective->getobjective(parm, x,jointnaxisall,i, use_p_variable, p_gamma_previous, p_mass_matrix);
             //constraints
-            std::vector<MX> allconstraint=Constraint->constraints(parm,x,i);
+            std::vector<MX> allconstraint=Constraint->constraints(parm,x,i, use_p_variable, p_var);
             MX g = vertcat(allconstraint);
             //set ipopt nlp
-            MXDict nlp = {{"x", x}, {"f", f}, {"g", g}};
+            MXDict nlp;
+            if(use_p_variable){
+                nlp = {{"x", x}, {"p", p_var}, {"f", f}, {"g", g}};
+            }  else {
+                nlp = {{"x", x}, {"f", f}, {"g", g}};
+            }
             Dict opts_dict=ipopt->getipoptparm();
             Function solver = nlpsol("solver", "ipopt", nlp, opts_dict);
             std::map<std::string, DM> arg, res;
@@ -130,8 +196,8 @@ void solveeq::solvesignorinirotate(Parm* parm){
             std::vector<std::vector<double>> lower_upper_limit = Constraint->set_lower_upper_limit();
             arg["lbg"] = lower_upper_limit[0];
             arg["ubg"] = lower_upper_limit[1];
+            // Initial guess
             std::vector<double> x0;
-
             std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
             x0.insert(x0.end(), initial.begin(), initial.end());
             if(g_enable_print){
@@ -139,6 +205,23 @@ void solveeq::solvesignorinirotate(Parm* parm){
             }
 
             arg["x0"] = x0;
+            //p_variable initial
+            if(use_p_variable){
+                std::vector<double> p_var_init;
+                for(int j=0;j<parm->getn_bodies();j++){
+                    std::vector<double>  q=allbody[j+1]->getbodybasic()->getq().back();
+                    p_var_init.insert(p_var_init.end(), q.begin(), q.end());
+                }
+                for(int j=0;j<parm->getn_muscles();j++){
+                    std::vector<std::vector<double>> gammaall = allmuscle[j]->getgammaall();
+                    p_var_init.insert(p_var_init.end(), gammaall.back().begin(), gammaall.back().end());
+                }
+                for(int j=0;j<parm->getn_muscles();j++){
+                    std::vector<double> mass_matrix = Objective->getmassmatrix(allmuscle[j], jointnaxisall);
+                    p_var_init.insert(p_var_init.end(), mass_matrix.begin(), mass_matrix.end());
+                }
+                arg["p"] = p_var_init;
+            }
             // Solve the NLP
             res = solver(arg);
             vector<double> solution;

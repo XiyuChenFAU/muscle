@@ -32,6 +32,7 @@ private:
     void write2DvalueToFile(const std::vector<std::vector<double>>& value, std::ofstream& file, const std::string& name, const std::string& typenamevalue);
     void writephiToFile(model* Model);
     void writelengthToFile(model* Model);
+    void writelengthallToFile(model* Model);
     void writeforcenodeToFile(model* Model);
     void writetotalforceToFile(model* Model);
     void writebody_stateToFile(model* Model);

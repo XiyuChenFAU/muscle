@@ -49,11 +49,21 @@ MX objective::getlengthdisdiff(muscle* Muscle, const std::vector<std::vector<MX>
     return f_length*f_length;
 }
 
-MX objective::getnodelengthdisdiffall(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum){
+MX objective::getlengthdisdiff(const std::vector<MX>& gammalaststep, const std::vector<std::vector<MX>>& gammaallnode){
+
+    MX f_length=0;
+    for(int j=0;j<gammalaststep.size()/3-1;j++){
+        std::vector<MX> gammaallnodemuscle1; 
+        f_length=f_length + (gammaallnode[j+1][0] -gammaallnode[j][0]) *(gammaallnode[j+1][0] -gammaallnode[j][0])+(gammaallnode[j+1][1] -gammaallnode[j][1]) *(gammaallnode[j+1][1] -gammaallnode[j][1])+(gammaallnode[j+1][2] -gammaallnode[j][2]) *(gammaallnode[j+1][2] -gammaallnode[j][2]) -
+            ((gammalaststep[j*3+3]-gammalaststep[j*3])*(gammalaststep[j*3+3]-gammalaststep[j*3])+(gammalaststep[j*3+4]-gammalaststep[j*3+1])*(gammalaststep[j*3+4]-gammalaststep[j*3+1])+(gammalaststep[j*3+5]-gammalaststep[j*3+2])*(gammalaststep[j*3+5]-gammalaststep[j*3+2]));
+    }
+    return f_length*f_length;
+}
+
+MX objective::getnodelengthdisdiffall(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum, int use_p_variable, const std::vector<MX>& p_gamma_previous, const std::vector<MX>& p_mass_matrix){
     std::vector<std::vector<std::vector<MX>>> dataall=rearrange_gamma_eta(parm, x, musclenum);
     std::vector<std::vector<MX>> gammaallnode=dataall[0];
     muscle* Muscle=parm->getmuscleindex(musclenum);
-    std::vector<MX> nodediff=getnodedisdiff(Muscle,gammaallnode);
     std::vector<double> massmatrix=getmassmatrix(Muscle, jointposition);
 
     double massmatrixsum=0.0;
@@ -61,10 +71,21 @@ MX objective::getnodelengthdisdiffall(Parm* parm, MX x, const std::vector<std::v
         massmatrixsum=massmatrixsum+massmatrix[j];
     }
     massmatrixsum=massmatrixsum/massmatrix.size();
-    MX f_mass=getobjectivemass(nodediff,massmatrix);
-    MX lengthdiff=getlengthdisdiff(Muscle, gammaallnode);
+    if(massmatrixsum==0.0){massmatrixsum=1.0;}else{massmatrixsum=1.0/massmatrixsum;}
 
-    MX lengthdiff_all=f_mass+lengthdiff*massmatrixsum*lengthconstant;
+    MX lengthdiff_all;
+    if(use_p_variable){
+        std::vector<MX> nodediff=getnodedisdiff(p_gamma_previous, gammaallnode);
+        MX f_mass=getobjectivemass(nodediff,p_mass_matrix);
+        MX lengthdiff=getlengthdisdiff(p_gamma_previous, gammaallnode);
+        lengthdiff_all=f_mass+lengthdiff*massmatrixsum*lengthconstant;
+    } else {
+        std::vector<MX> nodediff=getnodedisdiff(Muscle,gammaallnode);
+        MX f_mass=getobjectivemass(nodediff,massmatrix);
+        MX lengthdiff=getlengthdisdiff(Muscle, gammaallnode);
+        lengthdiff_all=f_mass+lengthdiff*massmatrixsum*lengthconstant;
+    }
+    
 
     return lengthdiff_all;
 }
@@ -81,12 +102,27 @@ std::vector<MX> objective::getnodedisdiff(muscle* Muscle, const std::vector<std:
     return nodediff;
 }
 
+std::vector<MX> objective::getnodedisdiff(const std::vector<MX>& gammaprevious, const std::vector<std::vector<MX>>& gammaallnode){
+    std::vector<MX> nodediff;
+    for(int j=0;j<gammaprevious.size()/3;j++){        
+        for(int k=0;k<3;k++){
+            nodediff.push_back(gammaallnode[j][k]-gammaprevious[j*3+k]);
+        }
+    }
+    return nodediff;
+}
+
 std::vector<double> objective::getmassmatrix(muscle* Muscle, const std::vector<std::vector<double>>& jointposition){
     std::vector<std::vector<double>> gammapreviousall=Muscle->getgammaall();
     std::vector<double> gammalaststep=gammapreviousall.back();
     std::vector<double> massmatrix;
 
     for(int j=0;j<Muscle->getnodenum();j++){
+        if(casenum==0){
+            for(int k=0;k<3;k++){
+                massmatrix.push_back(0.0);
+            }
+        }
         if(casenum==1){
             for(int k=0;k<3;k++){
                 massmatrix.push_back(1.0);
@@ -122,14 +158,29 @@ MX objective::getobjectivemass(const std::vector<MX>& nodediff, const std::vecto
     return f_mass;
 }
 
-MX objective::getnodedisdiffall(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum){
+MX objective::getobjectivemass(const std::vector<MX>& nodediff, const std::vector<MX>& massmatrix){
+    MX f_mass=0;
+    for(int i=0;i<nodediff.size();i++){
+        f_mass=f_mass+nodediff[i]*nodediff[i]*massmatrix[i];
+    }
+    return f_mass;
+}
+
+MX objective::getnodedisdiffall(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum, int use_p_variable, const std::vector<MX>& p_gamma_previous, const std::vector<MX>& p_mass_matrix){
     std::vector<std::vector<std::vector<MX>>> dataall=rearrange_gamma_eta(parm, x, musclenum);
     std::vector<std::vector<MX>> gammaallnode=dataall[0];
     muscle* Muscle=parm->getmuscleindex(musclenum);
-    std::vector<MX> nodediff=getnodedisdiff(Muscle,gammaallnode);
-    std::vector<double> massmatrix=getmassmatrix(Muscle, jointposition);
-    MX f_mass=getobjectivemass(nodediff,massmatrix);
-    return f_mass;
+    MX f_mass;
+    if(use_p_variable){
+        std::vector<MX> nodediff=getnodedisdiff(p_gamma_previous, gammaallnode);
+        f_mass=getobjectivemass(nodediff,p_mass_matrix);
+        return f_mass;
+    }else{
+        std::vector<MX> nodediff=getnodedisdiff(Muscle,gammaallnode);
+        std::vector<double> massmatrix=getmassmatrix(Muscle, jointposition);
+        f_mass=getobjectivemass(nodediff,massmatrix);
+    }  
+    return f_mass;  
 }
 
 std::vector<std::vector<std::vector<MX>>> objective::rearrange_gamma_eta(Parm* parm, MX x, int musclenum){
@@ -158,19 +209,19 @@ std::vector<std::vector<std::vector<MX>>> objective::rearrange_gamma_eta(Parm* p
     return dataall;
 }
 
-MX objective::getobjective(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum){
+MX objective::getobjective(Parm* parm, MX x, const std::vector<std::vector<double>>& jointposition, int musclenum, int use_p_variable, const std::vector<MX>& p_gamma_previous, const std::vector<MX>& p_mass_matrix){
     switch(casenum){
         case 0:
             f = 0;
             break;
         case 1:
-            f = getnodedisdiffall(parm, x, jointposition, musclenum);
+            f = getnodedisdiffall(parm, x, jointposition, musclenum, use_p_variable, p_gamma_previous, p_mass_matrix);
             break;
         case 2:
-            f = getnodedisdiffall(parm, x, jointposition, musclenum);
+            f = getnodedisdiffall(parm, x, jointposition, musclenum, use_p_variable, p_gamma_previous, p_mass_matrix);
             break;
         case 3:
-            f = getnodelengthdisdiffall(parm, x, jointposition, musclenum);
+            f = getnodelengthdisdiffall(parm, x, jointposition, musclenum, use_p_variable, p_gamma_previous, p_mass_matrix);
     }
     return f;
 }

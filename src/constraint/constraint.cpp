@@ -20,21 +20,21 @@ constraint::~constraint(){
     delete Constraintshape;
 }
 
-std::vector<MX> constraint::constraints_shape_noeta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode){
+std::vector<MX> constraint::constraints_shape_noeta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, int use_p_variable, MX p_var){
     std::vector<MX> constraintshape;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
-        std::vector<MX> constraintshape1=Constraintshape->constraint_shape(gammaallnode[i+1], parm);
+        std::vector<MX> constraintshape1=Constraintshape->constraint_shape(gammaallnode[i+1], parm, use_p_variable, p_var);
         constraintshape.insert(constraintshape.end(), constraintshape1.begin(), constraintshape1.end());
     }
     return constraintshape;
 }
 
-std::vector<MX> constraint::constraintsnoeq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum){
+std::vector<MX> constraint::constraintsnoeq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum, int use_p_variable, MX p_var){
     std::vector<std::vector<MX>> gammaallnode=dataall[0];
     std::vector<std::vector<MX>> etaall=dataall[1];
     muscle* Muscle=parm->getmuscleindex(musclenum);
     std::vector<MX> constraint_noeq;
-    std::vector<MX> constraintsshapenoeta=constraints_shape_noeta(parm, Muscle, gammaallnode);
+    std::vector<MX> constraintsshapenoeta=constraints_shape_noeta(parm, Muscle, gammaallnode, use_p_variable, p_var);
     dict_constraint["inequality_constraint"]["constraint_phi"] = constraintsshapenoeta;
     constraint_noeq.insert(constraint_noeq.end(), constraintsshapenoeta.begin(), constraintsshapenoeta.end());
 
@@ -64,11 +64,11 @@ std::vector<MX> constraint::constraints_fix_muscle_two_side_point(muscle* Muscle
     return musclefix;
 }
 
-std::vector<MX> constraint::constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta){
+std::vector<MX> constraint::constraints_shape_eta(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta, int use_p_variable, MX p_var){
     std::vector<MX> constraintshapeeta;
     MX plus_value=0.0;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
-        std::vector<MX> constraintshapeeta1=constraintshape_time_eta(Constraintshape->constraint_shape(gammaallnode[i+1], parm), eta[i]);
+        std::vector<MX> constraintshapeeta1=constraintshape_time_eta(Constraintshape->constraint_shape(gammaallnode[i+1], parm, use_p_variable, p_var), eta[i]);
         if(phi_eta_plus){
             for(int j=0;j<constraintshapeeta1.size();j++){
                 plus_value=plus_value+constraintshapeeta1[j];
@@ -83,8 +83,8 @@ std::vector<MX> constraint::constraints_shape_eta(Parm* parm, muscle* Muscle, co
     return constraintshapeeta;
 }
 
-std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, int nodenum, const std::vector<std::vector<MX>>& eta) {
-    std::vector<std::vector<MX>> Jacobianshape=Constraintshape->Jacobianshape(gammaallnode[nodenum], parm);
+std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, int nodenum, const std::vector<std::vector<MX>>& eta, int use_p_variable, MX p_var) {
+    std::vector<std::vector<MX>> Jacobianshape=Constraintshape->Jacobianshape(gammaallnode[nodenum], parm, use_p_variable, p_var);
     std::vector<MX> Jacobian = Jacobian_time_eta(Jacobianshape, eta[nodenum-1]);
     std::vector<MX> geodesic = geodesic_function(gammaallnode[nodenum-1], gammaallnode[nodenum], gammaallnode[nodenum+1], (Muscle->getnodenum()-1.0)/1.0);
     std::vector<MX> ELeachnode;
@@ -95,24 +95,24 @@ std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle_eachn
     return ELeachnode;
 }
 
-std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta){
+std::vector<MX> constraint::constraints_Discrete_Euler_Lagrange_eachmuscle(Parm* parm, muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<std::vector<MX>>& eta, int use_p_variable, MX p_var){
 
     std::vector<MX> ELeachmuscle;
     for(int i=0; i<Muscle->getnodenum()-2;i++){
-        std::vector<MX> ELeachmuscle1=constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(parm, Muscle, gammaallnode, i+1, eta);
+        std::vector<MX> ELeachmuscle1=constraints_Discrete_Euler_Lagrange_eachmuscle_eachnode(parm, Muscle, gammaallnode, i+1, eta, use_p_variable, p_var);
         ELeachmuscle.insert(ELeachmuscle.end(), ELeachmuscle1.begin(), ELeachmuscle1.end());
     }
     return ELeachmuscle;
 }
 
-std::vector<MX> constraint::constraintseq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum){
+std::vector<MX> constraint::constraintseq(Parm* parm, const std::vector<std::vector<std::vector<MX>>>& dataall, int musclenum, int use_p_variable, MX p_var){
     std::vector<std::vector<MX>> gammaallnode=dataall[0];
     std::vector<std::vector<MX>> etaall=dataall[1];
     muscle* Muscle=parm->getmuscleindex(musclenum);
     std::vector<MX> constraint_eq;
 
-    std::vector<MX> gEuler = constraints_Discrete_Euler_Lagrange_eachmuscle(parm, Muscle, gammaallnode, etaall);
-    std::vector<MX> constraintshape=constraints_shape_eta(parm, Muscle, gammaallnode, etaall);
+    std::vector<MX> gEuler = constraints_Discrete_Euler_Lagrange_eachmuscle(parm, Muscle, gammaallnode, etaall, use_p_variable, p_var);
+    std::vector<MX> constraintshape=constraints_shape_eta(parm, Muscle, gammaallnode, etaall, use_p_variable, p_var);
     std::vector<MX> fixtwoside=constraints_fix_muscle_two_side_point(Muscle, gammaallnode);
 
     dict_constraint["equality_constraint"]["gEuler"] = gEuler;
@@ -153,18 +153,18 @@ std::vector<std::vector<std::vector<MX>>> constraint::rearrange_gamma_eta(Parm* 
     return dataall;
 }
 
-std::vector<MX> constraint::constraints(Parm* parm, MX x, int musclenum){
+std::vector<MX> constraint::constraints(Parm* parm, MX x, int musclenum, int use_p_variable, MX p_var){
     std::vector<std::vector<std::vector<MX>>> dataall= constraint::rearrange_gamma_eta(parm, x, musclenum);
     std::vector<MX> constraint;
     
     //eq
-    std::vector<MX> constrainteq=constraintseq(parm, dataall, musclenum);
+    std::vector<MX> constrainteq=constraintseq(parm, dataall, musclenum, use_p_variable, p_var);
     for (const auto& [innerKey, vec] : dict_constraint["equality_constraint"]) {
         constraint.insert(constraint.end(), dict_constraint["equality_constraint"][innerKey].begin(), dict_constraint["equality_constraint"][innerKey].end());
     }
-
+    
     //noeq
-    std::vector<MX> constraintnoeq=constraintsnoeq(parm, dataall, musclenum);
+    std::vector<MX> constraintnoeq=constraintsnoeq(parm, dataall, musclenum, use_p_variable, p_var);
     for (const auto& [innerKey, vec] : dict_constraint["inequality_constraint"]) {
         constraint.insert(constraint.end(), dict_constraint["inequality_constraint"][innerKey].begin(), dict_constraint["inequality_constraint"][innerKey].end());
     }

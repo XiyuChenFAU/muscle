@@ -24,6 +24,8 @@ public:
     constraint* getConstraint();
     objective* getObjective();
     initialguess* getInitialguess();
+    void set_use_p_variable(int value);
+    int get_use_p_variable();
     void solvesignorinirotate(Parm* parm);
     void solvesignorinistep(Parm* parm, int stepnum);
     int get_all_muscle_together();
@@ -36,6 +38,7 @@ private:
     objective* Objective=nullptr;
     initialguess* Initialguess=nullptr;
     int all_muscle_together=0;
+    int use_p_variable=0;
 };
 
 #endif // SOLVEEQ_H

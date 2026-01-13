@@ -286,6 +286,7 @@ void model::writejson(int write_gamma, int currentstepnum){
     Json::Value postprocessing;
     postprocessing["tol"]=Postprocessing->gettol();
     root["postprocessing"] = postprocessing;
+    root["use_p_variable"] = Solveeq->get_use_p_variable();
 
     root["save_interval"] = save_interval;
     root["output_path"] = folderpath;

@@ -172,6 +172,13 @@ std::vector<std::vector<double>> bodybasic::getq(){
     return q;
 }
 
+std::vector<double> bodybasic::getq_step(int index){
+    if(index<0){
+        index=q.size()+index;
+    }
+    return q[index];
+}
+
 std::vector<double> bodybasic::getrhobody(){
     return rhobody;
 }

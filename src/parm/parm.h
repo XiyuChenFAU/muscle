@@ -45,15 +45,17 @@ public:
     void updatechildbody(body* Body);
 
     void addmuscle(muscle* Muscle);
-    void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global=0);
-    void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue);
+    void addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum,int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue, const std::vector<std::string>& consider_body_list_value);
     void set_single_read_muscle_value(const std::string& name, int read_muscle_value);
+    void set_node_partition(int constraint_local_mode_number, const std::string& constraint_local_select_bodyname, int init_mode_nr, const std::string& init_select_bodyname, int first_step_index);
+    void set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value);
+    void delete_muscle_eta();
 
     void addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value);
 
     body* findbody(const std::string& bodyname);
     int findbodyindex(const std::string& bodyname);
-    void addmuslcesolution(const std::vector<double>& solution);
+    //void addmuslcesolution(const std::vector<double>& solution);
     void rotatebodyupdate(int stepnum);
     int getvariable();
     void setallmuscleinitialeta_gamma();

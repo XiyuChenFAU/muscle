@@ -296,15 +296,18 @@ void joint::updateall(int currentstepnum){
             startbody=currentbody;
         }
         if(joint_type=="revolute joint"){
+            if(g_enable_print){std::cout<<"revolute joint update "<<name<<" at step "<<currentstepnum<<" with angle "<<movement_per_step[0][currentstepnum]<<"\n";}
             std::vector<std::vector<double>> R = rotation_matrix_update(movement_per_step[0][currentstepnum], currentstepnum);
             revolute_update(startbody, R);
         }
         if(joint_type=="spherical joint"){
+            if(g_enable_print){std::cout<<"spherical joint update "<<name<<" at step "<<currentstepnum<<" with angles "<<movement_per_step[0][currentstepnum]<<", "<<movement_per_step[1][currentstepnum]<<", "<<movement_per_step[2][currentstepnum]<<"\n";}
             double current_rotation_angle=spherical_axis_angle(movement_per_step[0][currentstepnum], movement_per_step[1][currentstepnum], movement_per_step[2][currentstepnum]);
             std::vector<std::vector<double>> R = rotation_matrix_update(current_rotation_angle, currentstepnum);
             spherical_update(startbody,R);
         }
         if(joint_type=="translate joint"){
+            if(g_enable_print){std::cout<<"translate joint update "<<name<<" at step "<<currentstepnum<<" with translation "<<movement_per_step[0][currentstepnum]<<", "<<movement_per_step[1][currentstepnum]<<", "<<movement_per_step[2][currentstepnum]<<"\n";}
             currentstep.push_back(currentstepnum);
             absolute_pos_axis_update(currentstepnum);
             std::vector<double> translation_per_step={movement_per_step[0][currentstepnum], movement_per_step[1][currentstepnum], movement_per_step[2][currentstepnum]};

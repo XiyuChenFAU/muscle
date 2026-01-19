@@ -29,6 +29,7 @@ public:
     std::vector<double> getposition();
     std::vector<std::vector<double>> getaxis();
     std::vector<std::vector<double>> getq();
+    std::vector<double> getq_step(int index);
     std::vector<double> getrhobody();
     int getrotatestatus();
     std::vector<double> getinitialsetting_naxis();

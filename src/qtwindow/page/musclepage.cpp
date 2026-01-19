@@ -76,8 +76,9 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     //bodybasie
     setlabel("Muscle information", 10, 110,20);
 
-    musclenameEdit=settextandlabel("muscle name",musclenamestring, 10, 150, 450, 30, allfontsize);
-    nodenumEdit=settextandlabel("node number",nodenumstring, 660, 150, 450, 30, allfontsize);
+    musclenameEdit=settextandlabel("muscle name",musclenamestring, 10, 150, 340, 30, allfontsize);
+    nodenumEdit=settextandlabel("node number",nodenumstring, 450, 150, 340, 30, allfontsize);
+    setlabel("considered body list", 910, 150, allfontsize);
 
     buttonGroupgloballocal = new QButtonGroup;
     QRadioButton* radioButtonlocalnull = new QRadioButton(QString::fromStdString("null"), this);
@@ -97,31 +98,31 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     selectedValuelocal=0;
 
     setlabel("origin body name", 10, 270,allfontsize);
-    setlabel("origin position refer body coordinate", 300, 270, allfontsize);
+    setlabel("origin position refer body coordinate", 170, 270, allfontsize);
     positionrefer_o=qlabels.back();
-    rhooaxisxEdit = settextandlabel("axis x",rhoostring_axis_x, 360, 305, 100, 30, allfontsize);
-    rhooaxisyEdit = settextandlabel("axis y",rhoostring_axis_y, 360, 390, 100, 30, allfontsize);
-    rhooaxiszEdit = settextandlabel("axis z",rhoostring_axis_z, 360, 475, 100, 30, allfontsize);
+    rhooaxisxEdit = settextandlabel("axis x",rhoostring_axis_x, 230, 305, 100, 30, allfontsize);
+    rhooaxisyEdit = settextandlabel("axis y",rhoostring_axis_y, 230, 390, 100, 30, allfontsize);
+    rhooaxiszEdit = settextandlabel("axis z",rhoostring_axis_z, 230, 475, 100, 30, allfontsize);
 
-    setlabel("insertion body name", 660, 270,allfontsize);
-    setlabel("insertion position refer body coordinate", 950, 270, allfontsize);
+    setlabel("insertion body name", 450, 270,allfontsize);
+    setlabel("insertion position refer body coordinate", 620, 270, allfontsize);
     positionrefer_i=qlabels.back();
-    rhoiaxisxEdit = settextandlabel("axis x",rhoistring_axis_x, 1010, 305, 100, 30, allfontsize);
-    rhoiaxisyEdit = settextandlabel("axis y",rhoistring_axis_y, 1010, 390, 100, 30, allfontsize);
-    rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 1010, 475, 100, 30, allfontsize);
+    rhoiaxisxEdit = settextandlabel("axis x",rhoistring_axis_x, 680, 305, 100, 30, allfontsize);
+    rhoiaxisyEdit = settextandlabel("axis y",rhoistring_axis_y, 680, 390, 100, 30, allfontsize);
+    rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 680, 475, 100, 30, allfontsize);
 
     updatevalue();
 
     //save button
     savebutton = new QPushButton("Save", this);
     savebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    savebutton->setGeometry(1010, 570, 100, 50);
+    savebutton->setGeometry(680, 570, 100, 50);
     connect(savebutton, &QPushButton::clicked, this, &musclepage::savebuttonsetting);
 
     //delete button
     deletebutton = new QPushButton("Delete muscle", this);
     deletebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    deletebutton->setGeometry(1010, 660, 100, 50);
+    deletebutton->setGeometry(680, 660, 100, 50);
     connect(deletebutton, &QPushButton::clicked, this, &musclepage::deletebuttonsetting);
 }
 
@@ -162,6 +163,11 @@ musclepage::~musclepage(){
     delete rhoiaxisyEdit;
     delete rhoiaxiszEdit;
     delete rectanglemain;
+
+    for(int i=0; i<checkBoxes_body.size(); i++){
+        delete checkBoxes_body[i];
+    }
+    checkBoxes_body.clear();
 }
 
 QLineEdit* musclepage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -214,7 +220,7 @@ void musclepage::errorbox(std::string errormessage){
     errorMessage.exec();
 }
 
-void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal){
+void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal, const std::vector<std::string>& selectedBodies_value){
     
     musclenameEdit->setText(QString::fromStdString(name));
     nodenumEdit->setText(QString::fromStdString(std::to_string(nodenum)));
@@ -234,8 +240,18 @@ void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::str
     rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i[1])));
     rhoiaxiszEdit->setText(QString::fromStdString(doubletostring(rho_i[2])));
 
+    for(int i=0; i<checkBoxes_body.size(); i++){
+        checkBoxes_body[i]->setChecked(0);
+    }
+
+    for(int i=0; i<selectedBodies_value.size(); i++){
+        int body_index = setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(selectedBodies_value[i]);
+        checkBoxes_body[body_index]->setChecked(1);
+    }
+
     radioButtonsgloballocal[localglobal+1]->setChecked(true);
     selectedValuelocal=localglobal;
+
     setlocalglobal();
 }
 
@@ -245,7 +261,8 @@ void musclepage::plusbuttonsetting(){
         newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
         newmusclebutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70, 50, 70, 50);
         plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70+70, 50, 50, 50);
-        setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1);
+        std::vector<std::string> init_consider_body={};
+        setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1,init_consider_body);
         for(int i=0;i<musclebuttons.size();i++){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
         }
@@ -267,7 +284,11 @@ void musclepage::savebuttonsetting(){
     else{
         std::vector<double> rhooaxisvalue={rhooaxisxEdit->text().toDouble(),rhooaxisyEdit->text().toDouble(),rhooaxiszEdit->text().toDouble()};
         std::vector<double> rhoiaxisvalue={rhoiaxisxEdit->text().toDouble(),rhoiaxisyEdit->text().toDouble(),rhoiaxiszEdit->text().toDouble()};
-        setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo-1)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei-1)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal);
+        std::vector<std::string> consider_body_list_value={};
+        for(int i=0; i<selectedBodies.size(); i++){
+            consider_body_list_value.push_back(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedBodies[i])->getname());
+        }
+        setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo-1)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei-1)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal,{}, {}, consider_body_list_value);//set via point later
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()>musclebuttons.size()){
             newmusclebutton->setVisible(false);
             for(int i=0;i<musclebuttons.size();i++){
@@ -327,12 +348,20 @@ void musclepage::newmusclebuttonsetting(){
         musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
     }
     newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1);
+    std::vector<std::string> init_consider_body={};
+    setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1,init_consider_body);
 }
 
 void musclepage::showmusclesetting(int index){
     Muscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(index);
-    setalltextedit(Muscle->getrho_o(), Muscle->getrhoo_bodyname(), Muscle->getrho_i(), Muscle->getrhoi_bodyname(), Muscle->getname(), Muscle->getnodenum(), 0);
+    std::vector<std::string> consider_list=Muscle->get_consider_body_list();
+    if(consider_list.empty()){
+        std::vector<body*> allbody=setmodelwin->getRunmodel()->getModel()->getparm()->getallbody();
+        for(int i=1; i<allbody.size();i++){
+            consider_list.push_back(allbody[i]->getname());
+        }
+    }
+    setalltextedit(Muscle->getrho_o(), Muscle->getrhoo_bodyname(), Muscle->getrho_i(), Muscle->getrhoi_bodyname(), Muscle->getname(), Muscle->getnodenum(), 0,consider_list);
     for(int i=0;i<musclebuttons.size();i++){
         if(index==i){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
@@ -355,16 +384,16 @@ void musclepage::handleButtonClickedi(QAbstractButton* button){
 }
 
 void musclepage::setlocalglobal(){
-    
+        std::vector<node*> allnodes=Muscle->get_allnodes();
         if(selectedValuelocal==0){
             positionrefer_o->setText(QString::fromStdString("origin position refer body coordinate")); 
             positionrefer_i->setText(QString::fromStdString("insertion position refer body coordinate")); 
             if(Muscle!=nullptr){
-                std::vector<double> rho_o_position_local=Muscle->getrho_o();
+                std::vector<double> rho_o_position_local=allnodes[0]->get_rho();
                 rhooaxisxEdit->setText(QString::fromStdString(doubletostring(rho_o_position_local[0])));
                 rhooaxisyEdit->setText(QString::fromStdString(doubletostring(rho_o_position_local[1])));
                 rhooaxiszEdit->setText(QString::fromStdString(doubletostring(rho_o_position_local[2])));
-                std::vector<double> rho_i_position_local=Muscle->getrho_i();
+                std::vector<double> rho_i_position_local=allnodes.back()->get_rho();
                 rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i_position_local[0])));
                 rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i_position_local[1])));
                 rhoiaxiszEdit->setText(QString::fromStdString(doubletostring(rho_i_position_local[2])));
@@ -374,12 +403,13 @@ void musclepage::setlocalglobal(){
             positionrefer_o->setText(QString::fromStdString("origin position refer fix space")); 
             positionrefer_i->setText(QString::fromStdString("insertion position refer fix space"));
             if(Muscle!=nullptr){
-                std::vector<double> rho_o_position_global=Muscle->getrho_o_position_initial_global();
+                
+                std::vector<double> rho_o_position_global=allnodes[0]->get_gamma_node(0);
                 rhooaxisxEdit->setText(QString::fromStdString(doubletostring(rho_o_position_global[0])));
                 rhooaxisyEdit->setText(QString::fromStdString(doubletostring(rho_o_position_global[1])));
                 rhooaxiszEdit->setText(QString::fromStdString(doubletostring(rho_o_position_global[2])));
                 
-                std::vector<double> rho_i_position_global=Muscle->getrho_i_position_initial_global();
+                std::vector<double> rho_i_position_global=allnodes.back()->get_gamma_node(0);
                 rhoiaxisxEdit->setText(QString::fromStdString(doubletostring(rho_i_position_global[0])));
                 rhoiaxisyEdit->setText(QString::fromStdString(doubletostring(rho_i_position_global[1])));
                 rhoiaxiszEdit->setText(QString::fromStdString(doubletostring(rho_i_position_global[2])));
@@ -406,6 +436,10 @@ void musclepage::updatevalue(){
         delete buttonGroupi;
         buttonGroupi = nullptr;
     }
+    for (QCheckBox* btn : checkBoxes_body) {
+        if (btn) {delete btn;}
+    }
+    checkBoxes_body.clear();
 
     std::string rhoobodyname="";
     std::string rhoibodyname="";
@@ -426,7 +460,7 @@ void musclepage::updatevalue(){
     QRadioButton* radioButtonfixo = new QRadioButton(QString::fromStdString("fix_space"), this);
     radioButtonso.push_back(radioButtonfixo);
     radioButtonso[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtonso[1]->setGeometry(10, 300, 340, 30);
+    radioButtonso[1]->setGeometry(10, 300, 200, 30);
     radioButtonso[1]->show();
     buttonGroupo->addButton(radioButtonso[1], 0);
 
@@ -434,7 +468,7 @@ void musclepage::updatevalue(){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonso.push_back(radioButton);
         radioButtonso[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonso[i+2]->setGeometry(10, 300+(i+1)*40, 340, 30);
+        radioButtonso[i+2]->setGeometry(10, 300+(i+1)*40, 200, 30);
         radioButtonso[i+2]->show();
         buttonGroupo->addButton(radioButtonso[i+2], i+1);
     }
@@ -452,7 +486,7 @@ void musclepage::updatevalue(){
     QRadioButton* radioButtonfixi = new QRadioButton(QString::fromStdString("fix_space"), this);
     radioButtonsi.push_back(radioButtonfixi);
     radioButtonsi[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtonsi[1]->setGeometry(660, 300, 340, 30);
+    radioButtonsi[1]->setGeometry(450, 300, 200, 30);
     radioButtonsi[1]->show();
     buttonGroupi->addButton(radioButtonsi[1], 0);
 
@@ -461,7 +495,7 @@ void musclepage::updatevalue(){
         QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
         radioButtonsi.push_back(radioButton);
         radioButtonsi[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsi[i+2]->setGeometry(660, 300+(i+1)*40, 340, 30);
+        radioButtonsi[i+2]->setGeometry(450, 300+(i+1)*40, 200, 30);
         radioButtonsi[i+2]->show();
         buttonGroupi->addButton(radioButtonsi[i+2], i+1);
     }
@@ -469,6 +503,29 @@ void musclepage::updatevalue(){
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
     radioButtonsi[findbodyi+2]->setChecked(true);
     selectedValuei=findbodyi+1;
+    std::vector<std::string> consider_bodies = Muscle->get_consider_body_list();
+    int nBodies = setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
+    for (int i = 0; i < nBodies; ++i) {
+        std::string bodyName = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname();
+        QCheckBox* checkBox = new QCheckBox(QString::fromStdString(bodyName), this);
+        checkBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC; }");
+        checkBox->setGeometry(910, 190 + i * 40, 340, 30);
+        checkBox->show();
+        checkBoxes_body.push_back(checkBox);
+        connect(checkBox, &QCheckBox::stateChanged,this, &musclepage::handleCheckBoxChanged_body);
+    }
+    if(consider_bodies.size()){
+        for(int i=0; i<consider_bodies.size(); i++){
+            int body_index = setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(consider_bodies[i]);
+            checkBoxes_body[body_index]->setChecked(1);
+        }
+    } else {
+        for(int i=0; i<checkBoxes_body.size(); i++){
+            checkBoxes_body[i]->setChecked(1);
+        }
+    }
+    std::cout<<"test4\n";
+
 
     if (rectanglemain) {
         rectanglemain->update();
@@ -480,5 +537,14 @@ void musclepage::updatevalue(){
 void musclepage::handleButtonClickedtype(QAbstractButton* button){
     selectedValuelocal = buttonGroupgloballocal->id(button);
     setlocalglobal();
+}
+
+void musclepage::handleCheckBoxChanged_body(int state){
+    selectedBodies.clear();
+    for (int i = 0; i < checkBoxes_body.size(); ++i) {
+        if (checkBoxes_body[i]->isChecked()) {
+            selectedBodies.push_back(i);
+        }
+    }
 }
 

@@ -24,7 +24,8 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
             file << typenamevalue << "\t";
             file << rownum << "\t";
             for (int j=0;j<value.size();j++) {
-                file << value[j][i] << "\t";
+                if(write_precision){file << std::setprecision(17) << value[j][i] << "\t";} 
+                else {file << value[j][i] << "\t";}
             }
             file << "\n";
             rownum++;
@@ -92,6 +93,7 @@ void IO::writeanalyzeresultToFileAll(model* Model){
 
     writephiToFile(Model);
     writelengthToFile(Model);
+    writelengthallToFile(Model);
     writeforcenodeToFile(Model);
     writetotalforceToFile(Model);
     writebody_stateToFile(Model);
@@ -158,6 +160,42 @@ void IO::writelengthToFile(model* Model){
     file2.close();
 }
 
+void IO::writelengthallToFile(model* Model){
+
+    //create folder
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::vector<std::vector<std::vector<double>>> lengthall = Model->getPostprocessing()->getlengthall();
+    std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
+    std::vector<int> rotation=Model->getparm()->getallstep();
+
+    //lengthall
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_length_total_result.txt";
+    std::ofstream file2(filename);
+    //write titel
+    file2 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    for(int i=0;i<rotation.size();i++){file2 << rotation[i] << "\t";}
+    file2 << "\n";
+    //writevalue
+    for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        file2 << allmuscle[i]->getname() << "\t"<<"length"<<"\t"<<" "<<"\t";
+        std::vector<double> total_length_per_muscle={};
+        for(int j=0;j<lengthall[i].size();j++){
+            double total_length=0.0;
+            for(int k=0;k<lengthall[i][j].size();k++){
+                total_length=total_length+lengthall[i][j][k];
+            }
+            file2 << total_length << "\t";
+        }
+        file2 << "\n";
+    }
+    file2.close();
+}
+
 void IO::writeforcenodeToFile(model* Model){
 
     //create folder
@@ -211,7 +249,8 @@ void IO::writetotalforceToFile(model* Model){
         file4 << "totalforce" << "\t";
         file4 << 1 << "\t";
         for (int j=0;j<totalforceall[i].size();j++) {
-            file4 << totalforceall[i][j] << "\t";
+            if(write_precision){file4 << std::setprecision(17) << totalforceall[i][j] << "\t";} 
+            else {file4 << totalforceall[i][j] << "\t";}
         }
         file4 << "\n";
     }
@@ -324,9 +363,11 @@ void IO::writemomentarmnodeToFile(model* Model){
     file6 << "\n";
     //writevalue
     for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        int joint_index=0;
         for(int j =0;j<Model->getparm()->getn_joints();j++){
             if(alljoint[j]->getwritemomentarm()){
-                write2DvalueToFile(momentarmnodeall[i*(Model->getparm()->get_write_moment_joints())+j],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
+                write2DvalueToFile(momentarmnodeall[i*(Model->getparm()->get_write_moment_joints())+joint_index],file6,allmuscle[i]->getname()+"-"+alljoint[j]->getname(),"moment_arm_node");
+                joint_index++;
             }
         }
     }
@@ -356,13 +397,16 @@ void IO::writemomentarmToFile(model* Model){
     file7 << "\n";
     //writevalue
     for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        int joint_index=0;
         for(int j =0;j<Model->getparm()->getn_joints();j++){
             if(alljoint[j]->getwritemomentarm()){
                 file7 << allmuscle[i]->getname()+"-"+alljoint[j]->getname() << "\t"<<"moment_arm"<<"\t"<<1<<"\t";
-                for(int k =0;k<momentarmall[i*Model->getparm()->get_write_moment_joints()+j].size();k++){
-                    file7 << momentarmall[i*Model->getparm()->get_write_moment_joints()+j][k]<<"\t";
+                for(int k =0;k<momentarmall[i*Model->getparm()->get_write_moment_joints()+joint_index].size();k++){
+                    if(write_precision){file7 << std::setprecision(17) << momentarmall[i*Model->getparm()->get_write_moment_joints()+joint_index][k]<<"\t";} 
+                    else {file7 << momentarmall[i*Model->getparm()->get_write_moment_joints()+joint_index][k]<<"\t";}
                 }
                 file7 << "\n";
+                joint_index++;
             }
         }
     }
@@ -380,7 +424,8 @@ void IO::writerunningtimeToFile(model* Model){
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_runningtime_result.txt";
     std::ofstream file8(filename);
     //write titel
-    file8 << "run_time" << Model->get_elapsed_time() <<"\n";
+    if(write_precision){file8 << "run_time" << std::setprecision(17) << Model->get_elapsed_time() <<"\n";} 
+    else {file8 << "run_time" << Model->get_elapsed_time() <<"\n";}
     file8.close();
 }
 
@@ -642,6 +687,14 @@ model* IO::readmodel(const std::string&  jsonfilename){
         std::string musclename = muscleObject["muscle_name"].asString();
         int nodenumber = muscleObject["node_number"].asInt();
 
+        std::vector<std::string> consider_body_list_value={};
+        if (muscleObject.isMember("consider_body_list")) {
+            const Json::Value& consider_body_listArray = muscleObject["consider_body_list"];
+            for (const Json::Value& value : consider_body_listArray) {
+                consider_body_list_value.push_back(value.asString());
+            }
+        }
+
         std::vector<double> gammavalue={};
         std::vector<double> etavalue={};
         if (muscleObject.isMember("gamma")) {
@@ -659,11 +712,11 @@ model* IO::readmodel(const std::string&  jsonfilename){
         }
 
         if (gammavalue.empty() && etavalue.empty()) {
-            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0);
+            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0, {}, {}, consider_body_list_value);
             Model->getparm()->set_single_read_muscle_value(musclename, 0);
         }
         else{
-            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0, gammavalue, etavalue);
+            Model->getparm()->addmuscle(rho_o, rho_obodyname, rho_i, rho_ibodyname, musclename, nodenumber,0, gammavalue, etavalue, consider_body_list_value);
             int read_muscle_value = 3; // has value for both gamma and eta
             if(gammavalue.empty()){
                 read_muscle_value = 1; // only has value for eta
@@ -672,6 +725,20 @@ model* IO::readmodel(const std::string&  jsonfilename){
                 read_muscle_value = 2; // only has value for gamma
             }
             Model->getparm()->set_single_read_muscle_value(musclename, read_muscle_value);
+        }
+        std::vector<std::string> rho_via_point_bodyname={};
+        std::vector<std::vector<double>> rho_via_point_value={};
+        if (muscleObject.isMember("viapoint_node")) {
+            const Json::Value& viapointArray = muscleObject["viapoint_node"];
+            for (const Json::Value& viapoint_value : viapointArray) {
+                std::string rho_bodyname = viapoint_value["relative_body"].asString();
+                std::vector<double> rho_via;
+                const Json::Value& rho_viaArray = viapoint_value["rho_via"];
+                for (const Json::Value& rho_viaArray_value : rho_viaArray) {
+                    rho_via.push_back(rho_viaArray_value.asDouble());
+                }
+            }
+            Model->getparm()->set_muscle_viapoint_node(musclename, rho_via_point_bodyname, rho_via_point_value);
         }
     }
     //joint
@@ -750,18 +817,12 @@ model* IO::readmodel(const std::string&  jsonfilename){
     double length_constant=obj["length_constant"].asDouble();
     Model->getSolveeq()->getObjective()->setlengthconstant(length_constant);
 
-    if (root.isMember("use_phi_eta_plus_length")) {
-         int use_phi_eta_plus = root["use_phi_eta_plus_length"].asInt();
-         Model->getSolveeq()->getConstraint()->set_phi_eta_plus(use_phi_eta_plus);
-    } else{ //for milimeter cases!!!
-         Model->getSolveeq()->getConstraint()->set_phi_eta_plus(0);
-    }
 
-    if (root.isMember("calculate_all_muscle_together")) {
-         int all_muscle_together_value = root["calculate_all_muscle_together"].asInt();
-         Model->getSolveeq()->set_all_muscle_together(all_muscle_together_value);
+    if (root.isMember("use_p_variable")) {
+        int use_p_variable = root["use_p_variable"].asInt();
+        Model->getSolveeq()->set_use_p_variable(use_p_variable);
     } else{ //for milimeter cases!!!
-         Model->getSolveeq()->set_all_muscle_together(0);
+        Model->getSolveeq()->set_use_p_variable(0);
     }
 
     //initial guess setting
@@ -772,6 +833,27 @@ model* IO::readmodel(const std::string&  jsonfilename){
     Model->getSolveeq()->getInitialguess()->setcollision_check(collision_check_initial);
     std::string select_body_name = initial["select_body"].asString();
     Model->getSolveeq()->getInitialguess()->setselect_bodyname(select_body_name);
+
+    //constraint setting
+    const Json::Value& constraint = root["constraint"];
+    if (constraint.isMember("use_phi_eta_plus_length")) {
+        int use_phi_eta_plus = constraint["use_phi_eta_plus_length"].asInt();
+        Model->getSolveeq()->getConstraint()->set_phi_eta_plus(use_phi_eta_plus);
+    } else{ //for milimeter cases!!!
+        Model->getSolveeq()->getConstraint()->set_phi_eta_plus(0);
+    }
+    std::string local_select_bodyname=constraint["local_select_bodyname"].asString();
+    Model->getSolveeq()->getConstraint()->set_local_select_bodyname(local_select_bodyname);
+    int local_mode_number=constraint["local_mode_number"].asInt();
+    Model->getSolveeq()->getConstraint()->set_local_mode_number(local_mode_number);
+    if(local_mode_number>0){Model->getSolveeq()->getInitialguess()->setmode_nr(4);}
+
+    if (constraint.isMember("calculate_all_muscle_together")) {
+        int all_muscle_together_value = constraint["calculate_all_muscle_together"].asInt();
+        Model->getSolveeq()->set_all_muscle_together(all_muscle_together_value);
+    } else{ //for milimeter cases!!!
+        Model->getSolveeq()->set_all_muscle_together(0);
+    }
 
     //postprocessing
     const Json::Value& postprocessingvalue = root["postprocessing"];

@@ -20,15 +20,15 @@ using namespace casadi;
 class constraintshape {
 public:
     constraintshape();
-    std::vector<std::vector<MX>> Jacobianshape(const std::vector<MX>& gamma, Parm* parm);
-    std::vector<MX> Jacobianellipsoid(const std::vector<MX>& gamma, body* Body);
-    std::vector<MX> Jacobiancylinder(const std::vector<MX>& gamma, body* Body);
-    std::vector<MX> Jacobiantorus(const std::vector<MX>& gamma, body* Body); // new torus
+    std::vector<std::vector<MX>> Jacobianshape(muscle* Muscle, const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var);
+    std::vector<MX> Jacobianellipsoid(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input);
+    std::vector<MX> Jacobiancylinder(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input);
+    std::vector<MX> Jacobiantorus(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input); // new torus
 
-    std::vector<MX> constraint_shape(const std::vector<MX>& gamma, Parm* parm);
-    
-    MX constraint_ellipsoid(const std::vector<MX>& gamma, body* Body);
-    MX constraint_cylinder(const std::vector<MX>& gamma, body* Body);
-    MX constraint_torus(const std::vector<MX>& gamma, body* Body); // new torus
+    std::vector<MX> constraint_shape(muscle* Muscle, const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var);
+
+    MX constraint_ellipsoid(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input);
+    MX constraint_cylinder(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input);
+    MX constraint_torus(const std::vector<MX>& gamma, body* Body, int use_p_variable, std::vector<MX>& q_input); // new torus
 };
 #endif // SHAPE_CONSTRAINT_H test

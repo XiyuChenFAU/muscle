@@ -21,17 +21,17 @@ public:
 
     void setmode_nr(int number);
     void setcollision_check(int collision_check_num);
+    void setselect_bodyname(std::string bodyname);
     int getcollision_check();
     int getmode_nr();
-    void setselect_bodyname(std::string bodyname);
-    bool check_have_collision(const std::vector<double>& node, Parm* parm, int muscle_num, int node_num);
     std::string getselect_bodyname();
-
-    void setpartition(Parm* parm);
-    void setpartition_dynamic(Parm* parm);
-    void set_initialguessvalue(Parm* parm, int first_step);
     std::vector<std::vector<double>> get_initialguessvalue();
     std::vector<double> get_initialguessvalueindex(int index);
+    
+
+    bool check_have_collision(const std::vector<double>& node, Parm* parm, int muscle_num, int node_num);
+    void set_initialguessvalue(Parm* parm, int first_step);
+    
     void resetforrecalc();
     void print_partition(const std::vector<muscle*>& allmuscle);
 

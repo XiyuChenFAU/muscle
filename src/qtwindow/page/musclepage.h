@@ -36,7 +36,7 @@ public:
 
     void errorbox(std::string errormessage);
 
-    void setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal);
+    void setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal, const std::vector<std::string>& selectedBodies_value);
     void setlocalglobal();
     void updatevalue();
 
@@ -76,6 +76,9 @@ private:
     int selectedValuelocal=-1;
     muscle* Muscle=nullptr;
 
+    std::vector<QCheckBox*> checkBoxes_body;
+    std::vector<int> selectedBodies;
+
 private slots:
     void plusbuttonsetting();
     void savebuttonsetting();
@@ -85,6 +88,7 @@ private slots:
     void handleButtonClickedo(QAbstractButton* button);
     void handleButtonClickedi(QAbstractButton* button);
     void handleButtonClickedtype(QAbstractButton* button);
+    void handleCheckBoxChanged_body(int state);
 };
 
 #endif // MUSCLEPAGE_H

@@ -1,0 +1,229 @@
+{
+    "body": [
+        {
+            "body_name": "upperarm",
+            "body_parent_name": "fix_space",
+            "position_relative_parent_coordinate": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotation_angle": 60.0,
+            "rotation_axis_relative_parent_coordinate": [
+                0.0,
+                -1.0,
+                0.0
+            ],
+            "shape": {
+                "a": 173.85,
+                "b": 45.0,
+                "c": 45.0,
+                "length": 90.0,
+                "radius": 109.425,
+                "shape_name": "ellipsoid"
+            }
+        },
+        {
+            "body_name": "elbow",
+            "body_parent_name": "upperarm",
+            "position_relative_parent_coordinate": [
+                -173.84999999999997,
+                0.0,
+                0.0
+            ],
+            "rotation_angle": 0.0,
+            "rotation_axis_relative_parent_coordinate": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "shape": {
+                "a": 38.0,
+                "b": 45.0,
+                "c": 43.0,
+                "length": 86.0,
+                "radius": 41.5,
+                "shape_name": "ellipsoid"
+            }
+        },
+        {
+            "body_name": "forearm",
+            "body_parent_name": "elbow",
+            "position_relative_parent_coordinate": [
+                -141.99999999999994,
+                0.0,
+                -1.4210854715202004e-14
+            ],
+            "rotation_angle": 0.0,
+            "rotation_axis_relative_parent_coordinate": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "shape": {
+                "a": 142.0,
+                "b": 38.0,
+                "c": 38.0,
+                "length": 76.0,
+                "radius": 90.0,
+                "shape_name": "ellipsoid"
+            }
+        }
+    ],
+    "initial_guess": {
+        "collision_check": 1,
+        "mode_number": 0,
+        "select_body": "fix_space"
+    },
+    "ipoptsetting": {
+        "hessian_approximation": "",
+        "linear_solver": "mumps",
+        "max_iter": 2000,
+        "print_level": 5,
+        "tol": 1e-08
+    },
+    "joint": [
+        {
+            "joint_name": "joint_elbow",
+            "joint_type_name": "revolute joint",
+            "move_setting": [
+                [
+                    [
+                        0.0,
+                        160.0,
+                        40.0,
+                        0.0
+                    ]
+                ],
+                [],
+                []
+            ],
+            "movement": [
+                [
+                    0.0,
+                    9.0,
+                    18.0,
+                    27.0,
+                    36.0,
+                    45.0,
+                    54.0,
+                    63.0,
+                    72.0,
+                    81.0,
+                    90.0,
+                    99.0,
+                    108.0,
+                    117.0,
+                    126.0,
+                    135.0,
+                    126.0,
+                    117.0,
+                    108.0,
+                    99.0,
+                    90.0,
+                    81.0,
+                    72.0,
+                    63.0,
+                    54.0,
+                    45.0,
+                    36.0,
+                    27.0,
+                    18.0,
+                    9.0,
+                    0.0,
+                    9.0,
+                    18.0,
+                    27.0,
+                    36.0,
+                    45.0,
+                    54.0,
+                    63.0,
+                    72.0,
+                    81.0,
+                    90.0,
+                    99.0,
+                    108.0,
+                    117.0,
+                    126.0,
+                    135.0,
+                    126.0,
+                    117.0,
+                    108.0,
+                    99.0,
+                    90.0,
+                    81.0,
+                    72.0,
+                    63.0,
+                    54.0,
+                    45.0,
+                    36.0,
+                    27.0,
+                    18.0,
+                    9.0,
+                    0.0
+                ]
+            ],
+            "position_relative_rotate_body": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotate_body_name": "elbow",
+            "rotation_axis_relative_rotate_body": [
+                0.0,
+                1.0,
+                0.0
+            ]
+        }
+    ],
+    "muscle": [
+        {
+            "insertion_relative_body": "forearm",
+            "muscle_name": "triceps",
+            "node_number": 25,
+            "origin_relative_body": "upperarm",
+            "rho_insertion": [
+                127.8,
+                0.0,
+                -45.6
+            ],
+            "rho_origin": [
+                121.695,
+                0.0,
+                -45.0
+            ]
+        },
+        {
+            "insertion_relative_body": "forearm",
+            "muscle_name": "biceps",
+            "node_number": 25,
+            "origin_relative_body": "upperarm",
+            "rho_insertion": [
+                85.2,
+                38.0,
+                0.0
+            ],
+            "rho_origin": [
+                139.08,
+                0.0,
+                45.0
+            ]
+        }
+    ],
+    "name": "elbow_model_static",
+    "objective": {
+        "length_constant": 1.0,
+        "solvercase": 0
+    },
+    "postprocessing": {
+        "tol": 0.01
+    },
+    "save_interval": 10,
+    "use_p_variable": 1,
+    "constraint": {
+        "calculate_all_muscle_together": 1,
+        "use_phi_eta_plus_length": 1,
+        "local_mode_number": 0,
+        "local_select_bodyname": "upperarm"
+    }
+}

@@ -55,26 +55,35 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     check_all_muscle_together_CheckBox->setChecked(check_all_muscle_together_Value);
     connect(check_all_muscle_together_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged_all_muscle_together);
 
-    setlabel("solver setting", 10, 440,20);
+    check_use_p_variable_CheckBox = new QCheckBox("use p variable", this);
+    check_use_p_variable_CheckBox->setGeometry(10, 440, 340, 30);
+    check_use_p_variable_CheckBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC;}");
+
+    check_use_p_variable_Value = setmodelwin->getRunmodel()->getModel()->getSolveeq()->get_use_p_variable();
+    check_use_p_variable_CheckBox->setChecked(check_use_p_variable_Value);
+    connect(check_use_p_variable_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged_use_p_variable);
+
+
+    setlabel("solver setting", 10, 480,20);
 
     buttonGroup1 = new QButtonGroup;
 
     QRadioButton* radioButton1_1 = new QRadioButton("no objective", this);
     radioButtons.push_back(radioButton1_1);
     radioButtons[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[0]->setGeometry(10, 480, 450, 30);
+    radioButtons[0]->setGeometry(10, 520, 450, 30);
     QRadioButton* radioButton1_2 = new QRadioButton("minimize node distance", this);
     radioButtons.push_back(radioButton1_2);
     radioButtons[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[1]->setGeometry(10, 520, 450, 30);
+    radioButtons[1]->setGeometry(10, 560, 450, 30);
     QRadioButton* radioButton1_3 = new QRadioButton("minimize node distance with weight", this);
     radioButtons.push_back(radioButton1_3);
     radioButtons[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[2]->setGeometry(10, 560, 450, 30);
+    radioButtons[2]->setGeometry(10, 600, 450, 30);
     QRadioButton* radioButton1_4 = new QRadioButton("minimize node distance with length change", this);
     radioButtons.push_back(radioButton1_4);
     radioButtons[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons[3]->setGeometry(10, 600, 450, 30);
+    radioButtons[3]->setGeometry(10, 640, 450, 30);
 
     selectedValue = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getObjective()->getcasenum();
     radioButtons[selectedValue]->setChecked(true);
@@ -85,7 +94,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     buttonGroup1->addButton(radioButtons[3], 3); 
     connect(buttonGroup1, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked);
 
-    lengthconstEdit=settextandlabel("lenght spring constant",length_cons_string, 340, 575, 110, 30, allfontsize-4);
+    lengthconstEdit=settextandlabel("lenght spring constant",length_cons_string, 340, 615, 110, 30, allfontsize-4);
     lenghtspringlabel=qlabels.back();
     if(selectedValue==3){
         lengthconstEdit->setVisible(true);
@@ -96,63 +105,140 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
         lenghtspringlabel->setVisible(false);
     }
 
-    setlabel("local parameterization", 880, 110, 20);
+    setlabel("local parameterization", 760, 110, 20);
+
+    buttonGroup_localmode = new QButtonGroup;
+    QRadioButton* radioButton1_localmode_1 = new QRadioButton("initial guess", this);
+    radioButtons_localmode.push_back(radioButton1_localmode_1);
+    radioButtons_localmode[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_localmode[0]->setGeometry(760, 150, 100, 30);
+    QRadioButton* radioButton1_localmode_2 = new QRadioButton("local frame", this);
+    radioButtons_localmode.push_back(radioButton1_localmode_2);
+    radioButtons_localmode[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_localmode[1]->setGeometry(870, 150, 100, 30);
+
+    int local_frame_number = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->get_local_mode_number();
+    if(local_frame_number>0){
+        selectedValue_localmode = 1;
+    } else{
+        selectedValue_localmode = 0;
+    }
+    buttonGroup_localmode->addButton(radioButtons_localmode[0], 0);
+    buttonGroup_localmode->addButton(radioButtons_localmode[1], 1);
+    connect(buttonGroup_localmode, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_localmode);
+    radioButtons_localmode[selectedValue_localmode]->setChecked(true);
+
+    // initial guess mode
     buttonGroup_initial_mode = new QButtonGroup;
 
     QRadioButton* radioButton1_mode_1 = new QRadioButton("no local", this);
     radioButtons_mode.push_back(radioButton1_mode_1);
     radioButtons_mode[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[0]->setGeometry(880, 150, 200, 30);
+    radioButtons_mode[0]->setGeometry(760, 200, 200, 30);
     QRadioButton* radioButton1_mode_2 = new QRadioButton("local", this);
     radioButtons_mode.push_back(radioButton1_mode_2);
     radioButtons_mode[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[1]->setGeometry(880, 190, 200, 30);
+    radioButtons_mode[1]->setGeometry(760, 240, 200, 30);
     QRadioButton* radioButton1_mode_3 = new QRadioButton("auto local", this);
     radioButtons_mode.push_back(radioButton1_mode_3);
     radioButtons_mode[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[2]->setGeometry(880, 230, 200, 30);
+    radioButtons_mode[2]->setGeometry(760, 280, 200, 30);
     QRadioButton* radioButton1_mode_4 = new QRadioButton("auto local dynamic", this);
     radioButtons_mode.push_back(radioButton1_mode_4);
     radioButtons_mode[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtons_mode[3]->setGeometry(880, 270, 200, 30);
+    radioButtons_mode[3]->setGeometry(760, 320, 200, 30);
+    QRadioButton* radioButton1_mode_5 = new QRadioButton("constraint local frame", this);
+    radioButtons_mode.push_back(radioButton1_mode_5);
+    radioButtons_mode[4]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_mode[4]->setGeometry(760, 320, 200, 30);
+    radioButtons_mode[4]->setVisible(false);
 
     selectedValue_mode = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getmode_nr();
     buttonGroup_initial_mode->addButton(radioButtons_mode[0], 0);
     buttonGroup_initial_mode->addButton(radioButtons_mode[1], 1);
     buttonGroup_initial_mode->addButton(radioButtons_mode[2], 2); 
-    buttonGroup_initial_mode->addButton(radioButtons_mode[3], 3); 
+    buttonGroup_initial_mode->addButton(radioButtons_mode[3], 3);
+    buttonGroup_initial_mode->addButton(radioButtons_mode[4], 4);  
     connect(buttonGroup_initial_mode, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_mode);
     radioButtons_mode[selectedValue_mode]->setChecked(true);
+
+    // local frame constraint mode
+    buttonGroup_cons_mode = new QButtonGroup;
+    QRadioButton* radioButton1_cons_mode_1 = new QRadioButton("no local", this);
+    radioButtons_cons_mode.push_back(radioButton1_cons_mode_1);
+    radioButtons_cons_mode[0]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_cons_mode[0]->setGeometry(760, 200, 200, 30);
+    QRadioButton* radioButton1_cons_mode_2 = new QRadioButton("local", this);
+    radioButtons_cons_mode.push_back(radioButton1_cons_mode_2);
+    radioButtons_cons_mode[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_cons_mode[1]->setGeometry(760, 240, 200, 30);
+    QRadioButton* radioButton1_cons_mode_3 = new QRadioButton("auto local", this);
+    radioButtons_cons_mode.push_back(radioButton1_cons_mode_3);
+    radioButtons_cons_mode[2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_cons_mode[2]->setGeometry(760, 280, 200, 30);
+    QRadioButton* radioButton1_cons_mode_4 = new QRadioButton("auto local dynamic", this);
+    radioButtons_cons_mode.push_back(radioButton1_cons_mode_4);
+    radioButtons_cons_mode[3]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_cons_mode[3]->setGeometry(760, 320, 200, 30);
+
+    selectedValue_cons_mode = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->get_local_mode_number();
+    buttonGroup_cons_mode->addButton(radioButtons_cons_mode[0], 0);
+    buttonGroup_cons_mode->addButton(radioButtons_cons_mode[1], 1);
+    buttonGroup_cons_mode->addButton(radioButtons_cons_mode[2], 2); 
+    buttonGroup_cons_mode->addButton(radioButtons_cons_mode[3], 3); 
+    connect(buttonGroup_cons_mode, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_cons_mode);
+    radioButtons_cons_mode[selectedValue_cons_mode]->setChecked(true);
 
     updatevalue();
 
     check_collision_CheckBox = new QCheckBox("check collision", this);
-    check_collision_CheckBox->setGeometry(1100, 110, 340, 30);
+    check_collision_CheckBox->setGeometry(980, 110, 340, 30);
     check_collision_CheckBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC;}");
 
     check_collision_Value = setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getcollision_check();
     check_collision_CheckBox->setChecked(check_collision_Value);
     connect(check_collision_CheckBox, &QCheckBox::stateChanged, this, &solvesettingpage::handleCheckBoxChanged_collision);
 
-    if(selectedValue_mode==0){
+    if(selectedValue_localmode==0){
+        if(selectedValue_mode!=0){
+            check_collision_CheckBox->setVisible(true);
+        }
+        else{
+            check_collision_CheckBox->setVisible(false);
+        }
+        for (int i = 0; i < radioButtons_mode.size()-1; ++i) {radioButtons_mode[i]->setVisible(true);}
+        if(selectedValue_mode==1){
+            for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(true);}
+        } else{
+            for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(false);}
+        }
+        for (int i = 0; i < radioButtons_cons_mode.size(); ++i) {radioButtons_cons_mode[i]->setVisible(false);}
+        for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(false);}
+    } else{
         check_collision_CheckBox->setVisible(false);
-    }
-    else{
-        check_collision_CheckBox->setVisible(true);
+        for (int i = 0; i < radioButtons_mode.size(); ++i) {radioButtons_mode[i]->setVisible(false);}
+        for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(false);}
+        for (int i = 0; i < radioButtons_cons_mode.size(); ++i) {radioButtons_cons_mode[i]->setVisible(true);}
+        if(selectedValue_cons_mode==1){
+            for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(true);}
+        } else{
+            for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(false);}
+        }
+        
     }
 
 
     //Casadi setting
-    setlabel("Casadi setting", 570, 110, 20);
-    tolEdit=settextandlabel("tolerance",tol_string, 570, 150, 200, 30, allfontsize);
-    max_iterEdit=settextandlabel("max iteration",max_iter_string, 570, 230, 200, 30, allfontsize);
-    linear_solverEdit=settextandlabel("linear solver",linear_solver_string, 570, 310, 200, 30, allfontsize);
-    print_levelEdit=settextandlabel("print level",print_level_string, 570, 390, 200, 30, allfontsize);
-    hessian_approximationEdit=settextandlabel("hessian approximation",hessian_approximation_string, 570, 470, 200, 30, allfontsize);
+    setlabel("Casadi setting", 510, 110, 20);
+    tolEdit=settextandlabel("tolerance",tol_string, 510, 150, 200, 30, allfontsize);
+    max_iterEdit=settextandlabel("max iteration",max_iter_string, 510, 230, 200, 30, allfontsize);
+    linear_solverEdit=settextandlabel("linear solver",linear_solver_string, 510, 310, 200, 30, allfontsize);
+    print_levelEdit=settextandlabel("print level",print_level_string, 510, 390, 200, 30, allfontsize);
+    hessian_approximationEdit=settextandlabel("hessian approximation",hessian_approximation_string, 510, 470, 200, 30, allfontsize);
 
     //post processing setting
-    setlabel("Post processing setting", 570, 550,20);
-    tolpostprocessingEdit=settextandlabel("contact threshold",tolpostprocessing, 570, 600, 200, 30, allfontsize);
+    setlabel("Post processing setting", 510, 550,20);
+    tolpostprocessingEdit=settextandlabel("contact threshold",tolpostprocessing, 510, 600, 200, 30, allfontsize);
 
     //save button
     savebutton = new QPushButton("Save", this);
@@ -195,9 +281,26 @@ solvesettingpage::~solvesettingpage(){
         delete radioButtons_body[i];
     }
     delete buttonGroup_initial_body;
+
+    for(int i=0;i<radioButtons_localmode.size();i++){
+        delete radioButtons_localmode[i];
+    }
+    delete buttonGroup_localmode;
+
+    for(int i=0;i<radioButtons_cons_mode.size();i++){
+        delete radioButtons_cons_mode[i];
+    }
+    delete buttonGroup_cons_mode;
+
+    for(int i=0;i<radioButtons_cons_body.size();i++){
+        delete radioButtons_cons_body[i];
+    }
+    delete buttonGroup_cons_body;
+
     delete check_collision_CheckBox;
     delete check_phi_eta_plus_CheckBox;
     delete check_all_muscle_together_CheckBox;
+    delete check_use_p_variable_CheckBox;
 }
 
 QLineEdit* solvesettingpage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -254,10 +357,12 @@ void solvesettingpage::savesetting(){
         setmodelwin->getRunmodel()->getModel()->setfolderpath(savepathEdit->text().toStdString());
         setmodelwin->getRunmodel()->getModel()->getPostprocessing()->settol(tolpostprocessingEdit->text().toDouble());
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->setipoptoption(tolEdit->text().toDouble(),max_iterEdit->text().toInt(),linear_solverEdit->text().toStdString(),print_levelEdit->text().toInt(),hessian_approximationEdit->text().toStdString());
-        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setmode_nr(selectedValue_mode);
-        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setcollision_check(check_collision_Value);
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->set_phi_eta_plus(check_phi_eta_plus_Value);
         setmodelwin->getRunmodel()->getModel()->getSolveeq()->set_all_muscle_together(check_all_muscle_together_Value);
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->set_use_p_variable(check_use_p_variable_Value);
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->set_local_parameter(selectedValue_localmode, selectedValue_mode, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValue_body-1)->getname(), selectedValue_cons_mode, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValue_cons_body-1)->getname(), check_collision_Value);
+
+        setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setmode_nr(selectedValue_mode);
         if(selectedValue_mode==1){
             setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->setselect_bodyname(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValue_body-1)->getname());
         }
@@ -284,7 +389,6 @@ void solvesettingpage::updatevalue(){
         buttonGroup_initial_body = nullptr;
     }
 
-
     buttonGroup_initial_body = new QButtonGroup();
     QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
     radioButtoni->setVisible(false);
@@ -294,7 +398,7 @@ void solvesettingpage::updatevalue(){
         QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
         radioButtons_body.push_back(radioButton_body);
         radioButtons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtons_body[i+1]->setGeometry(1100, 150+i*40, 340, 30);
+        radioButtons_body[i+1]->setGeometry(980, 150+i*40, 340, 30);
         radioButtons_body[i+1]->show();
         buttonGroup_initial_body->addButton(radioButtons_body[i+1], i);
     }
@@ -314,6 +418,48 @@ void solvesettingpage::updatevalue(){
             radioButtons_body[i]->setVisible(false);
         }
     }
+
+    //delete old cons_body information
+    for (QRadioButton* btn : radioButtons_cons_body) {
+        if (btn) {delete btn;}
+    }
+    radioButtons_cons_body.clear();
+    if (buttonGroup_cons_body) {
+        delete buttonGroup_cons_body;
+        buttonGroup_cons_body = nullptr;
+    }
+
+    buttonGroup_cons_body = new QButtonGroup();
+    QRadioButton* radioButton_cons_i = new QRadioButton(QString::fromStdString("null"), this);
+    radioButton_cons_i->setVisible(false);
+    radioButtons_cons_body.push_back(radioButton_cons_i);
+    buttonGroup_cons_body->addButton(radioButtons_cons_body[0], -1);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1;i++){
+        QRadioButton* radioButton_cons_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
+        radioButtons_cons_body.push_back(radioButton_cons_body);
+        radioButtons_cons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtons_cons_body[i+1]->setGeometry(980, 150+i*40, 340, 30);
+        radioButtons_cons_body[i+1]->show();
+        buttonGroup_cons_body->addButton(radioButtons_cons_body[i+1], i);
+    }
+    connect(buttonGroup_cons_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_cons_body);
+    std::string consbodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->get_local_select_bodyname();
+    int findbodycons=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(consbodyname);
+    radioButtons_cons_body[findbodycons+2]->setChecked(true);
+    selectedValue_cons_body=findbodycons+1;
+
+    if(selectedValue_cons_mode==1){
+        for (int i = 1; i < radioButtons_cons_body.size(); ++i) {
+            radioButtons_cons_body[i]->setVisible(true);
+        }
+    }
+    else{
+        for (int i =  1; i < radioButtons_cons_body.size(); ++i) {
+            radioButtons_cons_body[i]->setVisible(false);
+        }
+    }
+
+
     if (rectangle) {
         rectangle->update();
         rectangle->show();
@@ -340,6 +486,38 @@ void solvesettingpage::handleButtonClicked(QAbstractButton* button){
     }
 }
 
+void solvesettingpage::handleButtonClicked_localmode(QAbstractButton* button){
+    selectedValue_localmode = buttonGroup_localmode->id(button);
+    if(selectedValue_localmode==0){
+        if(selectedValue_mode!=0){
+            check_collision_CheckBox->setVisible(true);
+        }
+        else{
+            check_collision_CheckBox->setVisible(false);
+        }
+        for (int i = 0; i < radioButtons_mode.size()-1; ++i) {radioButtons_mode[i]->setVisible(true);}
+        if(selectedValue_mode==1){
+            for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(true);}
+        } else{
+            for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(false);}
+        }
+        for (int i = 0; i < radioButtons_cons_mode.size(); ++i) {radioButtons_cons_mode[i]->setVisible(false);}
+        for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(false);}
+    } else{
+        check_collision_CheckBox->setVisible(false);
+        for (int i = 0; i < radioButtons_mode.size(); ++i) {radioButtons_mode[i]->setVisible(false);}
+        for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(false);}
+        for (int i = 0; i < radioButtons_cons_mode.size(); ++i) {radioButtons_cons_mode[i]->setVisible(true);}
+        if(selectedValue_cons_mode==1){
+            for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(true);}
+        } else{
+            for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(false);}
+        }
+        
+    }
+    
+}
+
 void solvesettingpage::handleButtonClicked_mode(QAbstractButton* button){
     selectedValue_mode = buttonGroup_initial_mode->id(button);
     if(selectedValue_mode==1){
@@ -352,16 +530,35 @@ void solvesettingpage::handleButtonClicked_mode(QAbstractButton* button){
             radioButtons_body[i]->setVisible(false);
         }
     }
-    if(selectedValue_mode==0){
-        check_collision_CheckBox->setVisible(false);
+    if(selectedValue_mode!=0 && selectedValue_localmode == 0){
+        check_collision_CheckBox->setVisible(true);
     }
     else{
-        check_collision_CheckBox->setVisible(true);
+        check_collision_CheckBox->setVisible(false);
     }
 }
 
 void solvesettingpage::handleButtonClicked_body(QAbstractButton* button){
     selectedValue_body = buttonGroup_initial_body->id(button);
+}
+
+void solvesettingpage::handleButtonClicked_cons_mode(QAbstractButton* button){
+    selectedValue_cons_mode = buttonGroup_cons_mode->id(button);
+    if(selectedValue_cons_mode==1){
+        for (int i = 1; i < radioButtons_cons_body.size(); ++i) {
+            radioButtons_cons_body[i]->setVisible(true);
+        }
+    }
+    else{
+        for (int i =  1; i < radioButtons_cons_body.size(); ++i) {
+            radioButtons_cons_body[i]->setVisible(false);
+        }
+    }
+    check_collision_CheckBox->setVisible(false);
+}
+
+void solvesettingpage::handleButtonClicked_cons_body(QAbstractButton* button){
+    selectedValue_cons_body = buttonGroup_cons_body->id(button);
 }
 
 void solvesettingpage::handleCheckBoxChanged_collision(int state)
@@ -377,4 +574,9 @@ void solvesettingpage::handleCheckBoxChanged_phi_eta_plus(int state)
 void solvesettingpage::handleCheckBoxChanged_all_muscle_together(int state)
 {
     check_all_muscle_together_Value = (state == Qt::Checked) ? 1 : 0;
+}
+
+void solvesettingpage::handleCheckBoxChanged_use_p_variable(int state)
+{
+    check_use_p_variable_Value = (state == Qt::Checked) ? 1 : 0;
 }

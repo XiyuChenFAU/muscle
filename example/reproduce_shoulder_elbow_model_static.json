@@ -1,0 +1,291 @@
+{
+    "body": [
+        {
+            "body_name": "wrap_scapula_blade",
+            "body_parent_name": "fix_space",
+            "position_relative_parent_coordinate": [
+                2.74258,
+                111.457,
+                116.205
+            ],
+            "rotation_angle": 43.892,
+            "rotation_axis_relative_parent_coordinate": [
+                0.463719,
+                -0.702434,
+                0.539955
+            ],
+            "shape": {
+                "a": 30.0,
+                "b": 5.0,
+                "c": 70.0,
+                "length": 140.0,
+                "radius": 17.5,
+                "shape_name": "ellipsoid"
+            }
+        },
+        {
+            "body_name": "humeral_head",
+            "body_parent_name": "wrap_scapula_blade",
+            "position_relative_parent_coordinate": [
+                -43.5713,
+                -2.59379,
+                84.4314
+            ],
+            "rotation_angle": 108.05,
+            "rotation_axis_relative_parent_coordinate": [
+                0.735554,
+                0.048841,
+                -0.675704
+            ],
+            "shape": {
+                "a": 20.93,
+                "b": 20.93,
+                "c": 20.93,
+                "length": 41.86,
+                "radius": 20.93,
+                "shape_name": "ellipsoid"
+            }
+        },
+        {
+            "body_name": "humeral_shaft",
+            "body_parent_name": "humeral_head",
+            "position_relative_parent_coordinate": [
+                23.9525,
+                -168.259,
+                -36.5905
+            ],
+            "rotation_angle": 121.593,
+            "rotation_axis_relative_parent_coordinate": [
+                0.674805,
+                -0.651374,
+                0.346916
+            ],
+            "shape": {
+                "a": 45.0,
+                "b": 45.0,
+                "c": 173.85,
+                "length": 347.7,
+                "radius": 45.0,
+                "shape_name": "ellipsoid"
+            }
+        },
+        {
+            "body_name": "elbow",
+            "body_parent_name": "humeral_shaft",
+            "position_relative_parent_coordinate": [
+                0.0,
+                0.0,
+                173.85
+            ],
+            "rotation_angle": 0.0,
+            "rotation_axis_relative_parent_coordinate": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "shape": {
+                "a": 45.0,
+                "b": 43.0,
+                "c": 37.0,
+                "length": 74.0,
+                "radius": 44.0,
+                "shape_name": "ellipsoid"
+            }
+        },
+        {
+            "body_name": "forearm",
+            "body_parent_name": "elbow",
+            "position_relative_parent_coordinate": [
+                0.0,
+                0.0,
+                142.0
+            ],
+            "rotation_angle": 0.0,
+            "rotation_axis_relative_parent_coordinate": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "shape": {
+                "a": 38.0,
+                "b": 38.0,
+                "c": 142.0,
+                "length": 284.0,
+                "radius": 38.0,
+                "shape_name": "ellipsoid"
+            }
+        }
+    ],
+    "constraint": {
+        "calculate_all_muscle_together": 1,
+        "local_mode_number": 0,
+        "local_select_bodyname": "humeral_shaft",
+        "use_phi_eta_plus_length": 1
+    },
+    "initial_guess": {
+        "collision_check": 0,
+        "mode_number": 0,
+        "select_body": "humeral_head"
+    },
+    "ipoptsetting": {
+        "hessian_approximation": "",
+        "linear_solver": "mumps",
+        "max_iter": 2000,
+        "print_level": 5,
+        "tol": 1e-08
+    },
+    "joint": [
+        {
+            "joint_name": "joint_elbow",
+            "joint_type_name": "revolute joint",
+            "move_setting": [
+                [
+                    [
+                        0.0,
+                        160.0,
+                        40.0,
+                        0.0
+                    ]
+                ],
+                [],
+                []
+            ],
+            "movement": [
+                [
+                    0.0,
+                    9.0,
+                    18.0,
+                    27.0,
+                    36.0,
+                    45.0,
+                    54.0,
+                    63.0,
+                    72.0,
+                    81.0,
+                    90.0,
+                    99.0,
+                    108.0,
+                    117.0,
+                    126.0,
+                    135.0,
+                    126.0,
+                    117.0,
+                    108.0,
+                    99.0,
+                    90.0,
+                    81.0,
+                    72.0,
+                    63.0,
+                    54.0,
+                    45.0,
+                    36.0,
+                    27.0,
+                    18.0,
+                    9.0,
+                    0.0,
+                    9.0,
+                    18.0,
+                    27.0,
+                    36.0,
+                    45.0,
+                    54.0,
+                    63.0,
+                    72.0,
+                    81.0,
+                    90.0,
+                    99.0,
+                    108.0,
+                    117.0,
+                    126.0,
+                    135.0,
+                    126.0,
+                    117.0,
+                    108.0,
+                    99.0,
+                    90.0,
+                    81.0,
+                    72.0,
+                    63.0,
+                    54.0,
+                    45.0,
+                    36.0,
+                    27.0,
+                    18.0,
+                    9.0,
+                    0.0
+                ]
+            ],
+            "position_relative_rotate_body": [
+                0.0,
+                0.0,
+                0.0
+            ],
+            "rotate_body_name": "elbow",
+            "rotation_axis_relative_rotate_body": [
+                1.0,
+                0.0,
+                0.0
+            ]
+        }
+    ],
+    "muscle": [
+        {
+            "consider_body_list": [
+                "wrap_scapula_blade",
+                "humeral_head",
+                "humeral_shaft",
+                "elbow",
+                "forearm"
+            ],
+            "insertion_relative_body": "forearm",
+            "muscle_name": "triceps",
+            "node_number": 25,
+            "origin_relative_body": "humeral_shaft",
+            "rho_insertion": [
+                0.0001072395583731714,
+                45.60006420432961,
+                -127.80037303119363
+            ],
+            "rho_origin": [
+                0.00010273201496065177,
+                45.00006482352325,
+                -121.6953546891493
+            ],
+            "viapoint_node": []
+        },
+        {
+            "consider_body_list": [
+                "wrap_scapula_blade",
+                "humeral_head",
+                "humeral_shaft",
+                "elbow",
+                "forearm"
+            ],
+            "insertion_relative_body": "forearm",
+            "muscle_name": "biceps",
+            "node_number": 25,
+            "origin_relative_body": "humeral_shaft",
+            "rho_insertion": [
+                38.0001421351976,
+                -1.338417758312005e-05,
+                -85.2002853496042
+            ],
+            "rho_origin": [
+                7.981649053513424e-05,
+                -45.000151130326145,
+                -139.08043727328993
+            ],
+            "viapoint_node": []
+        }
+    ],
+    "name": "shoulder_elbow_model_static",
+    "objective": {
+        "length_constant": 1000.0,
+        "solvercase": 0
+    },
+    "postprocessing": {
+        "tol": 0.001
+    },
+    "save_interval": 25,
+    "use_p_variable": 1
+}

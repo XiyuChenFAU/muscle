@@ -193,6 +193,30 @@ void model::writejson(int write_gamma, int currentstepnum){
         muscleObject["insertion_relative_body"]=allmuscle[i]->getrhoi_bodyname();
         muscleObject["node_number"]=allmuscle[i]->getnodenum();
 
+        std::vector<node*> all_via_point = allmuscle[i]->getvia_point_list();
+        Json::Value viapoint_node_array(Json::arrayValue);
+        for(int j=0;j<all_via_point.size();j++){
+            Json::Value viapoint_node_value;
+            viapoint_node_value["relative_body"]=all_via_point[j]->get_ref_body(0)->getname();
+            Json::Value rho_via(Json::arrayValue);
+            for (const auto& value : all_via_point[j]->get_rho()) {
+                rho_via.append(value);
+            }
+            viapoint_node_value["rho_via"]=rho_via;
+            viapoint_node_array.append(viapoint_node_value);
+        }
+        muscleObject["viapoint_node"]=viapoint_node_array;
+
+        Json::Value consider_body_list_array(Json::arrayValue);
+        if(allmuscle[i]->get_consider_body_list().size()>0){
+            for (const auto& value : allmuscle[i]->get_consider_body_list()) {
+                consider_body_list_array.append(value);
+            }
+            muscleObject["consider_body_list"]=consider_body_list_array;
+        } 
+        muscleObject["consider_body_list"]=consider_body_list_array;
+        
+
         if(write_gamma){
             std::vector<std::vector<double>> gammaall = allmuscle[i]->getgammaall();
             Json::Value gamma(Json::arrayValue);
@@ -232,6 +256,8 @@ void model::writejson(int write_gamma, int currentstepnum){
         jointObject["rotation_axis_relative_rotate_body"] = axisvectorvalue;
         if(parm->getjointindex(i)->getmove_all_body()){
             jointObject["move_all_bodys"] = parm->getjointindex(i)->getmove_all_body();
+        } else{
+            jointObject["move_all_bodys"] = 0;
         }
 
         Json::Value move_setting_value(Json::arrayValue);
@@ -291,13 +317,20 @@ void model::writejson(int write_gamma, int currentstepnum){
     root["save_interval"] = save_interval;
     root["output_path"] = folderpath;
 
+    Json::Value constraint;
+    constraint["local_select_bodyname"]=Solveeq->getConstraint()->get_local_select_bodyname();
+    constraint["local_mode_number"]=Solveeq->getConstraint()->get_local_mode_number();
     if(Solveeq->getConstraint()->get_phi_eta_plus()){
-        root["use_phi_eta_plus_length"] = 1;
+        constraint["use_phi_eta_plus_length"] = 1;
+    } else{
+        constraint["use_phi_eta_plus_length"] = 0;
     }
-
     if(Solveeq->get_all_muscle_together()){
-        root["calculate_all_muscle_together"] = 1;
+        constraint["calculate_all_muscle_together"] = 1;
+    } else{
+        constraint["calculate_all_muscle_together"] = 0;
     }
+    root["constraint"] = constraint;  
 
     // change json object to string
     Json::StreamWriterBuilder writer;

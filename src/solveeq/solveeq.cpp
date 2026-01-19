@@ -154,7 +154,7 @@ void solveeq::solvesignorinirotate(Parm* parm){
         for(int i=0;i<parm->getn_muscles();i++){
             int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
             std::vector<double> singlemusclesolution(solution.begin()+start_index,solution.begin()+start_index+variablenum);
-            allmuscle[i]->addmuscleparm(singlemusclesolution);
+            allmuscle[i]->addmuscleparm(singlemusclesolution, Constraint->get_local_mode_number());
             start_index=start_index+variablenum;
         }
     }
@@ -212,14 +212,12 @@ void solveeq::solvesignorinirotate(Parm* parm){
                     std::vector<double>  q=allbody[j+1]->getbodybasic()->getq().back();
                     p_var_init.insert(p_var_init.end(), q.begin(), q.end());
                 }
-                for(int j=0;j<parm->getn_muscles();j++){
-                    std::vector<std::vector<double>> gammaall = allmuscle[j]->getgammaall();
-                    p_var_init.insert(p_var_init.end(), gammaall.back().begin(), gammaall.back().end());
-                }
-                for(int j=0;j<parm->getn_muscles();j++){
-                    std::vector<double> mass_matrix = Objective->getmassmatrix(allmuscle[j], jointnaxisall);
-                    p_var_init.insert(p_var_init.end(), mass_matrix.begin(), mass_matrix.end());
-                }
+                std::vector<std::vector<double>> gammaall = allmuscle[i]->getgammaall();
+                p_var_init.insert(p_var_init.end(), gammaall.back().begin(), gammaall.back().end());
+            
+                std::vector<double> mass_matrix = Objective->getmassmatrix(allmuscle[i], jointnaxisall);
+                p_var_init.insert(p_var_init.end(), mass_matrix.begin(), mass_matrix.end());
+                
                 arg["p"] = p_var_init;
             }
             // Solve the NLP
@@ -228,23 +226,20 @@ void solveeq::solvesignorinirotate(Parm* parm){
             for (int i = 0; i < x0.size(); i++) {
                 solution.push_back(static_cast<double>(res.at("x")(i)));
             }
-            allmuscle[i]->addmuscleparm(solution);
+            allmuscle[i]->addmuscleparm(solution, Constraint->get_local_mode_number());
         }
     }
 }
 
 void solveeq::solvesignorinistep(Parm* parm, int stepnum){
+    if(stepnum==0){parm->set_node_partition(Constraint->get_local_mode_number(), Constraint->get_local_select_bodyname(), Initialguess->getmode_nr(), Initialguess->getselect_bodyname(), 1);}
     if(g_enable_print){parm->set_body_R_initial();}
-    if(stepnum!=0){
-        Initialguess->setpartition_dynamic(parm);
-    }
     parm->rotatebodyupdate(stepnum);
     if(g_enable_print){parm->check_body_R();}
+    parm->set_node_partition(Constraint->get_local_mode_number(), Constraint->get_local_select_bodyname(), Initialguess->getmode_nr(), Initialguess->getselect_bodyname(), 0);
     if(stepnum==0){
         parm->setallmuscleinitialeta_gamma();
-        Initialguess->setpartition(parm);
         Initialguess->set_initialguessvalue(parm, 1);
-
     }else{
         Initialguess->set_initialguessvalue(parm, 0);
     }
@@ -257,5 +252,21 @@ int solveeq::get_all_muscle_together(){
 
 void solveeq::set_all_muscle_together(int value){
     all_muscle_together=value;
+}
+
+void solveeq::set_local_parameter(int selectedValue_localmode, int selectedValue_mode, const std::string&  selectedValue_body, int selectedValue_cons_mode, const std::string&  selectedValue_cons_body, int check_collision_Value){
+    if(selectedValue_localmode){ //use local frame
+        Initialguess->setcollision_check(0);
+        Initialguess->setmode_nr(4);
+        Initialguess->setselect_bodyname(selectedValue_body);
+        Constraint->set_local_mode_number(selectedValue_cons_mode);
+        Constraint->set_local_select_bodyname(selectedValue_cons_body);
+    } else {
+        Initialguess->setcollision_check(check_collision_Value);
+        Initialguess->setmode_nr(selectedValue_mode);
+        Initialguess->setselect_bodyname(selectedValue_body);
+        Constraint->set_local_mode_number(0);
+        Constraint->set_local_select_bodyname(selectedValue_cons_body);
+    }
 }
 

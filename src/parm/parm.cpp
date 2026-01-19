@@ -195,6 +195,7 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
         else{
             Body->setbodybasic(naxis, rotationangle, rhobody,addnew);
         }
+        delete_muscle_eta();
         allbody.push_back(Body);
         n_bodies=n_bodies+1;
     }
@@ -230,6 +231,7 @@ void Parm::addbody(const std::string& bodyname, const std::string& parentbodynam
         else{
             Body->setbodybasic(naxis, rotationangle, rhobody,addnew);
         }
+        delete_muscle_eta();
         allbody.push_back(Body);
         n_bodies=n_bodies+1;
     }
@@ -259,15 +261,15 @@ void Parm::addmuscle(muscle* Muscle){
     }    
 }
 
-void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int global){
+void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue, const std::vector<std::string>& consider_body_list_value){
     int add_muscle=1;
     for(int i=0;i<allmuscle.size();i++){
         if(allmuscle[i]->getname()==name){
             if(global){
-                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global);
+                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global, gammavalue, etavalue, consider_body_list_value);
             }
             else{
-                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum);
+                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, gammavalue, etavalue, consider_body_list_value);
             }
             add_muscle=0;
             break;
@@ -276,37 +278,10 @@ void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo
     if(add_muscle){
         muscle* Muscle=nullptr;
         if(global){
-            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global);
+            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global, gammavalue, etavalue, consider_body_list_value);
         }
         else{
-            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum);
-        }
-        allmuscle.push_back(Muscle);
-        n_muscles=n_muscles+1;
-    }   
-}
-
-void Parm::addmuscle(const std::vector<double>& gamma_o, const std::string& rhoo_bodyname, const std::vector<double>& gamma_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int global, const std::vector<double>& gammavalue, const std::vector<double>& etavalue){
-    int add_muscle=1;
-    for(int i=0;i<allmuscle.size();i++){
-        if(allmuscle[i]->getname()==name){
-            if(global){
-                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global, gammavalue, etavalue);
-            }
-            else{
-                allmuscle[i]->setmuscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, gammavalue, etavalue);
-            }
-            add_muscle=0;
-            break;
-        }
-    }
-    if(add_muscle){
-        muscle* Muscle=nullptr;
-        if(global){
-            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, global, gammavalue, etavalue);
-        }
-        else{
-            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, gammavalue, etavalue);
+            Muscle=new muscle(allbody, gamma_o, rhoo_bodyname, gamma_i, rhoi_bodyname, name, nodenum, gammavalue, etavalue, consider_body_list_value);
         }
         allmuscle.push_back(Muscle);
         n_muscles=n_muscles+1;
@@ -321,7 +296,29 @@ void Parm::set_single_read_muscle_value(const std::string& name, int read_muscle
         }
     }
 }
-    
+
+void Parm::set_node_partition(int constraint_local_mode_number, const std::string& constraint_local_select_bodyname, int init_mode_nr, const std::string& init_select_bodyname, int first_step_index){
+    for(int i=0;i<allmuscle.size();i++){
+        allmuscle[i]->set_node_partition(allbody, constraint_local_mode_number, constraint_local_select_bodyname, init_mode_nr, init_select_bodyname, first_step_index);
+    }
+}
+
+void Parm::set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value){
+    for(int i=0;i<allmuscle.size();i++){
+        if(allmuscle[i]->getname()==musclename){
+            allmuscle[i]->deletevia_point_list();
+            allmuscle[i]->setvia_point_list(allbody, rho_via_point_bodyname, rho_via_point_value);
+            break;
+        }
+    }
+}
+
+void Parm::delete_muscle_eta(){
+    for(int i=0;i<allmuscle.size();i++){
+        allmuscle[i]->delete_eta_node();
+    }
+}
+
 void Parm::addjoint(const std::string& namevalue, const std::string& bodynamevalue, const std::string& joint_typevalue, const std::vector<double>& relative_posvalue, const std::vector<double>& axisvectorvalue, const std::vector<std::vector<std::vector<double>>>& move_setting_value, const std::vector<std::vector<double>>& movement_value, int move_all_body_value){
     body* currentbodyvalue=findbody(bodynamevalue);
     int add_joint=1;
@@ -360,6 +357,7 @@ int Parm::findbodyindex(const std::string& bodyname){
     return  index;
 }
 
+/*
 void Parm::addmuslcesolution(const std::vector<double>& solution){
     int t=0;
     for(int i=0;i<n_muscles;i++){
@@ -372,6 +370,7 @@ void Parm::addmuslcesolution(const std::vector<double>& solution){
         t=t+variablemusclenum;
     }
 }
+*/
 
 void Parm::rotatebodyupdate(int currentstepnum){
     for(int i=0;i<alljoint.size();i++){

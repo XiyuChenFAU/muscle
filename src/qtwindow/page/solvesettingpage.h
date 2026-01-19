@@ -61,12 +61,26 @@ private:
     std::vector<QRadioButton *> radioButtons;
     QButtonGroup *buttonGroup1 = nullptr;
     int selectedValue = 0;
+
+    std::vector<QRadioButton *> radioButtons_localmode;
+    QButtonGroup *buttonGroup_localmode = nullptr;
+    int selectedValue_localmode = 0;
+
     std::vector<QRadioButton *> radioButtons_mode;
     QButtonGroup *buttonGroup_initial_mode = nullptr;
     int selectedValue_mode = 0;
+
     std::vector<QRadioButton *> radioButtons_body;
     QButtonGroup *buttonGroup_initial_body = nullptr;
     int selectedValue_body = 0;
+
+    std::vector<QRadioButton *> radioButtons_cons_mode;
+    QButtonGroup *buttonGroup_cons_mode = nullptr;
+    int selectedValue_cons_mode = 0;
+
+    std::vector<QRadioButton *> radioButtons_cons_body;
+    QButtonGroup *buttonGroup_cons_body = nullptr;
+    int selectedValue_cons_body = 0;
 
     QCheckBox* check_collision_CheckBox = nullptr;
     int check_collision_Value = 0;
@@ -77,15 +91,22 @@ private:
     QCheckBox* check_all_muscle_together_CheckBox = nullptr;
     int check_all_muscle_together_Value = 0;
 
+    QCheckBox* check_use_p_variable_CheckBox = nullptr;
+    int check_use_p_variable_Value = 0;
+
 private slots:
     void savesetting();
     void openFolderDialog();
     void handleButtonClicked(QAbstractButton* button);
+    void handleButtonClicked_localmode(QAbstractButton* button);
     void handleButtonClicked_mode(QAbstractButton* button);
     void handleButtonClicked_body(QAbstractButton* button);
+    void handleButtonClicked_cons_mode(QAbstractButton* button);
+    void handleButtonClicked_cons_body(QAbstractButton* button);
     void handleCheckBoxChanged_collision(int state);
     void handleCheckBoxChanged_phi_eta_plus(int state);
     void handleCheckBoxChanged_all_muscle_together(int state);
+    void handleCheckBoxChanged_use_p_variable(int state);
 };
 
 #endif // SOLVESETTINGPAGE_H

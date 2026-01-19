@@ -30,6 +30,7 @@ public:
     void solvesignorinistep(Parm* parm, int stepnum);
     int get_all_muscle_together();
     void set_all_muscle_together(int value);
+    void set_local_parameter(int selectedValue_localmode, int selectedValue_mode, const std::string&  selectedValue_body, int selectedValue_cons_mode, const std::string&  selectedValue_cons_body, int check_collision_Value);
     
 
 private:

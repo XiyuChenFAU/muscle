@@ -1,0 +1,2008 @@
+{
+	"body" : 
+	[
+		{
+			"body_name" : "carpals",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.027914999999999999,
+				"b" : 0.009304999999999999,
+				"c" : 0.018499999999999999,
+				"length" : 0.036999999999999998,
+				"radius" : 0.018609999999999998,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mc_thumb",
+			"body_parent_name" : "carpals",
+			"position_relative_parent_coordinate" : 
+			[
+				-0.035886832248799488,
+				0.0,
+				-0.028343644395402184
+			],
+			"rotation_angle" : 40.000000000000014,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.99999999999999967,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0046760000000000005,
+				"b" : 0.0046760000000000005,
+				"c" : 0.023380000000000001,
+				"length" : 0.046760000000000003,
+				"radius" : 0.0046760000000000005,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointPIP_thumb",
+			"body_parent_name" : "mc_thumb",
+			"position_relative_parent_coordinate" : 
+			[
+				-1.7347234759768071e-18,
+				0.0,
+				-0.023379999999999991
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0037824,
+				"b" : 0.0037824,
+				"c" : 0.0037824,
+				"length" : 0.0075648,
+				"radius" : 0.0037824,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "pp_thumb",
+			"body_parent_name" : "mc_thumb",
+			"position_relative_parent_coordinate" : 
+			[
+				3.4694469519536142e-18,
+				0.0,
+				-0.039139999999999994
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0031520000000000003,
+				"b" : 0.0031520000000000003,
+				"c" : 0.01576,
+				"length" : 0.031519999999999999,
+				"radius" : 0.0031520000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointDIP_thumb",
+			"body_parent_name" : "pp_thumb",
+			"position_relative_parent_coordinate" : 
+			[
+				6.9388939039072284e-18,
+				0.0,
+				-0.01576
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0027648,
+				"b" : 0.0027648,
+				"c" : 0.0027648,
+				"length" : 0.0055296,
+				"radius" : 0.0027648,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "dp_thumb",
+			"body_parent_name" : "pp_thumb",
+			"position_relative_parent_coordinate" : 
+			[
+				-3.4694469519536142e-18,
+				0.0,
+				-0.027279999999999999
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0023040000000000001,
+				"b" : 0.0023040000000000001,
+				"c" : 0.011520000000000001,
+				"length" : 0.023040000000000001,
+				"radius" : 0.0023040000000000001,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mc_index",
+			"body_parent_name" : "carpals",
+			"position_relative_parent_coordinate" : 
+			[
+				-0.016749,
+				0.0,
+				-0.036999999999999998
+			],
+			"rotation_angle" : 9.9999999999999751,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				0.0,
+				1.0000000000000022,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0069640000000000014,
+				"b" : 0.0069640000000000014,
+				"c" : 0.034820000000000004,
+				"length" : 0.069640000000000007,
+				"radius" : 0.0069640000000000014,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointMC_index",
+			"body_parent_name" : "mc_index",
+			"position_relative_parent_coordinate" : 
+			[
+				-2.6020852139652106e-18,
+				0.0,
+				-0.03481999999999999
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0068918,
+				"b" : 0.0068918,
+				"c" : 0.0068918,
+				"length" : 0.0137836,
+				"radius" : 0.0068918,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "pp_index",
+			"body_parent_name" : "mc_index",
+			"position_relative_parent_coordinate" : 
+			[
+				-1.7347234759768071e-18,
+				0.0,
+				-0.055089999999999986
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0040540000000000003,
+				"b" : 0.0040540000000000003,
+				"c" : 0.02027,
+				"length" : 0.04054,
+				"radius" : 0.0040540000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointPIP_index",
+			"body_parent_name" : "pp_index",
+			"position_relative_parent_coordinate" : 
+			[
+				-2.1684043449710089e-18,
+				0.0,
+				-0.020269999999999996
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0039950000000000003,
+				"b" : 0.0039950000000000003,
+				"c" : 0.0039950000000000003,
+				"length" : 0.0079900000000000006,
+				"radius" : 0.0039950000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mp_index",
+			"body_parent_name" : "pp_index",
+			"position_relative_parent_coordinate" : 
+			[
+				8.6736173798840355e-19,
+				0.0,
+				-0.032019999999999993
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0023500000000000001,
+				"b" : 0.0023500000000000001,
+				"c" : 0.01175,
+				"length" : 0.0235,
+				"radius" : 0.0023500000000000001,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointDIP_index",
+			"body_parent_name" : "mp_index",
+			"position_relative_parent_coordinate" : 
+			[
+				-8.6736173798840355e-19,
+				0.0,
+				-0.011750000000000002
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0029987999999999998,
+				"b" : 0.0029987999999999998,
+				"c" : 0.0029987999999999998,
+				"length" : 0.0059975999999999996,
+				"radius" : 0.0029987999999999998,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "dp_index",
+			"body_parent_name" : "mp_index",
+			"position_relative_parent_coordinate" : 
+			[
+				-3.903127820947816e-18,
+				0.0,
+				-0.020569999999999991
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0017639999999999999,
+				"b" : 0.0017639999999999999,
+				"c" : 0.0088199999999999997,
+				"length" : 0.017639999999999999,
+				"radius" : 0.0017639999999999999,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mc_middle",
+			"body_parent_name" : "carpals",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.036999999999999998
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0066820000000000004,
+				"b" : 0.0066820000000000004,
+				"c" : 0.033410000000000002,
+				"length" : 0.066820000000000004,
+				"radius" : 0.0066820000000000004,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointMC_middle",
+			"body_parent_name" : "mc_middle",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.033410000000000002
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0076636000000000013,
+				"b" : 0.0076636000000000013,
+				"c" : 0.0076636000000000013,
+				"length" : 0.015327200000000003,
+				"radius" : 0.0076636000000000013,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "pp_middle",
+			"body_parent_name" : "mc_middle",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.055950000000000007
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0045080000000000007,
+				"b" : 0.0045080000000000007,
+				"c" : 0.022540000000000001,
+				"length" : 0.045080000000000002,
+				"radius" : 0.0045080000000000007,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointPIP_middle",
+			"body_parent_name" : "pp_middle",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.022540000000000004
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0048654000000000006,
+				"b" : 0.0048654000000000006,
+				"c" : 0.0048654000000000006,
+				"length" : 0.0097308000000000013,
+				"radius" : 0.0048654000000000006,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mp_middle",
+			"body_parent_name" : "pp_middle",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.036849999999999994
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0028620000000000004,
+				"b" : 0.0028620000000000004,
+				"c" : 0.014310000000000002,
+				"length" : 0.028620000000000003,
+				"radius" : 0.0028620000000000004,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointDIP_middle",
+			"body_parent_name" : "mp_middle",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.014309999999999989
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0031620000000000003,
+				"b" : 0.0031620000000000003,
+				"c" : 0.0031620000000000003,
+				"length" : 0.0063240000000000006,
+				"radius" : 0.0031620000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "dp_middle",
+			"body_parent_name" : "mp_middle",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.023609999999999992
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0018600000000000003,
+				"b" : 0.0018600000000000003,
+				"c" : 0.009300000000000001,
+				"length" : 0.018600000000000002,
+				"radius" : 0.0018600000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mc_ring",
+			"body_parent_name" : "carpals",
+			"position_relative_parent_coordinate" : 
+			[
+				0.016749,
+				0.0,
+				-0.036999999999999998
+			],
+			"rotation_angle" : 9.9999999999999751,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				0.0,
+				-1.0000000000000022,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0058960000000000011,
+				"b" : 0.0058960000000000011,
+				"c" : 0.029480000000000003,
+				"length" : 0.058960000000000005,
+				"radius" : 0.0058960000000000011,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointMC_ring",
+			"body_parent_name" : "mc_ring",
+			"position_relative_parent_coordinate" : 
+			[
+				8.6736173798840355e-19,
+				0.0,
+				-0.029479999999999996
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0071570000000000002,
+				"b" : 0.0071570000000000002,
+				"c" : 0.0071570000000000002,
+				"length" : 0.014314,
+				"radius" : 0.0071570000000000002,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "pp_ring",
+			"body_parent_name" : "mc_ring",
+			"position_relative_parent_coordinate" : 
+			[
+				0.0,
+				0.0,
+				-0.050530000000000005
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0042100000000000002,
+				"b" : 0.0042100000000000002,
+				"c" : 0.021049999999999999,
+				"length" : 0.042099999999999999,
+				"radius" : 0.0042100000000000002,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointPIP_ring",
+			"body_parent_name" : "pp_ring",
+			"position_relative_parent_coordinate" : 
+			[
+				-8.6736173798840355e-19,
+				0.0,
+				-0.021049999999999992
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0046308,
+				"b" : 0.0046308,
+				"c" : 0.0046308,
+				"length" : 0.0092616,
+				"radius" : 0.0046308,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mp_ring",
+			"body_parent_name" : "pp_ring",
+			"position_relative_parent_coordinate" : 
+			[
+				1.7347234759768071e-18,
+				0.0,
+				-0.034669999999999992
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0027240000000000003,
+				"b" : 0.0027240000000000003,
+				"c" : 0.01362,
+				"length" : 0.02724,
+				"radius" : 0.0027240000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointDIP_ring",
+			"body_parent_name" : "mp_ring",
+			"position_relative_parent_coordinate" : 
+			[
+				5.6378512969246231e-18,
+				0.0,
+				-0.01361999999999999
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0032435999999999997,
+				"b" : 0.0032435999999999997,
+				"c" : 0.0032435999999999997,
+				"length" : 0.0064871999999999994,
+				"radius" : 0.0032435999999999997,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "dp_ring",
+			"body_parent_name" : "mp_ring",
+			"position_relative_parent_coordinate" : 
+			[
+				4.3368086899420177e-18,
+				0.0,
+				-0.023159999999999983
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.001908,
+				"b" : 0.001908,
+				"c" : 0.0095399999999999999,
+				"length" : 0.01908,
+				"radius" : 0.001908,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mc_little",
+			"body_parent_name" : "carpals",
+			"position_relative_parent_coordinate" : 
+			[
+				0.027914999999999999,
+				0.0,
+				-0.036999999999999998
+			],
+			"rotation_angle" : 19.999999999999993,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				0.0,
+				-1.0000000000000002,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0054220000000000006,
+				"b" : 0.0054220000000000006,
+				"c" : 0.027110000000000002,
+				"length" : 0.054220000000000004,
+				"radius" : 0.0054220000000000006,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointMC_little",
+			"body_parent_name" : "mc_little",
+			"position_relative_parent_coordinate" : 
+			[
+				1.7347234759768071e-18,
+				0.0,
+				-0.027110000000000002
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0056847999999999994,
+				"b" : 0.0056847999999999994,
+				"c" : 0.0056847999999999994,
+				"length" : 0.011369599999999999,
+				"radius" : 0.0056847999999999994,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "pp_little",
+			"body_parent_name" : "mc_little",
+			"position_relative_parent_coordinate" : 
+			[
+				3.4694469519536142e-18,
+				0.0,
+				-0.043830000000000001
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0033439999999999998,
+				"b" : 0.0033439999999999998,
+				"c" : 0.016719999999999999,
+				"length" : 0.033439999999999998,
+				"radius" : 0.0033439999999999998,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointPIP_little",
+			"body_parent_name" : "pp_little",
+			"position_relative_parent_coordinate" : 
+			[
+				-1.7347234759768071e-18,
+				0.0,
+				-0.016720000000000006
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0032504000000000005,
+				"b" : 0.0032504000000000005,
+				"c" : 0.0032504000000000005,
+				"length" : 0.006500800000000001,
+				"radius" : 0.0032504000000000005,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "mp_little",
+			"body_parent_name" : "pp_little",
+			"position_relative_parent_coordinate" : 
+			[
+				1.7347234759768071e-18,
+				0.0,
+				-0.026280000000000001
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0019120000000000003,
+				"b" : 0.0019120000000000003,
+				"c" : 0.0095600000000000008,
+				"length" : 0.019120000000000002,
+				"radius" : 0.0019120000000000003,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "jointDIP_little",
+			"body_parent_name" : "mp_little",
+			"position_relative_parent_coordinate" : 
+			[
+				2.6020852139652106e-18,
+				0.0,
+				-0.0095599999999999956
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.0028661999999999997,
+				"b" : 0.0028661999999999997,
+				"c" : 0.0028661999999999997,
+				"length" : 0.0057323999999999995,
+				"radius" : 0.0028661999999999997,
+				"shape_name" : "ellipsoid"
+			}
+		},
+		{
+			"body_name" : "dp_little",
+			"body_parent_name" : "mp_little",
+			"position_relative_parent_coordinate" : 
+			[
+				5.2041704279304213e-18,
+				0.0,
+				-0.017989999999999996
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 0.001686,
+				"b" : 0.001686,
+				"c" : 0.00843,
+				"length" : 0.01686,
+				"radius" : 0.001686,
+				"shape_name" : "ellipsoid"
+			}
+		}
+	],
+	"constraint" : 
+	{
+		"calculate_all_muscle_together" : 0,
+		"local_mode_number" : 0,
+		"local_select_bodyname" : "fix_space",
+		"use_phi_eta_plus_length" : 1
+	},
+	"initial_guess" : 
+	{
+		"collision_check" : 1,
+		"mode_number" : 0,
+		"select_body" : "fix_space"
+	},
+	"ipoptsetting" : 
+	{
+		"hessian_approximation" : "limited-memory",
+		"linear_solver" : "mumps",
+		"max_iter" : 2000,
+		"print_level" : 5,
+		"tol" : 1e-08
+	},
+	"joint" : 
+	[
+		{
+			"joint_name" : "mc_thumb_joint",
+			"joint_type_name" : "spherical joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.029596000000000004
+			],
+			"rotate_body_name" : "mc_thumb",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "pip_thumb",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						40.0,
+						10.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.015179866498322214,
+				0.0,
+				0.018090660434475988
+			],
+			"rotate_body_name" : "pp_thumb",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "dip_thumb",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.010808705060418646,
+				0.0,
+				0.012881313087045139
+			],
+			"rotate_body_name" : "dp_thumb",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "cmc_index_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.006046429546362515,
+				0.0,
+				-0.034291005959885087
+			],
+			"rotate_body_name" : "mc_index",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "mci_index_joint",
+			"joint_type_name" : "spherical joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						50.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0047291344705811802,
+				0.0,
+				0.026820254345534471
+			],
+			"rotate_body_name" : "pp_index",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "pip_index_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						40.0,
+						10.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0027443357998481665,
+				0.0,
+				0.015563901728604935
+			],
+			"rotate_body_name" : "mp_index",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "dip_index_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0019396501445396116,
+				0.0,
+				0.011000302601146362
+			],
+			"rotate_body_name" : "dp_index",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "cmc_middle_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				-0.033410000000000002
+			],
+			"rotate_body_name" : "mc_middle",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "mci_middle_joint",
+			"joint_type_name" : "spherical joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						50.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.029221999999999998
+			],
+			"rotate_body_name" : "pp_middle",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "pip_middle_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						40.0,
+						10.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.018818000000000001
+			],
+			"rotate_body_name" : "mp_middle",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "dip_middle_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.012162000000000001
+			],
+			"rotate_body_name" : "dp_middle",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "cmc_ring_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0051191482776211062,
+				0.0,
+				-0.029032132558799894
+			],
+			"rotate_body_name" : "mc_ring",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "mci_ring_joint",
+			"joint_type_name" : "spherical joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						50.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.0046791237954131046,
+				0.0,
+				0.026536629712666956
+			],
+			"rotate_body_name" : "pp_ring",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "pip_ring_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						40.0,
+						10.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.0030961470078013677,
+				0.0,
+				0.017559122236207668
+			],
+			"rotate_body_name" : "mp_ring",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "dip_ring_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.0021296212509072333,
+				0.0,
+				0.012077682282941718
+			],
+			"rotate_body_name" : "dp_ring",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "cmc_little_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0092721660855588795,
+				0.0,
+				-0.025475066949505978
+			],
+			"rotate_body_name" : "mc_little",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "mci_little_joint",
+			"joint_type_name" : "spherical joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						50.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.0075730100135169556,
+				0.0,
+				0.02080667400944158
+			],
+			"rotate_body_name" : "pp_little",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "pip_little_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						40.0,
+						10.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.004413427929474429,
+				0.0,
+				0.012125793578621362
+			],
+			"rotate_body_name" : "mp_little",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		},
+		{
+			"joint_name" : "dip_little_joint",
+			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						0.0,
+						0.0
+					]
+				],
+				[],
+				[]
+			],
+			"position_relative_rotate_body" : 
+			[
+				-0.0035371723222740658,
+				0.0,
+				0.009718301084167864
+			],
+			"rotate_body_name" : "dp_little",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			]
+		}
+	],
+	"muscle" : 
+	[
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "pp_thumb",
+			"muscle_name" : "APB3",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.0033,
+				0.0033999999999999963,
+				0.0006400000000000032
+			],
+			"rho_origin" : 
+			[
+				0.014,
+				-0.0074000000000000003,
+				0.0030000000000000001
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "pp_little",
+			"muscle_name" : "ADM1",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0045599999999999981,
+				0.00063100000000000005,
+				0.0048499999999999993
+			],
+			"rho_origin" : 
+			[
+				-0.025000000000000001,
+				-0.012,
+				-0.0060999999999999995
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "mc_little",
+			"muscle_name" : "ODM1",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.00023999999999999933,
+				-0.0059299999999999995,
+				0.006799999999999997
+			],
+			"rho_origin" : 
+			[
+				-0.00040000000000000002,
+				-0.0067000000000000002,
+				-0.01
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "mp_ring",
+			"muscle_name" : "FDSR",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.00028999999999999859,
+				2.0000000000000002e-05,
+				-0.025010000000000008
+			],
+			"rho_origin" : 
+			[
+				-0.0026000000000000003,
+				-0.019699999999999999,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_ring",
+			"muscle_name" : "FDPR",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.00066000000000000271,
+				-0.0001,
+				-0.0066000000000000069
+			],
+			"rho_origin" : 
+			[
+				0.0030000000000000001,
+				-0.014499999999999999,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_ring",
+			"muscle_name" : "EDCR",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.0024099999999999989,
+				0.0017099999999999999,
+				-0.0037499999999999903
+			],
+			"rho_origin" : 
+			[
+				-0.0014000000000000002,
+				0.017000000000000001,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "mp_little",
+			"muscle_name" : "FDSL",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0035000000000000001,
+				0.0025999999999999999,
+				-0.019830000000000004
+			],
+			"rho_origin" : 
+			[
+				-0.001,
+				-0.018000000000000002,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_little",
+			"muscle_name" : "FDPL",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0016500000000000002,
+				0.00032000000000000003,
+				-0.0043300000000000005
+			],
+			"rho_origin" : 
+			[
+				0.01,
+				-0.013000000000000001,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_little",
+			"muscle_name" : "EDCL",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.0011500000000000028,
+				0.00142,
+				0.00067999999999999994
+			],
+			"rho_origin" : 
+			[
+				0.0050000000000000001,
+				0.017000000000000001,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_little",
+			"muscle_name" : "EDM",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.00061999999999999772,
+				0.0022599999999999999,
+				-0.0033400000000000001
+			],
+			"rho_origin" : 
+			[
+				-0.014999999999999999,
+				0.0183,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "mp_middle",
+			"muscle_name" : "FDSM",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.00067000000000000002,
+				-0.0015499999999999999,
+				-0.027730000000000005
+			],
+			"rho_origin" : 
+			[
+				-0.0050000000000000001,
+				-0.014999999999999999,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_middle",
+			"muscle_name" : "FDPM",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0022599999999999999,
+				-0.00023000000000000001,
+				-0.0050499999999999989
+			],
+			"rho_origin" : 
+			[
+				0.0037000000000000002,
+				-0.0050000000000000001,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_middle",
+			"muscle_name" : "EDCM",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.0020100000000000001,
+				0.0025000000000000001,
+				-0.0051111000000000073
+			],
+			"rho_origin" : 
+			[
+				-0.002,
+				0.02,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "mp_index",
+			"muscle_name" : "FDSI",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.00029000000000000206,
+				-0.0022799999999999999,
+				-0.020879999999999999
+			],
+			"rho_origin" : 
+			[
+				-0.0069999999999999993,
+				-0.02,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_index",
+			"muscle_name" : "FDPI",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0030100000000000023,
+				-0.00046000000000000001,
+				-0.0045999999999999878
+			],
+			"rho_origin" : 
+			[
+				0.0040000000000000001,
+				-0.02,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_index",
+			"muscle_name" : "EDCI",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.0022800000000000008,
+				0.00025000000000000001,
+				-0.0036999999999999911
+			],
+			"rho_origin" : 
+			[
+				-0.0080000000000000002,
+				0.019,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_index",
+			"muscle_name" : "EIP",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				0.0016600000000000009,
+				0.00264,
+				-0.0061233000000000147
+			],
+			"rho_origin" : 
+			[
+				-0.014999999999999999,
+				0.0183,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "pp_thumb",
+			"muscle_name" : "EPB",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0055700000000000046,
+				-0.0092699999999999935,
+				-0.0061799999999999989
+			],
+			"rho_origin" : 
+			[
+				-0.040000000000000001,
+				-0.0080000000000000002,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_thumb",
+			"muscle_name" : "EPL",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0046400000000000052,
+				-0.0054299999999999965,
+				-0.0071399999999999936
+			],
+			"rho_origin" : 
+			[
+				-0.025000000000000001,
+				0.016,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "dp_thumb",
+			"muscle_name" : "FPL",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0041200000000000004,
+				-0.0024199999999999981,
+				-0.011270000000000006
+			],
+			"rho_origin" : 
+			[
+				-0.01,
+				-0.017500000000000002,
+				0.0
+			],
+			"viapoint_node" : []
+		},
+		{
+			"consider_body_list" : [],
+			"insertion_relative_body" : "mc_thumb",
+			"muscle_name" : "APL",
+			"node_number" : 25,
+			"origin_relative_body" : "carpals",
+			"rho_insertion" : 
+			[
+				-0.0060399999999999933,
+				-0.0082699999999999926,
+				-0.0058599999999999946
+			],
+			"rho_origin" : 
+			[
+				-0.039,
+				0.013999999999999999,
+				0.0
+			],
+			"viapoint_node" : []
+		}
+	],
+	"name" : "handmodel_TIMRL_externAllFlex",
+	"objective" : 
+	{
+		"length_constant" : 1000.0,
+		"solvercase" : 0
+	},
+	"output_path" : "/Users/xiyu/Desktop/",
+	"postprocessing" : 
+	{
+		"tol" : 0.01
+	},
+	"save_interval" : 1,
+	"use_p_variable" : 0
+}

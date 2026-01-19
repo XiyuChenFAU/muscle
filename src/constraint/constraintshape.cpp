@@ -15,27 +15,29 @@ constraintshape::constraintshape(){
 }
 
 
-std::vector<std::vector<MX>> constraintshape::Jacobianshape(const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var){
+std::vector<std::vector<MX>> constraintshape::Jacobianshape(muscle* Muscle, const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var){
     std::vector<std::vector<MX>> G;
     std::vector<body*> allbody=parm->getallbody();
-    for(int i=0;i<parm->getn_bodies();i++){
+    std::vector<body*> consider_body = Muscle->get_constraint_consider_body(allbody);
+
+    for(int i=0;i<consider_body.size();i++){
         std::vector<MX> q_input;
         if(use_p_variable){
             for(int j=0;j<12;j++){
                 q_input.push_back(p_var(i*12 + j));
             }
         }
-        if(allbody[i+1]->getshape()->getshapename()=="ellipsoid"){
-            std::vector<MX> Gbody = Jacobianellipsoid(gamma,allbody[i+1], use_p_variable, q_input);
+        if(consider_body[i]->getshape()->getshapename()=="ellipsoid"){
+            std::vector<MX> Gbody = Jacobianellipsoid(gamma,consider_body[i], use_p_variable, q_input);
             G.push_back(Gbody);
         }
-        if(allbody[i+1]->getshape()->getshapename()=="cylinder"){
-            std::vector<MX> Gbody = Jacobiancylinder(gamma,allbody[i+1], use_p_variable, q_input);
+        if(consider_body[i]->getshape()->getshapename()=="cylinder"){
+            std::vector<MX> Gbody = Jacobiancylinder(gamma,consider_body[i], use_p_variable, q_input);
             G.push_back(Gbody);
         }
         // new torus
-        if(allbody[i+1]->getshape()->getshapename()=="torus"){
-            std::vector<MX> Gbody = Jacobiantorus(gamma,allbody[i+1], use_p_variable, q_input);
+        if(consider_body[i]->getshape()->getshapename()=="torus"){
+            std::vector<MX> Gbody = Jacobiantorus(gamma,consider_body[i], use_p_variable, q_input);
             G.push_back(Gbody);
         }
     }
@@ -145,27 +147,28 @@ std::vector<MX> constraintshape::Jacobiantorus(const std::vector<MX> &gamma, bod
 
 
 
-std::vector<MX> constraintshape::constraint_shape(const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var){
+std::vector<MX> constraintshape::constraint_shape(muscle* Muscle, const std::vector<MX>& gamma, Parm* parm, int use_p_variable, MX p_var){
     std::vector<MX> G;
     std::vector<body*> allbody=parm->getallbody();
-    for(int i=0;i<parm->getn_bodies();i++){
+    std::vector<body*> consider_body = Muscle->get_constraint_consider_body(allbody);
+    for(int i=0;i<consider_body.size();i++){
         std::vector<MX> q_input;
         if(use_p_variable){
             for(int j=0;j<12;j++){
                 q_input.push_back(p_var(i*12 + j));
             }
         }
-        if(allbody[i+1]->getshape()->getshapename()=="ellipsoid"){
-            MX Gbody = constraint_ellipsoid(gamma,allbody[i+1], use_p_variable, q_input);
+        if(consider_body[i]->getshape()->getshapename()=="ellipsoid"){
+            MX Gbody = constraint_ellipsoid(gamma,consider_body[i], use_p_variable, q_input);
             G.push_back(Gbody);
         }
-        if(allbody[i+1]->getshape()->getshapename()=="cylinder"){
-            MX Gbody = constraint_cylinder(gamma,allbody[i+1], use_p_variable, q_input);
+        if(consider_body[i]->getshape()->getshapename()=="cylinder"){
+            MX Gbody = constraint_cylinder(gamma,consider_body[i], use_p_variable, q_input);
             G.push_back(Gbody);
         }
         // new torus
-        if(allbody[i+1]->getshape()->getshapename()=="torus"){
-            MX Gbody = constraint_torus(gamma,allbody[i+1], use_p_variable, q_input);
+        if(consider_body[i]->getshape()->getshapename()=="torus"){
+            MX Gbody = constraint_torus(gamma,consider_body[i], use_p_variable, q_input);
             G.push_back(Gbody);
         }
     }

@@ -39,6 +39,7 @@ private:
     void writemomentarmnodeToFile(model* Model);
     void writemomentarmToFile(model* Model);
     void writerunningtimeToFile(model* Model);
+    int write_precision=1;
 };
 
 #endif // IO_H

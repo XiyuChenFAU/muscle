@@ -38,8 +38,7 @@ int objective::getcasenum(){
 
 MX objective::getlengthdisdiff(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode){
 
-    std::vector<std::vector<double>> gammapreviousall=Muscle->getgammaall();
-    std::vector<double> gammalaststep=gammapreviousall.back();
+    std::vector<double> gammalaststep=Muscle->getgamma_step(-1);
     MX f_length=0;
     for(int j=0;j<Muscle->getnodenum()-1;j++){
         std::vector<MX> gammaallnodemuscle1; 
@@ -92,8 +91,7 @@ MX objective::getnodelengthdisdiffall(Parm* parm, MX x, const std::vector<std::v
 
 std::vector<MX> objective::getnodedisdiff(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode){
     std::vector<MX> nodediff;
-    std::vector<std::vector<double>> gammapreviousall=Muscle->getgammaall();
-    std::vector<double> gammalaststep=gammapreviousall[gammapreviousall.size()-1];
+    std::vector<double> gammalaststep=Muscle->getgamma_step(-1);
     for(int j=0;j<Muscle->getnodenum();j++){        
         for(int k=0;k<3;k++){
             nodediff.push_back(gammaallnode[j][k]-gammalaststep[j*3+k]);
@@ -113,8 +111,7 @@ std::vector<MX> objective::getnodedisdiff(const std::vector<MX>& gammaprevious, 
 }
 
 std::vector<double> objective::getmassmatrix(muscle* Muscle, const std::vector<std::vector<double>>& jointposition){
-    std::vector<std::vector<double>> gammapreviousall=Muscle->getgammaall();
-    std::vector<double> gammalaststep=gammapreviousall.back();
+    std::vector<double> gammalaststep=Muscle->getgamma_step(-1);
     std::vector<double> massmatrix;
 
     for(int j=0;j<Muscle->getnodenum();j++){

@@ -328,11 +328,31 @@ std::vector<double> bodybasic::matrix_to_axisangle_ref_fix_space(){
     double rotation_sin=naxis_ref_value/2.0;
     double rotation_cos=(R[0][0]+R[1][1]+R[2][2]-1)/2.0;
     double angle=std::atan2(rotation_sin,rotation_cos);
-    if(angle){
+    const double eps = 1e-7;
+    if(angle > eps && std::abs(M_PI - angle) > eps){
         naxis_ref=vector3timeconstant(naxis_ref1,1.0/naxis_ref_value);
     }
-    else{
-        naxis_ref={0.0,0.0,0.0};
+    else if (angle <= eps){
+        naxis_ref={1.0,0.0,0.0};
+        angle=0.0;
+    } else {
+        naxis_ref1[0] = std::sqrt(std::max(0.0, (R[0][0] + 1.0) * 0.5));
+        naxis_ref1[1] = std::sqrt(std::max(0.0, (R[1][1] + 1.0) * 0.5));
+        naxis_ref1[2] = std::sqrt(std::max(0.0, (R[2][2] + 1.0) * 0.5));
+
+        if (R[0][1] < 0.0) naxis_ref1[1] = -naxis_ref1[1];
+        if (R[0][2] < 0.0) naxis_ref1[2] = -naxis_ref1[2];
+        naxis_ref = naxis_ref1;
+
+        double n = std::sqrt(naxis_ref[0]*naxis_ref[0] +
+                             naxis_ref[1]*naxis_ref[1] +
+                             naxis_ref[2]*naxis_ref[2]);
+        if (n > eps)
+        {
+            naxis_ref[0] /= n;
+            naxis_ref[1] /= n;
+            naxis_ref[2] /= n;
+        }
     }
     naxis_ref.push_back(angle/M_PI*180);
     return naxis_ref;

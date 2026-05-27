@@ -1,0 +1,156 @@
+{
+	"body" : 
+	[
+		{
+			"body_name" : "body",
+			"body_parent_name" : "fix_space",
+			"position_relative_parent_coordinate" : 
+			[
+				100.0,
+				0.0,
+				0.0
+			],
+			"rotation_angle" : 0.0,
+			"rotation_axis_relative_parent_coordinate" : 
+			[
+				1.0,
+				0.0,
+				0.0
+			],
+			"shape" : 
+			{
+				"a" : 1.0,
+				"b" : 1.0,
+				"c" : 1.0,
+				"length" : 2.0,
+				"radius" : 1.0,
+				"shape_name" : "ellipsoid"
+			}
+		}
+	],
+	"constraint" : 
+	{
+		"calculate_all_muscle_together" : 0,
+		"local_mode_number" : 0,
+		"local_select_bodyname" : "fix_space",
+		"use_phi_eta_inequality_constraint" : 1,
+		"use_phi_eta_plus_length" : 0
+	},
+	"initial_guess" : 
+	{
+		"collision_check" : 0,
+		"mode_number" : 0,
+		"select_body" : "fix_space"
+	},
+	"ipoptsetting" : 
+	{
+		"hessian_approximation" : "limited-memory",
+		"linear_solver" : "mumps",
+		"max_iter" : 2000,
+		"print_level" : 5,
+		"tol" : 1e-08
+	},
+	"joint" : 
+	[
+		{
+			"joint_name" : "trans",
+			"joint_type_name" : "translate joint",
+			"move_all_bodys" : 0,
+			"move_setting" : 
+			[
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						0.0,
+						10.0,
+						0.0
+					]
+				],
+				[
+					[
+						0.0,
+						5.0,
+						10.0,
+						0.0
+					]
+				]
+			],
+			"position_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			],
+			"rotate_body_name" : "body",
+			"rotation_axis_relative_rotate_body" : 
+			[
+				0.0,
+				0.0,
+				0.0
+			]
+		}
+	],
+	"muscle" : 
+	[
+		{
+			"consider_body_list" : 
+			[
+				"body"
+			],
+			"insertion_relative_body" : "fix_space",
+			"muscle_name" : "muscle",
+			"node_number" : 25,
+			"origin_relative_body" : "fix_space",
+			"rho_insertion" : 
+			[
+				-5.0,
+				0.0,
+				0.0
+			],
+			"rho_origin" : 
+			[
+				5.0,
+				0.0,
+				0.0
+			],
+			"viapoint_node" : 
+			[
+				{
+					"eta_via" : 
+					[
+						0.0
+					],
+					"relative_body" : "body",
+					"rho_via" : 
+					[
+						-100.0,
+						0.0,
+						1.0
+					],
+					"via_alpha" : 100.0,
+					"via_cutoff" : 0.050000000000000003
+				}
+			]
+		}
+	],
+	"name" : "viapoint",
+	"objective" : 
+	{
+		"length_constant" : 1.0,
+		"solvercase" : 0
+	},
+	"postprocessing" : 
+	{
+		"tol" : 0.001
+	},
+	"save_interval" : 0,
+	"use_p_variable" : 0
+}

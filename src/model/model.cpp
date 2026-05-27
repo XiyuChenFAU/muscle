@@ -193,16 +193,23 @@ void model::writejson(int write_gamma, int currentstepnum){
         muscleObject["insertion_relative_body"]=allmuscle[i]->getrhoi_bodyname();
         muscleObject["node_number"]=allmuscle[i]->getnodenum();
 
-        std::vector<node*> all_via_point = allmuscle[i]->getvia_point_list();
+        std::vector<viapoint*> all_via_point = allmuscle[i]->getvia_point_list();
         Json::Value viapoint_node_array(Json::arrayValue);
         for(int j=0;j<all_via_point.size();j++){
             Json::Value viapoint_node_value;
-            viapoint_node_value["relative_body"]=all_via_point[j]->get_ref_body(0)->getname();
+            viapoint_node_value["relative_body"]=all_via_point[j]->get_ref_body()->getname();
             Json::Value rho_via(Json::arrayValue);
             for (const auto& value : all_via_point[j]->get_rho()) {
                 rho_via.append(value);
             }
             viapoint_node_value["rho_via"]=rho_via;
+            Json::Value eta_via(Json::arrayValue);
+            for (const auto& value : all_via_point[j]->get_eta_node(currentstepnum)) {
+                eta_via.append(value);
+            }
+            viapoint_node_value["eta_via"]=eta_via;
+            viapoint_node_value["via_alpha"]=all_via_point[j]->get_alpha_value();
+            viapoint_node_value["via_cutoff"]=all_via_point[j]->get_cutoff();
             viapoint_node_array.append(viapoint_node_value);
         }
         muscleObject["viapoint_node"]=viapoint_node_array;
@@ -324,6 +331,11 @@ void model::writejson(int write_gamma, int currentstepnum){
         constraint["use_phi_eta_plus_length"] = 1;
     } else{
         constraint["use_phi_eta_plus_length"] = 0;
+    }
+    if(Solveeq->getConstraint()->get_phi_eta_inequality()){
+        constraint["use_phi_eta_inequality_constraint"] = 1;
+    } else{
+        constraint["use_phi_eta_inequality_constraint"] = 0;
     }
     if(Solveeq->get_all_muscle_together()){
         constraint["calculate_all_muscle_together"] = 1;

@@ -35,6 +35,24 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
     }
 }
 
+void IO::write2DintvalueToFile(const std::vector<std::vector<int>>& value, std::ofstream& file, const std::string& name, const std::string& typenamevalue){
+    int rownum=1;
+    if (file.is_open()) {
+        for (int i=0;i<value[0].size();i++) {
+            file << name << "\t";
+            file << typenamevalue << "\t";
+            file << rownum << "\t";
+            for (int j=0;j<value.size();j++) {
+                file << value[j][i] << "\t";
+            }
+            file << "\n";
+            rownum++;
+        }
+    } else {
+        std::cerr << "can not open file" << std::endl;
+    }
+}
+
 void IO::writemusclebodyresultToFileAll(model* Model){
 
     //create folder
@@ -100,6 +118,7 @@ void IO::writeanalyzeresultToFileAll(model* Model){
     writemomentarmnodeToFile(Model);
     writemomentarmToFile(Model);
     writerunningtimeToFile(Model);
+    writerefbodyToFile(Model);
 }
 
 void IO::writephiToFile(model* Model){
@@ -429,6 +448,32 @@ void IO::writerunningtimeToFile(model* Model){
     file8.close();
 }
 
+void IO::writerefbodyToFile(model* Model){
+    //create folder
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
+    std::vector<body*> allbody=Model->getparm()->getallbody();
+    std::vector<int> rotation=Model->getparm()->getallstep();
+
+    //lengthall
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_ref_body_result.txt";
+    std::ofstream file9(filename);
+    //write titel
+    file9 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    for(int i=0;i<rotation.size();i++){file9 << rotation[i] << "\t";}
+    file9 << "\n";
+    //writevalue
+    for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        write2DintvalueToFile(matrixtranspose(allmuscle[i]->getrefbody_all(allbody, Model->getSolveeq()->getConstraint()->get_local_mode_number(), Model->getSolveeq()->getInitialguess()->getmode_nr())),file9,allmuscle[i]->getname(),"ref_body");
+    }
+    file9.close();
+}
+
 void IO::writejson(model* Model, int write_gamma, int currentstepnum){
 
     Model->writejson(write_gamma, currentstepnum);
@@ -665,7 +710,11 @@ model* IO::readmodel(const std::string&  jsonfilename){
         double length = Shape["length"].asDouble();
         double radius = Shape["radius"].asDouble();
         std::string shapename = Shape["shape_name"].asString();
-        Model->getparm()->addbody(bodyname,parentname,n_axis,rotationangle,rho_body,a,b,c,length,radius,shapename,0);
+        int global=0;
+        if (bodyObject.isMember("global")) {
+            global = bodyObject["global"].asInt();
+        }
+        Model->getparm()->addbody(bodyname,parentname,n_axis,rotationangle,rho_body,a,b,c,length,radius,shapename,global);
     }
 
     //muscle
@@ -728,17 +777,44 @@ model* IO::readmodel(const std::string&  jsonfilename){
         }
         std::vector<std::string> rho_via_point_bodyname={};
         std::vector<std::vector<double>> rho_via_point_value={};
+        std::vector<std::vector<double>> rho_via_point_eta={};
+        std::vector<double> via_point_alpha={};
+        std::vector<double> via_point_cutoff={};
         if (muscleObject.isMember("viapoint_node")) {
             const Json::Value& viapointArray = muscleObject["viapoint_node"];
             for (const Json::Value& viapoint_value : viapointArray) {
                 std::string rho_bodyname = viapoint_value["relative_body"].asString();
+                rho_via_point_bodyname.push_back(rho_bodyname);
                 std::vector<double> rho_via;
                 const Json::Value& rho_viaArray = viapoint_value["rho_via"];
                 for (const Json::Value& rho_viaArray_value : rho_viaArray) {
                     rho_via.push_back(rho_viaArray_value.asDouble());
                 }
+                rho_via_point_value.push_back(rho_via);
+                std::vector<double> eta_via;
+                if(viapoint_value.isMember("eta_via")){
+                    const Json::Value& eta_viaArray = viapoint_value["eta_via"];
+                    for (const Json::Value& eta_viaArray_value : eta_viaArray) {
+                        eta_via.push_back(eta_viaArray_value.asDouble());
+                    }
+                } else{
+                    eta_via.push_back(0.0); 
+                }
+
+                rho_via_point_eta.push_back(eta_via);
+                if(viapoint_value.isMember("via_alpha")){
+                    via_point_alpha.push_back(viapoint_value["via_alpha"].asDouble());
+                } else{
+                    via_point_alpha.push_back(100.0);
+                }
+
+                if(viapoint_value.isMember("via_cutoff")){
+                    via_point_cutoff.push_back(viapoint_value["via_cutoff"].asDouble());
+                } else{
+                    via_point_cutoff.push_back(0.05);
+                }
             }
-            Model->getparm()->set_muscle_viapoint_node(musclename, rho_via_point_bodyname, rho_via_point_value);
+            Model->getparm()->set_muscle_viapoint_node(musclename, rho_via_point_bodyname, rho_via_point_value, rho_via_point_eta, via_point_alpha, via_point_cutoff);
         }
     }
     //joint
@@ -842,11 +918,18 @@ model* IO::readmodel(const std::string&  jsonfilename){
     } else{ //for milimeter cases!!!
         Model->getSolveeq()->getConstraint()->set_phi_eta_plus(0);
     }
+    if (constraint.isMember("use_phi_eta_inequality_constraint")) {
+        int use_phi_eta_inequality = constraint["use_phi_eta_inequality_constraint"].asInt();
+        Model->getSolveeq()->getConstraint()->set_phi_eta_inequality(use_phi_eta_inequality);
+    } else{ //increase stability
+        Model->getSolveeq()->getConstraint()->set_phi_eta_inequality(0);
+    }
+
     std::string local_select_bodyname=constraint["local_select_bodyname"].asString();
     Model->getSolveeq()->getConstraint()->set_local_select_bodyname(local_select_bodyname);
     int local_mode_number=constraint["local_mode_number"].asInt();
     Model->getSolveeq()->getConstraint()->set_local_mode_number(local_mode_number);
-    if(local_mode_number>0){Model->getSolveeq()->getInitialguess()->setmode_nr(4);}
+    if(local_mode_number>0){Model->getSolveeq()->getInitialguess()->setmode_nr(-1);}
 
     if (constraint.isMember("calculate_all_muscle_together")) {
         int all_muscle_together_value = constraint["calculate_all_muscle_together"].asInt();

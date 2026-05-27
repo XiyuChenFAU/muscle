@@ -319,13 +319,13 @@ class Postprocessor:
             base = 12 * i
             ax.quiver(self.bodyvalue[base][index], self.bodyvalue[base + 1][index], self.bodyvalue[base + 2][index],
                       self.bodyvalue[base + 3][index], self.bodyvalue[base + 4][index], self.bodyvalue[base + 5][index],
-                      length=0.1, normalize=True, color=colors[0])
+                      length=self.scale/2.0, normalize=True, color=colors[0])
             ax.quiver(self.bodyvalue[base][index], self.bodyvalue[base + 1][index], self.bodyvalue[base + 2][index],
                       self.bodyvalue[base + 6][index], self.bodyvalue[base + 7][index], self.bodyvalue[base + 8][index],
-                      length=0.1, normalize=True, color=colors[1])
+                      length=self.scale/2.0, normalize=True, color=colors[1])
             ax.quiver(self.bodyvalue[base][index], self.bodyvalue[base + 1][index], self.bodyvalue[base + 2][index],
                       self.bodyvalue[base + 9][index], self.bodyvalue[base + 10][index], self.bodyvalue[base + 11][index],
-                      length=0.1, normalize=True, color=colors[2])
+                      length=self.scale/2.0, normalize=True, color=colors[2])
 
     def gatherdataandplot(self, data, another):
         allpenatration = []

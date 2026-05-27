@@ -94,6 +94,9 @@ private:
     QCheckBox* check_use_p_variable_CheckBox = nullptr;
     int check_use_p_variable_Value = 0;
 
+    QCheckBox* check_phi_eta_inequality_CheckBox = nullptr;
+    int check_phi_eta_inequality_Value = 0;
+
 private slots:
     void savesetting();
     void openFolderDialog();
@@ -107,6 +110,7 @@ private slots:
     void handleCheckBoxChanged_phi_eta_plus(int state);
     void handleCheckBoxChanged_all_muscle_together(int state);
     void handleCheckBoxChanged_use_p_variable(int state);
+    void handleCheckBoxChanged_phi_eta_inequality(int state);
 };
 
 #endif // SOLVESETTINGPAGE_H

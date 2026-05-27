@@ -503,7 +503,10 @@ void musclepage::updatevalue(){
     int findbodyi=setmodelwin->getRunmodel()->getModel()->getparm()->findbodyindex(rhoibodyname);
     radioButtonsi[findbodyi+2]->setChecked(true);
     selectedValuei=findbodyi+1;
-    std::vector<std::string> consider_bodies = Muscle->get_consider_body_list();
+    std::vector<std::string> consider_bodies = {};
+    if(Muscle!=nullptr){
+        consider_bodies = Muscle->get_consider_body_list();
+    }
     int nBodies = setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
     for (int i = 0; i < nBodies; ++i) {
         std::string bodyName = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname();
@@ -524,7 +527,6 @@ void musclepage::updatevalue(){
             checkBoxes_body[i]->setChecked(1);
         }
     }
-    std::cout<<"test4\n";
 
 
     if (rectanglemain) {

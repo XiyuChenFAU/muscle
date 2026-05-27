@@ -63,6 +63,7 @@ private:
     std::vector<body*> ref_body_init_list={};
     std::vector<std::vector<double>> gammaall_node;
     std::vector<std::vector<double>> etaall_node;
+    std::vector<double> rho_initial={0.0, 0.0, 0.0};
 };
 
 #endif // NODE_H

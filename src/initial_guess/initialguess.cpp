@@ -94,7 +94,7 @@ void initialguess::set_initialguessvalue(Parm* parm, int first_step){
             std::vector<node*> all_nodes=allmuscle[i]->get_allnodes();
             for(int j=0; j<all_nodes.size(); j++){
                 std::vector<double> node_initial_guess=all_nodes[j]->get_new_initial_guess(mode_number);
-                if(collision_check && mode_number!=0 && mode_number!=4){
+                if(collision_check && mode_number!=0 && mode_number!=-1){
                     if(check_have_collision(node_initial_guess, parm, i, j)){
                         std::vector<double> node_pos=all_nodes[j]->get_gamma_node(-1);
                         x0.insert(x0.end(), node_pos.begin(), node_pos.end());

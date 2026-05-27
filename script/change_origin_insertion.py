@@ -50,6 +50,16 @@ def change_orientation_two_body_case_self_penetration(nodenew, qnew_ini, q_new, 
         phi_new=10000
     return phi_new
 
+def change_orientation_two_body_case_self_penetration_check(nodenew, qnew_ini, q_new, initbody_value, newbody_value, time_t):
+    local_node_new=global_to_local(local_to_global([nodenew[0]*time_t, nodenew[1]*time_t, nodenew[2]*time_t], qnew_ini), q_new)
+    phi_new_initial = phi_ellipsoid([nodenew[0]*time_t, nodenew[1]*time_t, nodenew[2]*time_t], initbody_value)
+    phi_new = phi_ellipsoid(local_node_new, newbody_value)
+    if phi_new_initial<0:
+        phi_new=1000000
+    if phi_new<0:
+        phi_new=10000
+    return phi_new
+
 q_old_ini=[-0.0652797, 	0.0607938,	0.159101,	0.170033,	-0.965324,	-0.198089,	0.276023,	-0.146315,	0.949949,	-0.945992,	-0.216199,	0.241573]
 q_old=[-0.0711611, 0.0679275, 0.0276008, 1, -3.18895e-06, -3.82474e-06, -3.3336e-06, -0.994415, -0.105541, -3.62956e-06, 0.105541, -0.994415]
 oldbody_value=[0.015, 0.015, 0.1425]
@@ -76,6 +86,22 @@ result_TeresMajor=[]
 test_range_TeresMajor=range(-2000,1000)
 for i in test_range_TeresMajor:
     result_TeresMajor.append(change_orientation_two_body_case_self_penetration(node_TeresMajor, q_new_ini, q_new, newbody_value, 1+i/1000))
+min_index_TeresMajor=np.argmin(np.abs(np.array(result_TeresMajor)))
+print(min_index_TeresMajor)
+print(result_TeresMajor[min_index_TeresMajor])
+node_TeresMajor_new=[node_TeresMajor[0]*(1+test_range_TeresMajor[min_index_TeresMajor]/1000), node_TeresMajor[1]*(1+test_range_TeresMajor[min_index_TeresMajor]/1000), node_TeresMajor[2]*(1+test_range_TeresMajor[min_index_TeresMajor]/1000)]
+print(node_TeresMajor_new)
+
+print("case_teres_major")
+q_new_ini=[-65.279624272704353, 60.793782847612036,	159.10099554945168,	0.17003596053805037, -0.96532423016722224, -0.19808590838461559, 0.27602277373968759, -0.14631128237059621, 0.94995043958629677, -0.94599217829212057, -0.2162017318623255, 0.2415739794132731]
+q_new=[-71.160991244179755, 67.927020602557135, 27.600647016976183, 1.000001085408982, -7.1435307672229609e-06, 2.1085965897643666e-06, -6.9363393618571134e-06, -0.99441617725033205, -0.10554052269613706, -2.0429142966182923e-06, 0.10554023061163195, -0.99441656094173325]
+node_TeresMajor=[3.37116, -48.5822, -15.1987]
+initbody_value=[20.93, 20.93, 20.93]
+newbody_value=[15, 15, 142.5]
+result_TeresMajor=[]
+test_range_TeresMajor=range(-2000,1000)
+for i in test_range_TeresMajor:
+    result_TeresMajor.append(change_orientation_two_body_case_self_penetration_check(node_TeresMajor, q_new_ini, q_new, initbody_value, newbody_value, 1+i/1000))
 min_index_TeresMajor=np.argmin(np.abs(np.array(result_TeresMajor)))
 print(min_index_TeresMajor)
 print(result_TeresMajor[min_index_TeresMajor])

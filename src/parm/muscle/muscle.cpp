@@ -239,24 +239,66 @@ std::vector<double> muscle::getrho_i_position(){
     return localtoglobal(all_nodes.back()->get_ref_body(-1)->getbodybasic()->getposition(), all_nodes.back()->get_ref_body(-1)->getbodybasic()->getaxis(),all_nodes.back()->get_rho());
 }
 
-std::vector<node*> muscle::getvia_point_list(){
+std::vector<double> muscle::get_fix_point_global_position(int index){
+    return localtoglobal(all_nodes[index]->get_ref_body(-1)->getbodybasic()->getposition(), all_nodes[index]->get_ref_body(-1)->getbodybasic()->getaxis(),all_nodes[index]->get_rho());
+}
+
+std::vector<viapoint*> muscle::getvia_point_list(){
     return via_point_list;
 }
 
-void muscle::addvia_point_list(node* viapoint_node){
-    via_point_list.push_back(viapoint_node);
+int muscle::via_point_num(){
+    return via_point_list.size();
 }
 
-void muscle::setvia_point_list(const std::vector<body*>& allbody, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_value){
-    for(int i=0;i<rho_via_point_bodyname.size();i++){
-        body* via_body = findbody(allbody, rho_via_point_bodyname[i]);
-        node* new_node = new node(rho_via_value[i], 1, via_body);
-        via_point_list.push_back(new_node);
+std::vector<double> muscle::getvia_point_eta(int index){
+    std::vector<double> empty_eta_all={};
+    for(viapoint* viapoint_node : via_point_list){
+        empty_eta_all.push_back(viapoint_node->get_eta_node(index)[0]);
+    }
+    return empty_eta_all;
+}
+
+void muscle::addvia_point_list(const std::vector<body*>& allbody, const std::vector<double>& gamma_value, const std::string& rho_bodynamevalue, const std::vector<double>& eta_via, int global){
+    if(global){
+        viapoint* viapoint_node=new viapoint(gamma_value, findbody(allbody, rho_bodynamevalue));
+        via_point_list.push_back(viapoint_node);
+    } else { //local gamma value, need to change to global gamma value before add to via point list
+        viapoint* viapoint_node=new viapoint(gamma_value, 1, findbody(allbody, rho_bodynamevalue));
+        via_point_list.push_back(viapoint_node);
+    }
+    via_point_list.back()->set_node_index(via_point_list.size()-1);
+    via_point_list.back()->add_eta_node(0, eta_via);
+}
+
+void muscle::update_via_point_gamma(){
+    for(viapoint* viapoint_node : via_point_list){
+        viapoint_node->add_localtoglobal_gamma_from_rho();
     }
 }
 
+void muscle::update_via_point_eta(const std::vector<double>& eta_value){
+    for(int i=0;i<via_point_list.size();i++){
+        via_point_list[i]->add_eta_node({eta_value[i]});
+    }
+}
+
+void muscle::delete_single_via_point_list(int index){
+    for(int i =0 ;i<via_point_list.size();i++){
+        if(via_point_list[i]->get_node_index()==index){
+            delete via_point_list[i];
+            via_point_list.erase(via_point_list.begin() + i);
+            break;
+        }    
+    }
+    for(int i =0 ;i<via_point_list.size();i++){
+        via_point_list[i]->set_node_index(i);
+    }
+}
+
+
 void muscle::deletevia_point_list(){
-    for(node* viapoint_node : via_point_list){
+    for(viapoint* viapoint_node : via_point_list){
         delete viapoint_node;
     }
     via_point_list.clear();
@@ -392,6 +434,11 @@ void muscle::setinitialeta_gamma(const std::vector<body*>& allbody){
             delete_eta=0;
         }
     }
+    for(int i=0;i<via_point_list.size();i++){
+        if(via_point_list[i]->get_etaall_node().empty()){
+            via_point_list[i]->add_eta_node(0, {0.0});
+        }
+    }
 }
 
 void muscle::insert_point_node(node* Node_value){
@@ -460,6 +507,9 @@ void muscle::resetforrecalc(){
             all_nodes[i]->resetforrecalc_node(1);
         }
     }
+    for(int i=0;i<via_point_list.size();i++){
+         via_point_list[i]->resetforrecalc_via_point_node();
+    }
 }
 
 int muscle::getvariablenum(int n_bodies){
@@ -481,6 +531,29 @@ int muscle::get_consider_bodynum(int n_bodies){
         n_bodies=consider_body_list.size();
     }
     return n_bodies;
+}
+
+std::vector<std::vector<int>> muscle::getrefbody_all(const std::vector<body*>& allbody, int constraint_mode_nr, int initial_mode_nr){
+    std::vector<std::vector<int>> ref_body_all={};
+    for(int i=0; i < all_nodes.size(); i++){
+        std::vector<body*> ref_body;
+        if(constraint_mode_nr>0){
+            ref_body = all_nodes[i]->get_ref_body();
+        } else {
+            ref_body = all_nodes[i]->get_ref_init_body();
+        }
+        std::vector<int> ref_body_list={};
+        for(int j=0; j<ref_body.size(); j++){
+            for(int k=0; k<allbody.size(); k++){
+                if(ref_body[j]->getname()==allbody[k]->getname()){
+                    ref_body_list.push_back(k);
+                    continue;
+                }
+            }   
+        }
+        ref_body_all.push_back(ref_body_list);
+    }
+    return ref_body_all;
 }
 
 void muscle::deleteallnodes(){

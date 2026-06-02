@@ -8,6 +8,8 @@ Xiyu Chen
 
 #include "solvesettingpage.h"
 #include "../setmodelwindow.h"
+#include <QScrollArea>
+#include <QScrollBar>
 
 solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent):
     QWidget(parent),
@@ -28,6 +30,23 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     rectangle = new QFrame(this);
     rectangle->setGeometry(0, 100, setmodelwin->width(), setmodelwin->width()+1000);
     rectangle->setStyleSheet("background-color: #CCCCCC;");
+
+    bodyOptionScrollArea = new QScrollArea(this);
+    bodyOptionScrollArea->setGeometry(970, 150, 360, 520);
+    bodyOptionScrollArea->setWidgetResizable(false);
+    bodyOptionScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    bodyOptionScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    bodyOptionScrollArea->setStyleSheet(
+        "QScrollArea { background: #CCCCCC; border: none; }"
+        "QScrollArea > QWidget > QWidget { background: #CCCCCC; }"
+        "QScrollBar:vertical { width: 10px; background: #CCCCCC; }"
+        "QScrollBar::handle:vertical { background: white; border-radius: 5px; }"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }"
+    );
+    bodyOptionScrollArea->viewport()->setStyleSheet("background: #CCCCCC;");
+    bodyOptionContent = new QWidget();
+    bodyOptionContent->setStyleSheet("background-color: #CCCCCC;");
+    bodyOptionScrollArea->setWidget(bodyOptionContent);
 
     int allfontsize=15;
     //model setting
@@ -274,7 +293,7 @@ solvesettingpage::solvesettingpage(setmodelwindow *setmodelwin, QWidget *parent)
     //save button
     savebutton = new QPushButton("Save", this);
     savebutton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    savebutton->setGeometry(1010, 730, 100, 50);
+    savebutton->setGeometry(760, 730, 100, 50);
     connect(savebutton, &QPushButton::clicked, this, &solvesettingpage::savesetting);
 
 }
@@ -296,6 +315,7 @@ solvesettingpage::~solvesettingpage(){
     delete print_levelEdit;
     delete hessian_approximationEdit;
     delete rectangle;
+    delete bodyOptionScrollArea;
     delete selectFolderButton;
     delete savebutton;
     for(int i=0;i<radioButtons.size();i++){
@@ -417,18 +437,24 @@ void solvesettingpage::updatevalue(){
         buttonGroup_initial_body = nullptr;
     }
 
-    buttonGroup_initial_body = new QButtonGroup();
-    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), this);
+    buttonGroup_initial_body = new QButtonGroup(this);
+    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), bodyOptionContent);
     radioButtoni->setVisible(false);
     radioButtons_body.push_back(radioButtoni);
     buttonGroup_initial_body->addButton(radioButtons_body[0], -1);
-    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1;i++){
-        QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
+    QRadioButton* radioButton_body_fix = new QRadioButton(QString::fromStdString("fix_space"), bodyOptionContent);
+    radioButtons_body.push_back(radioButton_body_fix);
+    radioButtons_body[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_body[1]->setGeometry(10, 0, 340, 30);
+    radioButtons_body[1]->show();
+    buttonGroup_initial_body->addButton(radioButtons_body[1], 0);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
+        QRadioButton* radioButton_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), bodyOptionContent);
         radioButtons_body.push_back(radioButton_body);
-        radioButtons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtons_body[i+1]->setGeometry(980, 150+i*40, 340, 30);
-        radioButtons_body[i+1]->show();
-        buttonGroup_initial_body->addButton(radioButtons_body[i+1], i);
+        radioButtons_body[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtons_body[i+2]->setGeometry(10, (i+1)*40, 340, 30);
+        radioButtons_body[i+2]->show();
+        buttonGroup_initial_body->addButton(radioButtons_body[i+2], i+1);
     }
     connect(buttonGroup_initial_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_body);
     std::string initialbodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getInitialguess()->getselect_bodyname();
@@ -457,18 +483,24 @@ void solvesettingpage::updatevalue(){
         buttonGroup_cons_body = nullptr;
     }
 
-    buttonGroup_cons_body = new QButtonGroup();
-    QRadioButton* radioButton_cons_i = new QRadioButton(QString::fromStdString("null"), this);
+    buttonGroup_cons_body = new QButtonGroup(this);
+    QRadioButton* radioButton_cons_i = new QRadioButton(QString::fromStdString("null"), bodyOptionContent);
     radioButton_cons_i->setVisible(false);
     radioButtons_cons_body.push_back(radioButton_cons_i);
     buttonGroup_cons_body->addButton(radioButtons_cons_body[0], -1);
-    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1;i++){
-        QRadioButton* radioButton_cons_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i-1)->getname()), this);
+    QRadioButton* radioButton_cons_body_fix = new QRadioButton(QString::fromStdString("fix_space"), bodyOptionContent);
+    radioButtons_cons_body.push_back(radioButton_cons_body_fix);
+    radioButtons_cons_body[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+    radioButtons_cons_body[1]->setGeometry(10, 0, 340, 30);
+    radioButtons_cons_body[1]->show();
+    buttonGroup_cons_body->addButton(radioButtons_cons_body[1], 0);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
+        QRadioButton* radioButton_cons_body = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), bodyOptionContent);
         radioButtons_cons_body.push_back(radioButton_cons_body);
-        radioButtons_cons_body[i+1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtons_cons_body[i+1]->setGeometry(980, 150+i*40, 340, 30);
-        radioButtons_cons_body[i+1]->show();
-        buttonGroup_cons_body->addButton(radioButtons_cons_body[i+1], i);
+        radioButtons_cons_body[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
+        radioButtons_cons_body[i+2]->setGeometry(10, (i+1)*40, 340, 30);
+        radioButtons_cons_body[i+2]->show();
+        buttonGroup_cons_body->addButton(radioButtons_cons_body[i+2], i+1);
     }
     connect(buttonGroup_cons_body, QOverload<QAbstractButton*>::of(&QButtonGroup::buttonClicked), this, &solvesettingpage::handleButtonClicked_cons_body);
     std::string consbodyname=setmodelwin->getRunmodel()->getModel()->getSolveeq()->getConstraint()->get_local_select_bodyname();
@@ -492,6 +524,9 @@ void solvesettingpage::updatevalue(){
         rectangle->update();
         rectangle->show();
     }
+    bodyOptionContent->resize(340, std::max(500, (setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1)*40));
+    bodyOptionScrollArea->setVisible((selectedValue_localmode == 0 && selectedValue_mode == 1) ||
+                                     (selectedValue_localmode == 1 && selectedValue_cons_mode == 1));
     this->update();
 }
 
@@ -526,8 +561,10 @@ void solvesettingpage::handleButtonClicked_localmode(QAbstractButton* button){
         for (int i = 0; i < radioButtons_mode.size()-1; ++i) {radioButtons_mode[i]->setVisible(true);}
         if(selectedValue_mode==1){
             for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(true);}
+            bodyOptionScrollArea->setVisible(true);
         } else{
             for (int i = 1; i < radioButtons_body.size(); ++i) {radioButtons_body[i]->setVisible(false);}
+            bodyOptionScrollArea->setVisible(false);
         }
         for (int i = 0; i < radioButtons_cons_mode.size(); ++i) {radioButtons_cons_mode[i]->setVisible(false);}
         for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(false);}
@@ -538,8 +575,10 @@ void solvesettingpage::handleButtonClicked_localmode(QAbstractButton* button){
         for (int i = 0; i < radioButtons_cons_mode.size(); ++i) {radioButtons_cons_mode[i]->setVisible(true);}
         if(selectedValue_cons_mode==1){
             for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(true);}
+            bodyOptionScrollArea->setVisible(true);
         } else{
             for (int i = 1; i < radioButtons_cons_body.size(); ++i) {radioButtons_cons_body[i]->setVisible(false);}
+            bodyOptionScrollArea->setVisible(false);
         }
         
     }
@@ -552,10 +591,14 @@ void solvesettingpage::handleButtonClicked_mode(QAbstractButton* button){
         for (int i = 1; i < radioButtons_body.size(); ++i) {
             radioButtons_body[i]->setVisible(true);
         }
+        bodyOptionScrollArea->setVisible(selectedValue_localmode == 0);
     }
     else{
         for (int i =  1; i < radioButtons_body.size(); ++i) {
             radioButtons_body[i]->setVisible(false);
+        }
+        if (selectedValue_localmode == 0) {
+            bodyOptionScrollArea->setVisible(false);
         }
     }
     if(selectedValue_mode>0 && selectedValue_localmode == 0){
@@ -576,10 +619,14 @@ void solvesettingpage::handleButtonClicked_cons_mode(QAbstractButton* button){
         for (int i = 1; i < radioButtons_cons_body.size(); ++i) {
             radioButtons_cons_body[i]->setVisible(true);
         }
+        bodyOptionScrollArea->setVisible(selectedValue_localmode == 1);
     }
     else{
         for (int i =  1; i < radioButtons_cons_body.size(); ++i) {
             radioButtons_cons_body[i]->setVisible(false);
+        }
+        if (selectedValue_localmode == 1) {
+            bodyOptionScrollArea->setVisible(false);
         }
     }
     check_collision_CheckBox->setVisible(false);

@@ -9,6 +9,13 @@ Xiyu Chen
 #include "runprogrampage.h"
 #include "../setmodelwindow.h"
 #include <QVBoxLayout>
+#include <QEvent>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QTimer>
+#include <QWheelEvent>
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 
 runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
@@ -103,6 +110,9 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     connect(sliderCamPitch, &QSlider::valueChanged, this, &runprogrampage::rotateCameraPitch);
     sliders.push_back(sliderCamPitch);
 
+    redrawTimer = new QTimer(this);
+    redrawTimer->setSingleShot(true);
+    connect(redrawTimer, &QTimer::timeout, this, &runprogrampage::redrawCurrentFrame);
 
     view = new Qt3DExtras::Qt3DWindow();
 
@@ -163,6 +173,8 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     container->setFocusPolicy(Qt::StrongFocus);
     container->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     container->setGeometry(70, 250, 1200, 900);
+    container->installEventFilter(this);
+    view->installEventFilter(this);
 
     allentities.push_back(rootEntity);
     
@@ -197,14 +209,15 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
 
 runprogrampage::~runprogrampage()
 {
-    for(int i=0;i<allentities.size();i++){
-        delete allentities[i];
+    if (view != nullptr) {
+        view->setRootEntity(nullptr);
+    }
+    if (!allentities.empty()) {
+        delete allentities[0];
+        allentities[0] = nullptr;
     }
     for(int i=0;i<colors.size();i++){
         delete colors[i];
-    }
-    for(int i=0;i<allmuscleentities.size();i++){
-        delete allmuscleentities[i];
     }
 
     delete runButton;
@@ -224,16 +237,28 @@ runprogrampage::~runprogrampage()
     for(int i=0;i<genrallabels.size();i++){
         delete genrallabels[i];
     }
-    delete cameraEntity;
-    delete view;
     delete container;
+    cameraEntity = nullptr;
+    view = nullptr;
     delete save_intervalEdit;
 }
 
 void runprogrampage::deleteentitiesnotroot(){
     for(int i=1;i<allentities.size();i++){
-        delete allentities[i];
+        scheduleEntityDeletion(allentities[i]);
     }
+}
+
+void runprogrampage::scheduleEntityDeletion(Qt3DCore::QEntity *&entity)
+{
+    if (entity == nullptr) {
+        return;
+    }
+
+    entity->setEnabled(false);
+    entity->setParent(static_cast<Qt3DCore::QNode *>(nullptr));
+    entity->deleteLater();
+    entity = nullptr;
 }
 
 void runprogrampage::runModelFunction()
@@ -253,6 +278,14 @@ void runprogrampage::drawallbody(int rotationindex){
     int bodynum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
     for(int i=0;i<bodynum;i++){
         body* currentbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i);
+        const auto currentbodyaxisangle_ref = currentbody->getbodybasic()->getaxisangle_ref();
+        const auto currentq = currentbody->getbodybasic()->getq();
+        if (rotationindex < 0 ||
+            rotationindex >= static_cast<int>(currentbodyaxisangle_ref.size()) ||
+            rotationindex >= static_cast<int>(currentq.size())) {
+            continue;
+        }
+
         if(currentbody->getshape()->getshapename()=="ellipsoid"){
             drawellipsoidbody(i, rotationindex);
         }
@@ -268,7 +301,7 @@ void runprogrampage::drawallbody(int rotationindex){
 
 void runprogrampage::drawellipsoidbody(int index, int rotationindex){
     if(allentities[index+1]!=nullptr){
-        delete allentities[index+1];  
+        scheduleEntityDeletion(allentities[index+1]);
     }
     allentities[index+1] = new Qt3DCore::QEntity(allentities[0]);
     body* currentbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
@@ -293,7 +326,7 @@ void runprogrampage::drawellipsoidbody(int index, int rotationindex){
 
 void runprogrampage::drawTorusBody(int index, int rotationindex) {
     if(allentities[index+1] != nullptr) {
-        delete allentities[index+1];
+        scheduleEntityDeletion(allentities[index+1]);
     }
 
     allentities[index+1] = new Qt3DCore::QEntity(allentities[0]);
@@ -339,7 +372,7 @@ void runprogrampage::drawTorusBody(int index, int rotationindex) {
 
 void runprogrampage::drawcylinderbody(int index, int rotationindex){
     if(allentities[index+1]!=nullptr){
-        delete allentities[index+1];  
+        scheduleEntityDeletion(allentities[index+1]);
     }
     allentities[index+1] = new Qt3DCore::QEntity(allentities[0]);
     body* currentbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(index);
@@ -368,48 +401,167 @@ void runprogrampage::drawallmuscle(int rotationindex){
     
     for(int j=0;j<allmuscleentities.size();j++){
         if(allmuscleentities[j]!=nullptr){
-            delete allmuscleentities[j];
+            scheduleEntityDeletion(allmuscleentities[j]);
         }
     }
     int allnode=0;
     for(int i=0;i<musclenum;i++){
         muscle* currentmuscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i);
         drawmuscle(i, rotationindex,allnode);
-        allnode=allnode+currentmuscle->getnodenum()-1;
+        allnode=allnode+std::max(0, currentmuscle->getnodenum()-1);
     }
 }
 
 void runprogrampage::drawmuscle(int muscleindex, int rotationindex, int previousnodenum){
     muscle* currentmuscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(muscleindex);
-    std::vector<std::vector<double>> gammacurrentall=currentmuscle->getgammaall();
-    for (int i = 0; i < currentmuscle->getnodenum()-1; ++i) {
-        std::vector<double> pointcurrent={gammacurrentall[rotationindex][3*i+0]*zoomsize, gammacurrentall[rotationindex][3*i+1]*zoomsize, gammacurrentall[rotationindex][3*i+2]*zoomsize};
-        std::vector<double> pointnext={gammacurrentall[rotationindex][3*i+3]*zoomsize, gammacurrentall[rotationindex][3*i+4]*zoomsize, gammacurrentall[rotationindex][3*i+5]*zoomsize};
-        std::vector<double> translationline = vector3timeconstant(vector3plus(pointcurrent,pointnext),0.5);
-        std::vector<double> vectorminus=vector3minus(pointnext,pointcurrent);
-        std::vector<double> rotationaxis = calculationaxisangle(vectorminus,{0.0,0.0,1.0});
-        double currentmusclelength=std::sqrt(vectortime1(vectorminus,vectorminus));
-
-        allmuscleentities[i+previousnodenum] = new Qt3DCore::QEntity(allentities[0]);
-
-        Qt3DExtras::QCylinderMesh *lineMesh = new Qt3DExtras::QCylinderMesh();
-        lineMesh->setRadius(0.05); // 从 0.03 增加到 0.08，变得更粗
-        lineMesh->setLength(currentmusclelength*2);// set linesize
-
-        Qt3DCore::QTransform *lineTransform = new Qt3DCore::QTransform();
-        lineTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(rotationaxis[0],rotationaxis[1],rotationaxis[2]), rotationaxis[3]));
-        lineTransform->setTranslation(QVector3D(translationline[0], translationline[1], translationline[2]));
-        Qt3DExtras::QPhongMaterial *lineMaterial = new Qt3DExtras::QPhongMaterial();
-        lineMaterial->setDiffuse(*colors[muscleindex]); 
-
-        allmuscleentities[i+previousnodenum]->addComponent(lineMesh);
-        allmuscleentities[i+previousnodenum]->addComponent(lineTransform);
-        allmuscleentities[i+previousnodenum]->addComponent(lineMaterial);
+    const int nodeCount = currentmuscle->getnodenum();
+    if (nodeCount < 2) {
+        return;
     }
+
+    std::vector<std::vector<double>> gammacurrentall=currentmuscle->getgammaall();
+    if (rotationindex < 0 ||
+        rotationindex >= static_cast<int>(gammacurrentall.size()) ||
+        gammacurrentall[rotationindex].size() < static_cast<size_t>(nodeCount * 3)) {
+        return;
+    }
+    if (previousnodenum >= static_cast<int>(allmuscleentities.size())) {
+        allmuscleentities.resize(previousnodenum + 1, nullptr);
+    }
+
+    std::vector<QVector3D> points;
+    points.reserve(nodeCount);
+    for (int i = 0; i < nodeCount; ++i) {
+        const double x = gammacurrentall[rotationindex][3 * i + 0] * zoomsize;
+        const double y = gammacurrentall[rotationindex][3 * i + 1] * zoomsize;
+        const double z = gammacurrentall[rotationindex][3 * i + 2] * zoomsize;
+        if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)) {
+            return;
+        }
+        points.push_back(QVector3D(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)));
+    }
+
+    Qt3DCore::QEntity *muscleEntity = new Qt3DCore::QEntity(allentities[0]);
+    allmuscleentities[previousnodenum] = muscleEntity;
+
+    const int ringSides = 14;
+    const float tubeRadius = 0.04f;
+    const float pi = 3.14159265358979323846f;
+    std::vector<std::vector<QVector3D>> rings(nodeCount, std::vector<QVector3D>(ringSides));
+    std::vector<std::vector<QVector3D>> normals(nodeCount, std::vector<QVector3D>(ringSides));
+
+    QVector3D previousNormal;
+    bool hasPreviousNormal = false;
+    for (int i = 0; i < nodeCount; ++i) {
+        QVector3D tangent;
+        if (i == 0) {
+            tangent = points[1] - points[0];
+        } else if (i == nodeCount - 1) {
+            tangent = points[nodeCount - 1] - points[nodeCount - 2];
+        } else {
+            tangent = points[i + 1] - points[i - 1];
+        }
+        if (tangent.lengthSquared() < 1.0e-10f) {
+            tangent = QVector3D(0.0f, 0.0f, 1.0f);
+        } else {
+            tangent.normalize();
+        }
+
+        QVector3D normal;
+        if (hasPreviousNormal) {
+            normal = previousNormal - tangent * QVector3D::dotProduct(previousNormal, tangent);
+        }
+        if (normal.lengthSquared() < 1.0e-10f) {
+            const QVector3D helper = std::abs(tangent.y()) < 0.9f ? QVector3D(0.0f, 1.0f, 0.0f) : QVector3D(1.0f, 0.0f, 0.0f);
+            normal = QVector3D::crossProduct(tangent, helper);
+        }
+        normal.normalize();
+        QVector3D binormal = QVector3D::crossProduct(tangent, normal);
+        binormal.normalize();
+        previousNormal = normal;
+        hasPreviousNormal = true;
+
+        for (int side = 0; side < ringSides; ++side) {
+            const float angle = 2.0f * pi * static_cast<float>(side) / static_cast<float>(ringSides);
+            const QVector3D radial = std::cos(angle) * normal + std::sin(angle) * binormal;
+            rings[i][side] = points[i] + tubeRadius * radial;
+            normals[i][side] = radial.normalized();
+        }
+    }
+
+    const int triangleVertexCount = (nodeCount - 1) * ringSides * 6;
+    Qt3DRender::QGeometry *geometry = new Qt3DRender::QGeometry(muscleEntity);
+    QByteArray positionBytes;
+    QByteArray normalBytes;
+    positionBytes.resize(triangleVertexCount * 3 * sizeof(float));
+    normalBytes.resize(triangleVertexCount * 3 * sizeof(float));
+    float *positions = reinterpret_cast<float*>(positionBytes.data());
+    float *normalData = reinterpret_cast<float*>(normalBytes.data());
+
+    int vertex = 0;
+    auto appendVertex = [&](const QVector3D &position, const QVector3D &normal) {
+        positions[3 * vertex + 0] = position.x();
+        positions[3 * vertex + 1] = position.y();
+        positions[3 * vertex + 2] = position.z();
+        normalData[3 * vertex + 0] = normal.x();
+        normalData[3 * vertex + 1] = normal.y();
+        normalData[3 * vertex + 2] = normal.z();
+        ++vertex;
+    };
+
+    for (int i = 0; i < nodeCount - 1; ++i) {
+        for (int side = 0; side < ringSides; ++side) {
+            const int nextSide = (side + 1) % ringSides;
+            appendVertex(rings[i][side], normals[i][side]);
+            appendVertex(rings[i + 1][side], normals[i + 1][side]);
+            appendVertex(rings[i + 1][nextSide], normals[i + 1][nextSide]);
+            appendVertex(rings[i][side], normals[i][side]);
+            appendVertex(rings[i + 1][nextSide], normals[i + 1][nextSide]);
+            appendVertex(rings[i][nextSide], normals[i][nextSide]);
+        }
+    }
+
+    Qt3DRender::QBuffer *positionBuffer = new Qt3DRender::QBuffer(geometry);
+    positionBuffer->setData(positionBytes);
+    Qt3DRender::QBuffer *normalBuffer = new Qt3DRender::QBuffer(geometry);
+    normalBuffer->setData(normalBytes);
+
+    Qt3DRender::QAttribute *positionAttribute = new Qt3DRender::QAttribute(geometry);
+    positionAttribute->setName(Qt3DRender::QAttribute::defaultPositionAttributeName());
+    positionAttribute->setBuffer(positionBuffer);
+    positionAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    positionAttribute->setVertexSize(3);
+    positionAttribute->setCount(triangleVertexCount);
+    positionAttribute->setByteStride(3 * sizeof(float));
+    positionAttribute->setByteOffset(0);
+    positionAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+    geometry->addAttribute(positionAttribute);
+
+    Qt3DRender::QAttribute *normalAttribute = new Qt3DRender::QAttribute(geometry);
+    normalAttribute->setName(Qt3DRender::QAttribute::defaultNormalAttributeName());
+    normalAttribute->setBuffer(normalBuffer);
+    normalAttribute->setVertexBaseType(Qt3DRender::QAttribute::Float);
+    normalAttribute->setVertexSize(3);
+    normalAttribute->setCount(triangleVertexCount);
+    normalAttribute->setByteStride(3 * sizeof(float));
+    normalAttribute->setByteOffset(0);
+    normalAttribute->setAttributeType(Qt3DRender::QAttribute::VertexAttribute);
+    geometry->addAttribute(normalAttribute);
+
+    Qt3DRender::QGeometryRenderer *lineRenderer = new Qt3DRender::QGeometryRenderer(muscleEntity);
+    lineRenderer->setPrimitiveType(Qt3DRender::QGeometryRenderer::Triangles);
+    lineRenderer->setGeometry(geometry);
+
+    Qt3DExtras::QPhongMaterial *lineMaterial = new Qt3DExtras::QPhongMaterial(muscleEntity);
+    lineMaterial->setDiffuse(*colors[muscleindex]);
+
+    muscleEntity->addComponent(lineRenderer);
+    muscleEntity->addComponent(lineMaterial);
 }
 
 
 void runprogrampage::updateSquareSize(int size){
+    currentRotationIndex = size;
     if(size==0){
         labels[0]->setText(QString::fromStdString("initial"));
     }else{
@@ -417,17 +569,20 @@ void runprogrampage::updateSquareSize(int size){
     }
     if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()>0){
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getbodybasic()->getaxisangle_ref().size()>size){
-            drawallbody(size);
-            drawallmuscle(size);
+            redrawTimer->start(30);
         }
     }
     
 }
 
 void runprogrampage::setscale(){
-    zoomsize=scaleedit->text().toDouble();
-    drawallbody(0);
-    drawallmuscle(0);
+    bool ok = false;
+    double newViewZoom = scaleedit->text().toDouble(&ok);
+    if (!ok || newViewZoom <= 0.0) {
+        return;
+    }
+    viewZoom = std::max(0.1, std::min(20.0, newViewZoom));
+    applyViewZoom();
 }
 
 QLineEdit* runprogrampage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -466,6 +621,7 @@ std::string runprogrampage::doubletostring(double num) {
 }
 
 void runprogrampage::updatevalue(){
+    currentRotationIndex = 0;
     int stepnumall=setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step();
     labels[1]->setText(QString::fromStdString(std::to_string(stepnumall)));
     int loopnum;
@@ -479,7 +635,7 @@ void runprogrampage::updatevalue(){
     int allentitiesnum=allentities.size();
     for(int i=1;i<allentitiesnum;i++){
         if(allentities[1]!=nullptr){
-            delete allentities[1];
+            scheduleEntityDeletion(allentities[1]);
         }
         allentities.erase(allentities.begin() + 1); 
     }
@@ -487,7 +643,7 @@ void runprogrampage::updatevalue(){
     int allmuscleentitiesnum=allmuscleentities.size();
     for(int j=0;j<allmuscleentitiesnum;j++){
         if(allmuscleentities[0]!=nullptr){
-            delete allmuscleentities[0];
+            scheduleEntityDeletion(allmuscleentities[0]);
         }
         allmuscleentities.erase(allmuscleentities.begin() + 0); 
     }
@@ -510,33 +666,59 @@ void runprogrampage::updatevalue(){
     drawallmuscle(0);
 }
 
-void runprogrampage::rotateCameraYaw(int value)
+void runprogrampage::redrawCurrentFrame()
 {
-    camYaw = value;  // oder z.B. value * 0.1f für feinere Kontrolle
+    int drawIndex = currentRotationIndex;
+    if (setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies() > 0) {
+        const auto &axisangle = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getbodybasic()->getaxisangle_ref();
+        if (!axisangle.empty()) {
+            drawIndex = std::min(drawIndex, static_cast<int>(axisangle.size()) - 1);
+        }
+    }
 
-    // Rotation um Y-Achse (Yaw)
-    QQuaternion rotation = QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), camYaw);
+    drawallbody(drawIndex);
+    drawallmuscle(drawIndex);
+}
 
-    cameraEntity->setViewCenter(QVector3D(0,0,0));
-    cameraEntity->setPosition(rotation.rotatedVector(QVector3D(0,0,10)));
+void runprogrampage::applyViewZoom()
+{
+    cameraDistance = static_cast<float>(10.0 / viewZoom);
+    scaleedit->setText(QString::number(viewZoom, 'f', 2));
+    applyCameraRotation();
+}
+
+void runprogrampage::applyCameraRotation()
+{
+    camPitch = std::max(-89.0f, std::min(89.0f, camPitch));
+
+    QQuaternion qyaw = QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), camYaw);
+    QQuaternion qpitch = QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), camPitch);
+
+    QVector3D rotated = qyaw.rotatedVector(qpitch.rotatedVector(QVector3D(0,0,cameraDistance)));
+    cameraEntity->setPosition(cameraPan + rotated);
+    cameraEntity->setUpVector(QVector3D(0,1,0));
+    cameraEntity->setViewCenter(cameraPan);
 
     labels[labelIdxCamYaw]->setText(QString::number(camYaw));
+    labels[labelIdxCamPitch]->setText(QString::number(camPitch));
+    sliderCamYaw->blockSignals(true);
+    sliderCamPitch->blockSignals(true);
+    sliderCamYaw->setValue(static_cast<int>(camYaw));
+    sliderCamPitch->setValue(static_cast<int>(camPitch));
+    sliderCamYaw->blockSignals(false);
+    sliderCamPitch->blockSignals(false);
+}
+
+void runprogrampage::rotateCameraYaw(int value)
+{
+    camYaw = value;
+    applyCameraRotation();
 }
 
 void runprogrampage::rotateCameraPitch(int value)
 {
     camPitch = value;
-
-    QQuaternion qyaw = QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), camYaw);
-    QQuaternion qpitch = QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), camPitch);
-
-    QVector3D basePos(0, 0, 10);
-    QVector3D rotated = qyaw.rotatedVector(qpitch.rotatedVector(basePos));
-
-    cameraEntity->setPosition(rotated);
-    cameraEntity->setViewCenter(QVector3D(0,0,0));
-
-    labels[labelIdxCamPitch]->setText(QString::number(camPitch));
+    applyCameraRotation();
 }
 
 Qt3DCore::QEntity* runprogrampage::createAxis(Qt3DCore::QEntity* parent,const QVector3D& start,const QVector3D& end,const QColor& color)
@@ -631,13 +813,72 @@ void runprogrampage::setRotationDefault(){
     camPitch = 0.f;
     camYaw = 0.f;
 
-    labels[labelIdxCamYaw]->setText(QString::number(camYaw));
-    sliderCamYaw->setValue(camPitch);
-    labels[labelIdxCamPitch]->setText(QString::number(camPitch));
-    sliderCamPitch->setValue(camYaw);
-
-    rotateCameraYaw(camPitch);
-    rotateCameraPitch(camYaw);
+    applyCameraRotation();
 }
 
+bool runprogrampage::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched != container && watched != view) {
+        return QWidget::eventFilter(watched, event);
+    }
 
+    if (event->type() == QEvent::Wheel) {
+        QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+        const double factor = wheelEvent->angleDelta().y() > 0 ? 1.1 : 1.0 / 1.1;
+        viewZoom = std::max(0.1, std::min(20.0, viewZoom * factor));
+        applyViewZoom();
+        event->accept();
+        return true;
+    }
+
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        const float panStep = 0.2f * static_cast<float>(cameraDistance / 10.0f);
+        if (keyEvent->key() == Qt::Key_Left) {
+            cameraPan += QVector3D(-panStep, 0.0f, 0.0f);
+        } else if (keyEvent->key() == Qt::Key_Right) {
+            cameraPan += QVector3D(panStep, 0.0f, 0.0f);
+        } else if (keyEvent->key() == Qt::Key_Up) {
+            cameraPan += QVector3D(0.0f, panStep, 0.0f);
+        } else if (keyEvent->key() == Qt::Key_Down) {
+            cameraPan += QVector3D(0.0f, -panStep, 0.0f);
+        } else {
+            return QWidget::eventFilter(watched, event);
+        }
+        applyCameraRotation();
+        event->accept();
+        return true;
+    }
+
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            rotatingWithMouse = true;
+            lastMousePos = mouseEvent->pos();
+            event->accept();
+            return true;
+        }
+    }
+
+    if (event->type() == QEvent::MouseMove && rotatingWithMouse) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        const QPoint delta = mouseEvent->pos() - lastMousePos;
+        lastMousePos = mouseEvent->pos();
+        camYaw += delta.x() * 0.4f;
+        camPitch += delta.y() * 0.4f;
+        applyCameraRotation();
+        event->accept();
+        return true;
+    }
+
+    if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::LeftButton) {
+            rotatingWithMouse = false;
+            event->accept();
+            return true;
+        }
+    }
+
+    return QWidget::eventFilter(watched, event);
+}

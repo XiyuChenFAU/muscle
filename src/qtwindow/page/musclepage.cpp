@@ -8,6 +8,8 @@ Xiyu Chen
 
 #include "musclepage.h"
 #include "../setmodelwindow.h"
+#include <QScrollArea>
+#include <QScrollBar>
 
 musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     QWidget(parent),
@@ -28,23 +30,59 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     rectanglemain->setStyleSheet("background-color: #CCCCCC;");
 
     int musclenum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles();
-    plusbutton= new QPushButton("+", this);
+    muscleButtonScrollArea = new QScrollArea(this);
+    muscleButtonScrollArea->setFrameShape(QFrame::NoFrame);
+    muscleButtonScrollArea->setGeometry(0, 50, 1400, 60);
+    muscleButtonScrollArea->setWidgetResizable(false);
+    muscleButtonScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    muscleButtonScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    muscleButtonScrollArea->setStyleSheet(
+        "QScrollArea { background: #CCCCCC; border: none; }"
+        "QScrollArea > QWidget > QWidget { background: #CCCCCC; }"
+        "QScrollBar:horizontal { height: 10px; background: #CCCCCC; }"
+        "QScrollBar::handle:horizontal { background: white; border-radius: 5px; }"
+        "QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0px; }"
+    );
+    muscleButtonScrollArea->viewport()->setStyleSheet("background: #CCCCCC;");
+    muscleButtonContent = new QWidget();
+    muscleButtonContent->setGeometry(0, 0, std::max(120, (musclenum + 2) * 70), 50);
+    muscleButtonScrollArea->setWidget(muscleButtonContent);
+
+    bodyListScrollArea = new QScrollArea(this);
+    bodyListScrollArea->setGeometry(0, 270, 1390, 500);
+    bodyListScrollArea->setFrameShape(QFrame::NoFrame);
+    bodyListScrollArea->setWidgetResizable(false);
+    bodyListScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    bodyListScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    bodyListScrollArea->setStyleSheet(
+        "QScrollArea { background: #CCCCCC; border: none; }"
+        "QScrollArea > QWidget > QWidget { background: #CCCCCC; }"
+        "QScrollBar:vertical { width: 10px; background: #CCCCCC; }"
+        "QScrollBar::handle:vertical { background: white; border-radius: 5px; }"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }"
+    );
+    bodyListScrollArea->viewport()->setStyleSheet("background: #CCCCCC;");
+    bodyListContent = new QWidget();
+    bodyListContent->setStyleSheet("background-color: #CCCCCC;");
+    bodyListScrollArea->setWidget(bodyListContent);
+
+    plusbutton= new QPushButton("+", muscleButtonContent);
     plusbutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
     connect(plusbutton, &QPushButton::clicked, this, &musclepage::plusbuttonsetting);
 
-    newmusclebutton= new QPushButton("new", this);
+    newmusclebutton= new QPushButton("new", muscleButtonContent);
     newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    newmusclebutton->setGeometry(0, 50, 70, 50);
+    newmusclebutton->setGeometry(0, 0, 70, 50);
     connect(newmusclebutton, &QPushButton::clicked, this, &musclepage::newmusclebuttonsetting);
 
     if(musclenum){ 
         for(int i=0;i<musclenum;i++){
-            QPushButton* musclebutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i)->getname()), this);
+            QPushButton* musclebutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i)->getname()), muscleButtonContent);
             musclebutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
-            musclebutton->setGeometry(i*70, 50, 70, 50);
+            musclebutton->setGeometry(i*70, 0, 70, 50);
             musclebuttons.push_back(musclebutton);
         }
-        plusbutton->setGeometry(musclenum*70, 50, 50, 50);
+        plusbutton->setGeometry(musclenum*70, 0, 50, 50);
         musclebuttons[0]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
         musclenamestring=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(0)->getname();
         nodenumstring=std::to_string(setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(0)->getnodenum());
@@ -62,7 +100,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
         newmusclebutton->setVisible(false);
     }
     else{
-        plusbutton->setGeometry(70, 50, 50, 50);
+        plusbutton->setGeometry(70, 0, 50, 50);
         
     }
 
@@ -78,7 +116,11 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
 
     musclenameEdit=settextandlabel("muscle name",musclenamestring, 10, 150, 340, 30, allfontsize);
     nodenumEdit=settextandlabel("node number",nodenumstring, 450, 150, 340, 30, allfontsize);
-    setlabel("considered body list", 910, 150, allfontsize);
+    setlabel("considered body list", 910, 270, allfontsize);
+    viapointbutton = new QPushButton("viapoint setting", this);
+    viapointbutton->setGeometry(910, 175, 160, 32);
+    viapointbutton->setStyleSheet("QPushButton { color: black; background-color: white; }");
+    connect(viapointbutton, &QPushButton::clicked, this, &musclepage::openViaPointSetting);
 
     buttonGroupgloballocal = new QButtonGroup;
     QRadioButton* radioButtonlocalnull = new QRadioButton(QString::fromStdString("null"), this);
@@ -112,6 +154,7 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 680, 475, 100, 30, allfontsize);
 
     updatevalue();
+    loadViaPointsFromMuscle();
 
     //save button
     savebutton = new QPushButton("Save", this);
@@ -151,6 +194,7 @@ musclepage::~musclepage(){
     delete deletebutton;
     delete newmusclebutton;
     delete plusbutton;
+    delete viapointbutton;
 
     delete musclenameEdit;
     delete nodenumEdit;
@@ -163,6 +207,8 @@ musclepage::~musclepage(){
     delete rhoiaxisyEdit;
     delete rhoiaxiszEdit;
     delete rectanglemain;
+    delete muscleButtonScrollArea;
+    delete bodyListScrollArea;
 
     for(int i=0; i<checkBoxes_body.size(); i++){
         delete checkBoxes_body[i];
@@ -256,12 +302,18 @@ void musclepage::setalltextedit(const std::vector<double>& rho_o, const std::str
 }
 
 void musclepage::plusbuttonsetting(){
+    if(!confirmViaPointChanges()){
+        return;
+    }
     if(!newmusclebutton->isVisible()){
         newmusclebutton->setVisible(true);
         newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-        newmusclebutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70, 50, 70, 50);
-        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70+70, 50, 50, 50);
+        muscleButtonContent->resize((setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()+2)*70, 50);
+        newmusclebutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70, 0, 70, 50);
+        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()*70+70, 0, 50, 50);
         std::vector<std::string> init_consider_body={};
+        pendingViaPoints.clear();
+        viaPointDirty=false;
         setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1,init_consider_body);
         for(int i=0;i<musclebuttons.size();i++){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
@@ -289,17 +341,20 @@ void musclepage::savebuttonsetting(){
             consider_body_list_value.push_back(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedBodies[i])->getname());
         }
         setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo-1)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei-1)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal,{}, {}, consider_body_list_value);//set via point later
+        applyPendingViaPointsToMuscle();
+        viaPointDirty=false;
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()>musclebuttons.size()){
             newmusclebutton->setVisible(false);
             for(int i=0;i<musclebuttons.size();i++){
                 musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
             }
             std::string musclenewbuttonname=musclenameEdit->text().toStdString();
-            QPushButton* muscleaddnewbutton= new QPushButton(QString::fromStdString(musclenewbuttonname), this);
+            QPushButton* muscleaddnewbutton= new QPushButton(QString::fromStdString(musclenewbuttonname), muscleButtonContent);
             muscleaddnewbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-            muscleaddnewbutton->setGeometry(musclebuttons.size()*70, 50, 70, 50);
+            muscleaddnewbutton->setGeometry(musclebuttons.size()*70, 0, 70, 50);
             muscleaddnewbutton->setVisible(true);
-            plusbutton->setGeometry(musclebuttons.size()*70+70, 50, 70, 50);
+            plusbutton->setGeometry(musclebuttons.size()*70+70, 0, 70, 50);
+            muscleButtonContent->resize((musclebuttons.size()+2)*70, 50);
             musclebuttons.push_back(muscleaddnewbutton);
             int buttonsize=setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()-1;
             connect(musclebuttons[buttonsize], &QPushButton::clicked, this, [this, buttonsize]() {
@@ -310,6 +365,9 @@ void musclepage::savebuttonsetting(){
 }
 
 void musclepage::deletebuttonsetting(){
+    if(!confirmViaPointChanges()){
+        return;
+    }
     Parm* parm=setmodelwin->getRunmodel()->getModel()->getparm();
     int index= parm->deletemuscle(musclenameEdit->text().toStdString());
     if(index<0){
@@ -317,16 +375,16 @@ void musclepage::deletebuttonsetting(){
     }
     else{
         if(newmusclebutton->isVisible()){
-            newmusclebutton->setGeometry(parm->getn_muscles()*70, 50, 70, 50);
-            plusbutton->setGeometry(parm->getn_muscles()*70+70, 50, 50, 50);
+            newmusclebutton->setGeometry(parm->getn_muscles()*70, 0, 70, 50);
+            plusbutton->setGeometry(parm->getn_muscles()*70+70, 0, 50, 50);
         }
         else{
-            plusbutton->setGeometry(parm->getn_muscles()*70, 50, 50, 50);
+            plusbutton->setGeometry(parm->getn_muscles()*70, 0, 50, 50);
         }
         delete musclebuttons[index];
         musclebuttons.erase(musclebuttons.begin() + index);
         for(int i=0;i<musclebuttons.size();i++){
-            musclebuttons[i]->setGeometry(i*70, 50, 70, 50);
+            musclebuttons[i]->setGeometry(i*70, 0, 70, 50);
             connect(musclebuttons[i], &QPushButton::clicked, this, [this, i]() {
             showmusclesetting(i);
         });
@@ -336,24 +394,34 @@ void musclepage::deletebuttonsetting(){
         }
         else{
             newmusclebutton->setVisible(true);
-            newmusclebutton->setGeometry(0, 50, 70, 50);
-            plusbutton->setGeometry(70, 50, 50, 50);
+            newmusclebutton->setGeometry(0, 0, 70, 50);
+            plusbutton->setGeometry(70, 0, 50, 50);
         }
+        muscleButtonContent->resize((parm->getn_muscles()+2)*70, 50);
                 
     }
 }
 
 void musclepage::newmusclebuttonsetting(){
+    if(!confirmViaPointChanges()){
+        return;
+    }
     for(int i=0;i<musclebuttons.size();i++){
         musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
     }
     newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
     std::vector<std::string> init_consider_body={};
+    pendingViaPoints.clear();
+    viaPointDirty=false;
     setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1,init_consider_body);
 }
 
 void musclepage::showmusclesetting(int index){
+    if(!confirmViaPointChanges()){
+        return;
+    }
     Muscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(index);
+    loadViaPointsFromMuscle();
     std::vector<std::string> consider_list=Muscle->get_consider_body_list();
     if(consider_list.empty()){
         std::vector<body*> allbody=setmodelwin->getRunmodel()->getModel()->getparm()->getallbody();
@@ -372,6 +440,86 @@ void musclepage::showmusclesetting(int index){
     }
     if(newmusclebutton->isVisible()){
         newmusclebutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
+    }
+}
+
+bool musclepage::confirmViaPointChanges(){
+    if(!viaPointDirty){
+        return true;
+    }
+    QMessageBox messageBox(this);
+    messageBox.setWindowTitle("viapoint setting");
+    messageBox.setText("Via point setting has unsaved changes. Save them to this muscle?");
+    messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    messageBox.setDefaultButton(QMessageBox::Yes);
+    int result = messageBox.exec();
+    if(result == QMessageBox::Cancel){
+        return false;
+    }
+    if(result == QMessageBox::Yes){
+        savebuttonsetting();
+    } else {
+        loadViaPointsFromMuscle();
+        viaPointDirty=false;
+    }
+    return true;
+}
+
+void musclepage::loadViaPointsFromMuscle(){
+    pendingViaPoints.clear();
+    if(Muscle==nullptr){
+        viaPointDirty=false;
+        return;
+    }
+    for(viapoint* viaPoint : Muscle->getvia_point_list()){
+        ViapointDraft draft;
+        draft.cutoff = viaPoint->get_cutoff();
+        draft.alpha = viaPoint->get_alpha_value();
+        draft.rho = viaPoint->get_rho();
+        draft.gamma = viaPoint->get_gamma_node(0);
+        draft.global = 0;
+        if(viaPoint->get_ref_body()!=nullptr){
+            draft.bodyName = viaPoint->get_ref_body()->getname();
+        }
+        pendingViaPoints.push_back(draft);
+    }
+    viaPointDirty=false;
+}
+
+void musclepage::applyPendingViaPointsToMuscle(){
+    std::string muscleName = musclenameEdit->text().toStdString();
+    std::vector<std::string> bodyNames;
+    std::vector<std::vector<double>> rhoValues;
+    std::vector<std::vector<double>> etaValues;
+    std::vector<double> alphaValues;
+    std::vector<double> cutoffValues;
+    std::vector<int> globalValues;
+    for(const ViapointDraft &draft : pendingViaPoints){
+        const std::vector<double> &coordinate = draft.global ? draft.gamma : draft.rho;
+        if(draft.bodyName.empty() || coordinate.size() < 3){
+            continue;
+        }
+        bodyNames.push_back(draft.bodyName);
+        rhoValues.push_back(coordinate);
+        etaValues.push_back({0.0});
+        alphaValues.push_back(draft.alpha);
+        cutoffValues.push_back(draft.cutoff);
+        globalValues.push_back(draft.global);
+    }
+    setmodelwin->getRunmodel()->getModel()->getparm()->set_muscle_viapoint_node(muscleName, bodyNames, rhoValues, etaValues, alphaValues, cutoffValues, globalValues);
+    for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles();i++){
+        muscle* candidate = setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i);
+        if(candidate->getname()==muscleName){
+            Muscle=candidate;
+            break;
+        }
+    }
+}
+
+void musclepage::openViaPointSetting(){
+    viapointsetting dialog(setmodelwin->getRunmodel()->getModel()->getparm(), &pendingViaPoints, this);
+    if(dialog.exec()==QDialog::Accepted){
+        viaPointDirty=true;
     }
 }
 
@@ -452,23 +600,24 @@ void musclepage::updatevalue(){
     }
 
     buttonGroupo = new QButtonGroup(this);
-    QRadioButton* radioButtono = new QRadioButton(QString::fromStdString("null"), this);
+    selectedBodies.clear();
+    QRadioButton* radioButtono = new QRadioButton(QString::fromStdString("null"), bodyListContent);
     radioButtono->setVisible(false);
     radioButtonso.push_back(radioButtono);
     buttonGroupo->addButton(radioButtonso[0], -1);
 
-    QRadioButton* radioButtonfixo = new QRadioButton(QString::fromStdString("fix_space"), this);
+    QRadioButton* radioButtonfixo = new QRadioButton(QString::fromStdString("fix_space"), bodyListContent);
     radioButtonso.push_back(radioButtonfixo);
     radioButtonso[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtonso[1]->setGeometry(10, 300, 200, 30);
+    radioButtonso[1]->setGeometry(10, 30, 200, 30);
     radioButtonso[1]->show();
     buttonGroupo->addButton(radioButtonso[1], 0);
 
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
-        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), bodyListContent);
         radioButtonso.push_back(radioButton);
         radioButtonso[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonso[i+2]->setGeometry(10, 300+(i+1)*40, 200, 30);
+        radioButtonso[i+2]->setGeometry(10, 30+(i+1)*40, 200, 30);
         radioButtonso[i+2]->show();
         buttonGroupo->addButton(radioButtonso[i+2], i+1);
     }
@@ -477,25 +626,25 @@ void musclepage::updatevalue(){
     radioButtonso[findbodyo+2]->setChecked(true);
     selectedValueo=findbodyo+1;
 
-    buttonGroupi = new QButtonGroup(rectanglemain);
-    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), rectanglemain);
+    buttonGroupi = new QButtonGroup(this);
+    QRadioButton* radioButtoni = new QRadioButton(QString::fromStdString("null"), bodyListContent);
     radioButtoni->setVisible(false);
     radioButtonsi.push_back(radioButtoni);
     buttonGroupi->addButton(radioButtonsi[0], -1);
 
-    QRadioButton* radioButtonfixi = new QRadioButton(QString::fromStdString("fix_space"), this);
+    QRadioButton* radioButtonfixi = new QRadioButton(QString::fromStdString("fix_space"), bodyListContent);
     radioButtonsi.push_back(radioButtonfixi);
     radioButtonsi[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtonsi[1]->setGeometry(450, 300, 200, 30);
+    radioButtonsi[1]->setGeometry(450, 30, 200, 30);
     radioButtonsi[1]->show();
     buttonGroupi->addButton(radioButtonsi[1], 0);
 
 
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
-        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), bodyListContent);
         radioButtonsi.push_back(radioButton);
         radioButtonsi[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsi[i+2]->setGeometry(450, 300+(i+1)*40, 200, 30);
+        radioButtonsi[i+2]->setGeometry(450, 30+(i+1)*40, 200, 30);
         radioButtonsi[i+2]->show();
         buttonGroupi->addButton(radioButtonsi[i+2], i+1);
     }
@@ -510,9 +659,9 @@ void musclepage::updatevalue(){
     int nBodies = setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
     for (int i = 0; i < nBodies; ++i) {
         std::string bodyName = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname();
-        QCheckBox* checkBox = new QCheckBox(QString::fromStdString(bodyName), this);
+        QCheckBox* checkBox = new QCheckBox(QString::fromStdString(bodyName), bodyListContent);
         checkBox->setStyleSheet("QCheckBox { color: black; background-color: #CCCCCC; }");
-        checkBox->setGeometry(910, 190 + i * 40, 340, 30);
+        checkBox->setGeometry(910, 30+i * 40, 340, 30);
         checkBox->show();
         checkBoxes_body.push_back(checkBox);
         connect(checkBox, &QCheckBox::stateChanged,this, &musclepage::handleCheckBoxChanged_body);
@@ -533,6 +682,7 @@ void musclepage::updatevalue(){
         rectanglemain->update();
         rectanglemain->show();
     }
+    bodyListContent->resize(1260, std::max(350, 150 + nBodies * 40));
     this->update();
 }
 
@@ -549,4 +699,3 @@ void musclepage::handleCheckBoxChanged_body(int state){
         }
     }
 }
-

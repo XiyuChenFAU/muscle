@@ -49,6 +49,7 @@ public:
     void set_single_read_muscle_value(const std::string& name, int read_muscle_value);
     void set_node_partition(int constraint_local_mode_number, const std::string& constraint_local_select_bodyname, int init_mode_nr, const std::string& init_select_bodyname, int first_step_index);
     void set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value, const std::vector<std::vector<double>>& rho_via_point_eta, const std::vector<double>& via_point_alpha, const std::vector<double>& via_point_cutoff, int global = 0);
+    void set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value, const std::vector<std::vector<double>>& rho_via_point_eta, const std::vector<double>& via_point_alpha, const std::vector<double>& via_point_cutoff, const std::vector<int>& global_list);
     int get_muscle_viapoint_node_num();
     void update_all_via_point_gamma();
     void update_all_via_point_eta(const std::vector<double>& eta_value);

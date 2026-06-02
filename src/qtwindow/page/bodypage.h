@@ -18,6 +18,9 @@ Xiyu Chen
 #include "../../run_model.h"
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QScrollBar>
+
+class QScrollArea;
 
 class setmodelwindow;
 
@@ -45,6 +48,8 @@ private:
     QButtonGroup *buttonGroupgloballocal = nullptr;
     std::vector<QLabel*> qlabels;
     std::vector<QPushButton*> bodybuttons;
+    QScrollArea* bodyButtonScrollArea=nullptr;
+    QWidget* bodyButtonContent=nullptr;
     QPushButton* savebutton=nullptr;
     QPushButton* deletebutton=nullptr;
     QPushButton* newbodybutton=nullptr;

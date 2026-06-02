@@ -19,8 +19,10 @@ Xiyu Chen
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QScrollBar>
 #include "../../run_model.h"
 
+class QScrollArea;
 
 class setmodelwindow;
 
@@ -55,6 +57,8 @@ private:
     QLineEdit *print_levelEdit=nullptr;
     QLineEdit *hessian_approximationEdit=nullptr;
     QFrame* rectangle =nullptr;
+    QScrollArea* bodyOptionScrollArea=nullptr;
+    QWidget* bodyOptionContent=nullptr;
     QPushButton *selectFolderButton=nullptr;
     QPushButton *savebutton =nullptr;
 

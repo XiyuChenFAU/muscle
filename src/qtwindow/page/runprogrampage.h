@@ -16,7 +16,9 @@ Xiyu Chen
 #include <QPushButton>
 #include "../../run_model.h"
 #include <QSlider>
+#include <QPoint>
 
+class QTimer;
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QSphereMesh>
@@ -78,20 +80,31 @@ private:
     std::vector<Qt3DCore::QEntity*> allmuscleentities;
     QLabel* runtimelabel = nullptr;
     QWidget *container = nullptr;
+    QTimer *redrawTimer = nullptr;
     std::vector<QLabel *> genrallabels;
     Qt3DRender::QCamera *cameraEntity = nullptr;
     Qt3DExtras::Qt3DWindow *view = nullptr;
 
     std::vector<QColor*> colors;
     double zoomsize=5.0;
+    double viewZoom=1.0;
+    float cameraDistance=10.0f;
+    int currentRotationIndex = 0;
+    QVector3D cameraPan = QVector3D(0.0f, 0.0f, 0.0f);
 
     float camYaw = 0.0f;
     float camPitch = 0.0f;
+    bool rotatingWithMouse = false;
+    QPoint lastMousePos;
     int labelIdxCamYaw;
     int labelIdxCamPitch;
     QSlider* sliderCamPitch;
     QSlider* sliderCamYaw;
 
+    void applyViewZoom();
+    void applyCameraRotation();
+    void redrawCurrentFrame();
+    void scheduleEntityDeletion(Qt3DCore::QEntity *&entity);
     void rotateCameraYaw(int value);
     void rotateCameraPitch(int value);
     void setRotationDefault();
@@ -108,6 +121,9 @@ private slots:
     void saveModel();
     void updateSquareSize(int size);
     void setscale();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
 #endif // RUNPROGRAMPAGE_H

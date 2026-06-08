@@ -300,4 +300,3 @@ void solveeq::set_local_parameter(int selectedValue_localmode, int selectedValue
         Constraint->set_local_select_bodyname(selectedValue_cons_body);
     }
 }
-

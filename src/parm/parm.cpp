@@ -297,6 +297,15 @@ void Parm::set_single_read_muscle_value(const std::string& name, int read_muscle
     }
 }
 
+void Parm::set_hillpar(const std::string& musclename, const std::vector<double>& hill_value){
+    for(int i=0;i<allmuscle.size();i++){
+        if(allmuscle[i]->getname()==musclename){
+            allmuscle[i]->set_hill_parameter(hill_value);
+            break;
+        }
+    }
+}
+
 void Parm::set_node_partition(int constraint_local_mode_number, const std::string& constraint_local_select_bodyname, int init_mode_nr, const std::string& init_select_bodyname, int first_step_index){
     for(int i=0;i<allmuscle.size();i++){
         allmuscle[i]->set_node_partition(allbody, constraint_local_mode_number, constraint_local_select_bodyname, init_mode_nr, init_select_bodyname, first_step_index);

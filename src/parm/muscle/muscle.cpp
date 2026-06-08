@@ -162,6 +162,62 @@ std::vector<std::vector<double>> muscle::getetaall(){
     return etaall;
 }
 
+void muscle::set_gamma_history(const std::vector<std::vector<double>>& gamma_history){
+    if(gamma_history.empty() || all_nodes.empty()){
+        return;
+    }
+    for(int nodeIndex=0; nodeIndex<all_nodes.size(); nodeIndex++){
+        std::vector<std::vector<double>> nodeHistory;
+        for(const auto& stepValue : gamma_history){
+            int offset=3*nodeIndex;
+            if(stepValue.size()>=offset+3){
+                nodeHistory.push_back({stepValue[offset], stepValue[offset+1], stepValue[offset+2]});
+            }
+        }
+        if(!nodeHistory.empty()){
+            all_nodes[nodeIndex]->set_gamma_history(nodeHistory);
+        }
+    }
+}
+
+void muscle::set_eta_history(const std::vector<std::vector<double>>& eta_history){
+    std::cout << std::endl;
+    if(eta_history.empty()){
+        return;
+    }
+    std::vector<int> freeNodeIndices;
+    for(int i=1;i<all_nodes.size()-1;i++){
+        if(!all_nodes[i]->get_fixpoint()){
+            freeNodeIndices.push_back(i);
+        }
+    }
+    if(freeNodeIndices.empty()){
+        return;
+    }
+    int etaPerNode=0;
+    for(const auto& row : eta_history){
+        if(!row.empty()){
+            etaPerNode=static_cast<int>(row.size()/freeNodeIndices.size());
+            break;
+        }
+    }
+    if(etaPerNode<=0){
+        return;
+    }
+    for(int localIndex=0; localIndex<freeNodeIndices.size(); localIndex++){
+        std::vector<std::vector<double>> nodeHistory;
+        for(const auto& stepValue : eta_history){
+            int offset=etaPerNode*localIndex;
+            if(stepValue.size()>=offset+etaPerNode){
+                nodeHistory.push_back(std::vector<double>(stepValue.begin()+offset, stepValue.begin()+offset+etaPerNode));
+            }
+        }
+        if(!nodeHistory.empty()){
+            all_nodes[freeNodeIndices[localIndex]]->set_eta_history(nodeHistory);
+        }
+    }
+}
+
 std::vector<double> muscle::getgamma_step(int stepnum){
     std::vector<double> gammaall={};
     for(int i =0;i<all_nodes.size();i++){
@@ -215,6 +271,14 @@ std::vector<std::string> muscle::get_consider_body_list(){
 
 void muscle::set_read_muscle_value(int value){
     read_muscle_value=value;
+}
+
+void muscle::set_hill_parameter(const std::vector<double>& hill_value){
+    hill_par = hill_value;
+}
+
+std::vector<double> muscle::get_hill_parameter(){
+    return hill_par;
 }
 
 int muscle::get_read_muscle_value(){
@@ -562,4 +626,3 @@ void muscle::deleteallnodes(){
     }
     all_nodes.clear();
 }
-

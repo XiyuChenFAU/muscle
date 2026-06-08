@@ -11,6 +11,7 @@ Xiyu Chen
 #include <QPainter>
 #include <QPainterPath>
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
 class MuscleLengthChart : public QWidget
@@ -178,6 +179,10 @@ void postprocessingpage::updatevalue()
     std::vector<std::vector<double>> diffSeries;
     std::vector<QString> names;
     auto lengthAll = setmodelwin->getRunmodel()->getModel()->getPostprocessing()->getlengthall();
+    if(lengthAll.empty()){
+        setmodelwin->getRunmodel()->getModel()->do_postprocessing(0.0);
+        lengthAll = setmodelwin->getRunmodel()->getModel()->getPostprocessing()->getlengthall();
+    }
     int muscleCount = setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles();
     for (int i = 0; i < static_cast<int>(lengthAll.size()) && i < muscleCount; ++i) {
         std::vector<double> totalLength;
@@ -193,6 +198,37 @@ void postprocessingpage::updatevalue()
             lengthSeries.push_back(totalLengthWithoutInitial);
             diffSeries.push_back(totalLengthDiff);
             names.push_back(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i)->getname()));
+        }
+    }
+    if(lengthSeries.empty()){
+        for(int i=0; i<muscleCount; ++i){
+            muscle* Muscle = setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i);
+            std::vector<std::vector<double>> gammaAll = Muscle->getgammaall();
+            std::vector<double> totalLength;
+            for(const auto& gammaStep : gammaAll){
+                if(gammaStep.size()<6){
+                    continue;
+                }
+                double stepLength=0.0;
+                int nodeCount=static_cast<int>(gammaStep.size()/3);
+                for(int nodeIndex=0; nodeIndex<nodeCount-1; ++nodeIndex){
+                    double dx=gammaStep[3*(nodeIndex+1)]-gammaStep[3*nodeIndex];
+                    double dy=gammaStep[3*(nodeIndex+1)+1]-gammaStep[3*nodeIndex+1];
+                    double dz=gammaStep[3*(nodeIndex+1)+2]-gammaStep[3*nodeIndex+2];
+                    stepLength += std::sqrt(dx*dx + dy*dy + dz*dz);
+                }
+                totalLength.push_back(stepLength);
+            }
+            if(totalLength.size()>1){
+                std::vector<double> totalLengthWithoutInitial(totalLength.begin()+1, totalLength.end());
+                std::vector<double> totalLengthDiff;
+                for(int step=2; step<static_cast<int>(totalLength.size()); ++step){
+                    totalLengthDiff.push_back(totalLength[step]-totalLength[step-1]);
+                }
+                lengthSeries.push_back(totalLengthWithoutInitial);
+                diffSeries.push_back(totalLengthDiff);
+                names.push_back(QString::fromStdString(Muscle->getname()));
+            }
         }
     }
     lengthChart->setData(lengthSeries, diffSeries, names);

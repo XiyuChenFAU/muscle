@@ -153,6 +153,17 @@ musclepage::musclepage(setmodelwindow *setmodelwin,QWidget *parent):
     rhoiaxisyEdit = settextandlabel("axis y",rhoistring_axis_y, 680, 390, 100, 30, allfontsize);
     rhoiaxiszEdit = settextandlabel("axis z",rhoistring_axis_z, 680, 475, 100, 30, allfontsize);
 
+    hillFmaxEdit = settextandlabel("Fmax", "0", 450, 210, 80, 28, allfontsize);
+    hillLoptEdit = settextandlabel("Lopt", "0", 540, 210, 80, 28, allfontsize);
+    hillL0Edit = settextandlabel("L0", "0", 630, 210, 80, 28, allfontsize);
+    if(Muscle!=nullptr){
+        std::vector<double> hillPar = Muscle->get_hill_parameter();
+        hillPar.resize(3, 0.0);
+        hillFmaxEdit->setText(QString::fromStdString(doubletostring(hillPar[0])));
+        hillLoptEdit->setText(QString::fromStdString(doubletostring(hillPar[1])));
+        hillL0Edit->setText(QString::fromStdString(doubletostring(hillPar[2])));
+    }
+
     updatevalue();
     loadViaPointsFromMuscle();
 
@@ -206,6 +217,9 @@ musclepage::~musclepage(){
     delete rhoiaxisxEdit;
     delete rhoiaxisyEdit;
     delete rhoiaxiszEdit;
+    delete hillFmaxEdit;
+    delete hillLoptEdit;
+    delete hillL0Edit;
     delete rectanglemain;
     delete muscleButtonScrollArea;
     delete bodyListScrollArea;
@@ -315,6 +329,9 @@ void musclepage::plusbuttonsetting(){
         pendingViaPoints.clear();
         viaPointDirty=false;
         setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1,init_consider_body);
+        hillFmaxEdit->setText("0");
+        hillLoptEdit->setText("0");
+        hillL0Edit->setText("0");
         for(int i=0;i<musclebuttons.size();i++){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
         }
@@ -341,6 +358,7 @@ void musclepage::savebuttonsetting(){
             consider_body_list_value.push_back(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedBodies[i])->getname());
         }
         setmodelwin->getRunmodel()->getModel()->getparm()->addmuscle(rhooaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValueo-1)->getname(), rhoiaxisvalue, setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuei-1)->getname(), musclenameEdit->text().toStdString(), nodenumEdit->text().toInt(),selectedValuelocal,{}, {}, consider_body_list_value);//set via point later
+        setmodelwin->getRunmodel()->getModel()->getparm()->set_hillpar(musclenameEdit->text().toStdString(), {hillFmaxEdit->text().toDouble(), hillLoptEdit->text().toDouble(), hillL0Edit->text().toDouble()});
         applyPendingViaPointsToMuscle();
         viaPointDirty=false;
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles()>musclebuttons.size()){
@@ -414,6 +432,9 @@ void musclepage::newmusclebuttonsetting(){
     pendingViaPoints.clear();
     viaPointDirty=false;
     setalltextedit({0.0,0.0,0.0}, "", {0.0,0.0,0.0}, "", "", 0, -1,init_consider_body);
+    hillFmaxEdit->setText("0");
+    hillLoptEdit->setText("0");
+    hillL0Edit->setText("0");
 }
 
 void musclepage::showmusclesetting(int index){
@@ -430,6 +451,11 @@ void musclepage::showmusclesetting(int index){
         }
     }
     setalltextedit(Muscle->getrho_o(), Muscle->getrhoo_bodyname(), Muscle->getrho_i(), Muscle->getrhoi_bodyname(), Muscle->getname(), Muscle->getnodenum(), 0,consider_list);
+    std::vector<double> hillPar = Muscle->get_hill_parameter();
+    hillPar.resize(3, 0.0);
+    hillFmaxEdit->setText(QString::fromStdString(doubletostring(hillPar[0])));
+    hillLoptEdit->setText(QString::fromStdString(doubletostring(hillPar[1])));
+    hillL0Edit->setText(QString::fromStdString(doubletostring(hillPar[2])));
     for(int i=0;i<musclebuttons.size();i++){
         if(index==i){
             musclebuttons[i]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");

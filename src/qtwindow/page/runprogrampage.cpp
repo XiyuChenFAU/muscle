@@ -14,6 +14,8 @@ Xiyu Chen
 #include <QMouseEvent>
 #include <QTimer>
 #include <QWheelEvent>
+#include <QCheckBox>
+#include <QScrollArea>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -39,50 +41,53 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
     runButton = new QPushButton("Run Model", this);
     runButton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;}");
     runButton->setGeometry(10, 30, 100, 50);
-    
     connect(runButton, &QPushButton::clicked, this, &runprogrampage::runModelFunction);
+
+    continueButton = new QPushButton("Continue", this);
+    continueButton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;}");
+    continueButton->setGeometry(120, 30, 100, 50);
+    connect(continueButton, &QPushButton::clicked, this, &runprogrampage::continueModelFunction);
 
     //save button
     exportbutton = new QPushButton("Export json", this);
     exportbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;}");
-    exportbutton->setGeometry(120, 30, 100, 50);
+    exportbutton->setGeometry(230, 30, 100, 50);
     connect(exportbutton, &QPushButton::clicked, this, &runprogrampage::saveModel);
 
-    save_intervalEdit=settextandlabel("save interval",save_interval, 230, 10, 80, 40, 15);
+    save_intervalEdit=settextandlabel("save interval",save_interval, 340, 10, 80, 40, 15);
 
     runtimelabel=setlabel("", 10, 155 ,15);
-    runtimelabel->setGeometry(320, 40, 200, 30);
+    runtimelabel->setGeometry(430, 40, 200, 30);
 
-    scaleedit=settext("", 450, 30, 100, 50 ,15);
+    scaleedit=settext("", 560, 30, 100, 50 ,15);
     scaleeditbutton = new QPushButton("zoom figure", this);
     scaleeditbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;}");
-    scaleeditbutton->setGeometry(570, 30, 100, 50);
+    scaleeditbutton->setGeometry(680, 30, 100, 50);
     connect(scaleeditbutton, &QPushButton::clicked, this, &runprogrampage::setscale);
 
-    rotateedit=settext("", 450, 30, 100, 50 ,15);
+    rotateedit=settext("", 560, 30, 100, 50 ,15);
     rotateeditbutton = new QPushButton("rotate default", this);
     rotateeditbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;}");
-    rotateeditbutton->setGeometry(670, 30, 100, 50);
+    rotateeditbutton->setGeometry(790, 30, 100, 50);
     connect(rotateeditbutton, &QPushButton::clicked, this, &runprogrampage::setRotationDefault);
 
     labels.push_back(setlabel("initial", 500, 100 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
-    int loopnum;
-    if(setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step()){
-        loopnum = setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step()+1;
-    }
-    else{
-        loopnum=0;
-    }
+    int loopnum=availableStepMax();
     QSlider* slider = new QSlider(Qt::Horizontal, this);
-    slider->setRange(0, loopnum);
+    slider->setRange(0, std::max(1, loopnum));
+    slider->setEnabled(loopnum > 0);
     slider->setGeometry(10,125,1000,30);
-    slider->setStyleSheet("QSlider { background-color: white; }");
+    slider->setStyleSheet(
+        "QSlider { background-color: white; }"
+    );
+    slider->show();
+    slider->raise();
     connect(slider, &QSlider::valueChanged, this, &runprogrampage::updateSquareSize);
     sliders.push_back(slider);
     QLabel* labelzeroa=setlabel("initial", 10, 155 ,15);
     genrallabels.push_back(labelzeroa);
-    int stepnumall=setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step();
+    int stepnumall=loopnum;
     labels.push_back(setlabel(std::to_string(stepnumall), 1000, 155 ,15));
     labels[labels.size()-1]->setGeometry(labels[labels.size()-1]->x(), labels[labels.size()-1]->y(), 200, labels[labels.size()-1]->height());
 
@@ -100,7 +105,7 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
 
     // Cam Pitch Functionality -> vertical slider, interactive camera rotation
     sliderCamPitch = new QSlider(Qt::Vertical, this);
-    sliderCamPitch->setRange(-90, 90);              
+    sliderCamPitch->setRange(-360, 360);
     sliderCamPitch->setGeometry(10, 250, 30, 500);
     sliderCamPitch->setStyleSheet("QSlider { background-color: white; }");
     QLabel* labelCamPitch = setlabel("CamPitch", 10, 800, 15);
@@ -192,6 +197,7 @@ runprogrampage::runprogrampage(setmodelwindow *setmodelwin, QWidget *parent):
             allmuscleentities.push_back(Entitynew);
         }
     }
+    rebuildVisibilityControls();
 
     // Coordinate axes  ----------------------------------------------------
     /*
@@ -221,7 +227,10 @@ runprogrampage::~runprogrampage()
     }
 
     delete runButton;
+    delete continueButton;
     delete exportbutton;
+    delete bodyVisibilityScrollArea;
+    delete muscleVisibilityScrollArea;
 
     for(int i=0;i<sliders.size();i++){
         delete sliders[i];
@@ -267,6 +276,18 @@ void runprogrampage::runModelFunction()
     setmodelwin->getRunmodel()->getModel()->set_save_interval(save_intervalEdit->text().toInt());
     double runtime=setmodelwin->getRunmodel()->runprogramm();
     runtimelabel->setText(QString::fromStdString(doubletostring(runtime)+" s")); 
+    updateStepSliderRange();
+    redrawCurrentFrame();
+    continueButton->setVisible(true);
+}
+
+void runprogrampage::continueModelFunction()
+{
+    setmodelwin->getRunmodel()->getModel()->set_save_interval(save_intervalEdit->text().toInt());
+    double runtime=setmodelwin->getRunmodel()->runprogramm();
+    runtimelabel->setText(QString::fromStdString(doubletostring(runtime)+" s")); 
+    updateStepSliderRange();
+    redrawCurrentFrame();
 }
 
 void runprogrampage::saveModel()
@@ -274,9 +295,52 @@ void runprogrampage::saveModel()
     setmodelwin->getRunmodel()->savemodel();
 }
 
+int runprogrampage::availableStepMax() const
+{
+    int maxStep=0;
+    if(setmodelwin==nullptr || setmodelwin->getRunmodel()==nullptr || setmodelwin->getRunmodel()->getModel()==nullptr){
+        return maxStep;
+    }
+    Parm* parm=setmodelwin->getRunmodel()->getModel()->getparm();
+    for(body* Body : parm->getallbody()){
+        int bodyMax=static_cast<int>(Body->getbodybasic()->getq().size())-1;
+        maxStep=std::max(maxStep, bodyMax);
+    }
+    for(muscle* Muscle : parm->getallmuscle()){
+        int muscleMax=static_cast<int>(Muscle->getgammaall().size())-1;
+        maxStep=std::max(maxStep, muscleMax);
+    }
+    return std::max(0, maxStep);
+}
+
+void runprogrampage::updateStepSliderRange()
+{
+    if(sliders.empty()){
+        return;
+    }
+    int maxStep=availableStepMax();
+    sliders[0]->setRange(0, std::max(1, maxStep));
+    sliders[0]->setEnabled(maxStep > 0);
+    sliders[0]->show();
+    sliders[0]->raise();
+    if(labels.size()>1){
+        labels[1]->setText(QString::fromStdString(std::to_string(maxStep)));
+    }
+    if(currentRotationIndex>maxStep){
+        currentRotationIndex=maxStep;
+        sliders[0]->setValue(maxStep);
+    }
+}
+
 void runprogrampage::drawallbody(int rotationindex){
     int bodynum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
     for(int i=0;i<bodynum;i++){
+        if(i < static_cast<int>(bodyVisible.size()) && !bodyVisible[i]){
+            if(i+1 < static_cast<int>(allentities.size())){
+                scheduleEntityDeletion(allentities[i+1]);
+            }
+            continue;
+        }
         body* currentbody=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i);
         const auto currentbodyaxisangle_ref = currentbody->getbodybasic()->getaxisangle_ref();
         const auto currentq = currentbody->getbodybasic()->getq();
@@ -407,7 +471,9 @@ void runprogrampage::drawallmuscle(int rotationindex){
     int allnode=0;
     for(int i=0;i<musclenum;i++){
         muscle* currentmuscle=setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i);
-        drawmuscle(i, rotationindex,allnode);
+        if(i >= static_cast<int>(muscleVisible.size()) || muscleVisible[i]){
+            drawmuscle(i, rotationindex,allnode);
+        }
         allnode=allnode+std::max(0, currentmuscle->getnodenum()-1);
     }
 }
@@ -622,16 +688,12 @@ std::string runprogrampage::doubletostring(double num) {
 
 void runprogrampage::updatevalue(){
     currentRotationIndex = 0;
-    int stepnumall=setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step();
+    int stepnumall=availableStepMax();
     labels[1]->setText(QString::fromStdString(std::to_string(stepnumall)));
-    int loopnum;
-    if(stepnumall){
-        loopnum = setmodelwin->getRunmodel()->getModel()->getparm()->get_run_total_step()+1;
-    }
-    else{
-        loopnum=0;
-    }
-    sliders[0]->setRange(0, loopnum);
+    sliders[0]->setRange(0, std::max(1, stepnumall));
+    sliders[0]->setEnabled(stepnumall > 0);
+    sliders[0]->show();
+    sliders[0]->raise();
     int allentitiesnum=allentities.size();
     for(int i=1;i<allentitiesnum;i++){
         if(allentities[1]!=nullptr){
@@ -662,6 +724,14 @@ void runprogrampage::updatevalue(){
             allmuscleentities.push_back(Entitynew);
         }
     }
+
+    std::vector<std::vector<double>> bodyq = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(-1)->getbodybasic()->getq();
+    if(bodyq.size()>1){
+        continueButton->setVisible(true);
+    }else{
+        continueButton->setVisible(false);
+    }
+    rebuildVisibilityControls();
     drawallbody(0);
     drawallmuscle(0);
 }
@@ -680,6 +750,152 @@ void runprogrampage::redrawCurrentFrame()
     drawallmuscle(drawIndex);
 }
 
+void runprogrampage::rebuildVisibilityControls()
+{
+    const std::vector<bool> oldBodyVisible = bodyVisible;
+    const std::vector<bool> oldMuscleVisible = muscleVisible;
+    const int bodynum = setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
+    const int musclenum = setmodelwin->getRunmodel()->getModel()->getparm()->getn_muscles();
+
+    bodyVisible.assign(bodynum, true);
+    muscleVisible.assign(musclenum, true);
+    for(int i=0;i<std::min(bodynum, static_cast<int>(oldBodyVisible.size()));i++){
+        bodyVisible[i] = oldBodyVisible[i];
+    }
+    for(int i=0;i<std::min(musclenum, static_cast<int>(oldMuscleVisible.size()));i++){
+        muscleVisible[i] = oldMuscleVisible[i];
+    }
+
+    if(bodyVisibilityScrollArea == nullptr){
+        QLabel *bodyLabel = setlabel("body", 1040, 20, 15);
+        genrallabels.push_back(bodyLabel);
+        bodyVisibilityScrollArea = new QScrollArea(this);
+        bodyVisibilityScrollArea->setGeometry(1040, 50, 165, 120);
+        bodyVisibilityScrollArea->setWidgetResizable(false);
+        bodyVisibilityScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        bodyVisibilityScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        bodyVisibilityScrollArea->setStyleSheet(
+            "QScrollArea { background: white; border: none; }"
+            "QScrollArea > QWidget > QWidget { background: white; }"
+            "QScrollBar:vertical { width: 10px; background: white; }"
+            "QScrollBar::handle:vertical { background: #CCCCCC; border-radius: 5px; }"
+            "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }"
+        );
+        bodyVisibilityScrollArea->viewport()->setStyleSheet("background: white;");
+        bodyVisibilityContent = new QWidget();
+        bodyVisibilityContent->setStyleSheet("background-color: white;");
+        bodyVisibilityScrollArea->setWidget(bodyVisibilityContent);
+    }
+
+    if(muscleVisibilityScrollArea == nullptr){
+        QLabel *muscleLabel = setlabel("muscle", 1220, 20, 15);
+        genrallabels.push_back(muscleLabel);
+        muscleVisibilityScrollArea = new QScrollArea(this);
+        muscleVisibilityScrollArea->setGeometry(1220, 50, 190, 120);
+        muscleVisibilityScrollArea->setWidgetResizable(false);
+        muscleVisibilityScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        muscleVisibilityScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        muscleVisibilityScrollArea->setStyleSheet(
+            "QScrollArea { background: white; border: none; }"
+            "QScrollArea > QWidget > QWidget { background: white; }"
+            "QScrollBar:vertical { width: 10px; background: white; }"
+            "QScrollBar::handle:vertical { background: #CCCCCC; border-radius: 5px; }"
+            "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }"
+        );
+        muscleVisibilityScrollArea->viewport()->setStyleSheet("background: white;");
+        muscleVisibilityContent = new QWidget();
+        muscleVisibilityContent->setStyleSheet("background-color: white;");
+        muscleVisibilityScrollArea->setWidget(muscleVisibilityContent);
+    }
+
+    for(QWidget *child : bodyVisibilityContent->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)){
+        delete child;
+    }
+    for(QWidget *child : muscleVisibilityContent->findChildren<QWidget*>(QString(), Qt::FindDirectChildrenOnly)){
+        delete child;
+    }
+    bodyVisibilityChecks.clear();
+    muscleVisibilityChecks.clear();
+
+    bodyVisibilityContent->resize(145, std::max(110, (bodynum + 1) * 28));
+    allBodyVisibilityCheck = new QCheckBox("all", bodyVisibilityContent);
+    allBodyVisibilityCheck->setGeometry(5, 0, 135, 24);
+    allBodyVisibilityCheck->setChecked(std::all_of(bodyVisible.begin(), bodyVisible.end(), [](bool value) { return value; }));
+    allBodyVisibilityCheck->setStyleSheet("QCheckBox { color: black; background-color: white; font-weight: bold; }");
+    connect(allBodyVisibilityCheck, &QCheckBox::stateChanged, this, [this](int state) {
+        const bool checked = state == Qt::Checked;
+        for(int i=0;i<static_cast<int>(bodyVisible.size());i++){
+            bodyVisible[i] = checked;
+            if(i < static_cast<int>(bodyVisibilityChecks.size())){
+                bodyVisibilityChecks[i]->blockSignals(true);
+                bodyVisibilityChecks[i]->setChecked(checked);
+                bodyVisibilityChecks[i]->blockSignals(false);
+            }
+        }
+        redrawCurrentFrame();
+    });
+    allBodyVisibilityCheck->show();
+    for(int i=0;i<bodynum;i++){
+        body* currentbody = setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i);
+        QCheckBox *checkBox = new QCheckBox(QString::fromStdString(currentbody->getname()), bodyVisibilityContent);
+        checkBox->setGeometry(5, (i + 1) * 28, 135, 24);
+        checkBox->setChecked(bodyVisible[i]);
+        checkBox->setStyleSheet("QCheckBox { color: black; background-color: white; }");
+        connect(checkBox, &QCheckBox::stateChanged, this, [this, i](int state) {
+            if(i < static_cast<int>(bodyVisible.size())){
+                bodyVisible[i] = state == Qt::Checked;
+                if(allBodyVisibilityCheck != nullptr){
+                    allBodyVisibilityCheck->blockSignals(true);
+                    allBodyVisibilityCheck->setChecked(std::all_of(bodyVisible.begin(), bodyVisible.end(), [](bool value) { return value; }));
+                    allBodyVisibilityCheck->blockSignals(false);
+                }
+                redrawCurrentFrame();
+            }
+        });
+        checkBox->show();
+        bodyVisibilityChecks.push_back(checkBox);
+    }
+
+    muscleVisibilityContent->resize(170, std::max(110, (musclenum + 1) * 28));
+    allMuscleVisibilityCheck = new QCheckBox("all", muscleVisibilityContent);
+    allMuscleVisibilityCheck->setGeometry(5, 0, 160, 24);
+    allMuscleVisibilityCheck->setChecked(std::all_of(muscleVisible.begin(), muscleVisible.end(), [](bool value) { return value; }));
+    allMuscleVisibilityCheck->setStyleSheet("QCheckBox { color: black; background-color: white; font-weight: bold; }");
+    connect(allMuscleVisibilityCheck, &QCheckBox::stateChanged, this, [this](int state) {
+        const bool checked = state == Qt::Checked;
+        for(int i=0;i<static_cast<int>(muscleVisible.size());i++){
+            muscleVisible[i] = checked;
+            if(i < static_cast<int>(muscleVisibilityChecks.size())){
+                muscleVisibilityChecks[i]->blockSignals(true);
+                muscleVisibilityChecks[i]->setChecked(checked);
+                muscleVisibilityChecks[i]->blockSignals(false);
+            }
+        }
+        redrawCurrentFrame();
+    });
+    allMuscleVisibilityCheck->show();
+    for(int i=0;i<musclenum;i++){
+        muscle* currentmuscle = setmodelwin->getRunmodel()->getModel()->getparm()->getmuscleindex(i);
+        QCheckBox *checkBox = new QCheckBox(QString::fromStdString(currentmuscle->getname()), muscleVisibilityContent);
+        checkBox->setGeometry(5, (i + 1) * 28, 160, 24);
+        checkBox->setChecked(muscleVisible[i]);
+        checkBox->setStyleSheet("QCheckBox { color: black; background-color: white; }");
+        connect(checkBox, &QCheckBox::stateChanged, this, [this, i](int state) {
+            if(i < static_cast<int>(muscleVisible.size())){
+                muscleVisible[i] = state == Qt::Checked;
+                if(allMuscleVisibilityCheck != nullptr){
+                    allMuscleVisibilityCheck->blockSignals(true);
+                    allMuscleVisibilityCheck->setChecked(std::all_of(muscleVisible.begin(), muscleVisible.end(), [](bool value) { return value; }));
+                    allMuscleVisibilityCheck->blockSignals(false);
+                }
+                redrawCurrentFrame();
+            }
+        });
+        checkBox->show();
+        muscleVisibilityChecks.push_back(checkBox);
+    }
+}
+
 void runprogrampage::applyViewZoom()
 {
     cameraDistance = static_cast<float>(10.0 / viewZoom);
@@ -689,14 +905,15 @@ void runprogrampage::applyViewZoom()
 
 void runprogrampage::applyCameraRotation()
 {
-    camPitch = std::max(-89.0f, std::min(89.0f, camPitch));
+    camPitch = std::max(-360.0f, std::min(360.0f, camPitch));
 
     QQuaternion qyaw = QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), camYaw);
     QQuaternion qpitch = QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), camPitch);
 
     QVector3D rotated = qyaw.rotatedVector(qpitch.rotatedVector(QVector3D(0,0,cameraDistance)));
+    QVector3D rotatedUp = qyaw.rotatedVector(qpitch.rotatedVector(QVector3D(0,1,0)));
     cameraEntity->setPosition(cameraPan + rotated);
-    cameraEntity->setUpVector(QVector3D(0,1,0));
+    cameraEntity->setUpVector(rotatedUp);
     cameraEntity->setViewCenter(cameraPan);
 
     labels[labelIdxCamYaw]->setText(QString::number(camYaw));

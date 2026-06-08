@@ -19,6 +19,8 @@ Xiyu Chen
 #include <QPoint>
 
 class QTimer;
+class QCheckBox;
+class QScrollArea;
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QSphereMesh>
@@ -63,7 +65,18 @@ public:
 private:
     setmodelwindow *setmodelwin=nullptr;
     QPushButton *runButton=nullptr;
+    QPushButton *continueButton=nullptr;
     QPushButton *exportbutton=nullptr;
+    QScrollArea *bodyVisibilityScrollArea=nullptr;
+    QWidget *bodyVisibilityContent=nullptr;
+    QScrollArea *muscleVisibilityScrollArea=nullptr;
+    QWidget *muscleVisibilityContent=nullptr;
+    std::vector<QCheckBox*> bodyVisibilityChecks;
+    std::vector<QCheckBox*> muscleVisibilityChecks;
+    QCheckBox *allBodyVisibilityCheck=nullptr;
+    QCheckBox *allMuscleVisibilityCheck=nullptr;
+    std::vector<bool> bodyVisible;
+    std::vector<bool> muscleVisible;
 
     QLineEdit *save_intervalEdit=nullptr;
 
@@ -104,6 +117,9 @@ private:
     void applyViewZoom();
     void applyCameraRotation();
     void redrawCurrentFrame();
+    void rebuildVisibilityControls();
+    int availableStepMax() const;
+    void updateStepSliderRange();
     void scheduleEntityDeletion(Qt3DCore::QEntity *&entity);
     void rotateCameraYaw(int value);
     void rotateCameraPitch(int value);
@@ -118,6 +134,7 @@ private:
 
 private slots:
     void runModelFunction();
+    void continueModelFunction();
     void saveModel();
     void updateSquareSize(int size);
     void setscale();

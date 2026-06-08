@@ -206,12 +206,22 @@ class Plot2D:
                 if title == 'moment arm':
                     if linename[i].split("-")[0] in allmusclname:
                         idx = allmusclname.index(linename[i].split("-")[0])
-                        plt.plot(x, data[i][0], label=linename[i], color=colors[idx % len(colors)])
+                        y = np.asarray(data[i][0], dtype=float).reshape(-1)
+                        count = min(len(x), len(y))
+                        plt.plot(x[:count], y[:count], label=linename[i], color=colors[idx % len(colors)])
                     else:
                         allmusclname.append(linename[i].split("-")[0])
-                        plt.plot(x, data[i][0], label=linename[i], color=colors[i % len(colors)])
+                        y = np.asarray(data[i][0], dtype=float).reshape(-1)
+                        count = min(len(x), len(y))
+                        plt.plot(x[:count], y[:count], label=linename[i], color=colors[i % len(colors)])
                 else:
-                    plt.plot(x, data[i], label=linename[i], color=colors[i % len(colors)])
+                    y = np.asarray(data[i], dtype=float)
+                    if y.ndim == 2 and y.shape[0] == 1:
+                        y = y[0]
+                    else:
+                        y = y.reshape(-1)
+                    count = min(len(x), len(y))
+                    plt.plot(x[:count], y[:count], label=linename[i], color=colors[i % len(colors)])
 
         plt.gca().xaxis.set_major_locator(MultipleLocator(120))
         plt.gca().xaxis.set_minor_locator(AutoLocator())
@@ -444,7 +454,10 @@ class Postprocessor:
     def postprocessingresult(self):
         self.checkbody()
         prefix = f"{self.modelname}_"
-        types = ['length', 'forcenode', 'phi', 'totalforce', 'bodystate', 'momentarm']
+        types = [
+            'length', 'forcenode', 'phi', 'totalforce', 'bodystate', 'momentarm',
+            'hill_passive_force', 'hill_active_force', 'hill_total_force', 'hill_moment'
+        ]
 
         for typ in types:
             filename = prefix + typ + '_result.txt'
@@ -471,6 +484,8 @@ class Postprocessor:
                     Plot2D.normalfig(allmuscledata, muscles, angles, 'total length', 'total length')
                     arr = np.array(allmuscledata)
                     Plot2D.normalfig((arr[:, :, 1:] - arr[:, :, :-1]) / (angles[1] - angles[0]), muscles, angles[1:], 'muscle length rate', 'muscle length rate')
+                elif typ in ['hill_passive_force', 'hill_active_force', 'hill_total_force', 'hill_moment']:
+                    Plot2D.normalfig(allmuscledata, muscles, angles, typ.replace('_', ' '), typ.replace('_', ' '))
                 elif 'momentarm' in typ:
                     Plot2D.normalfig(allmuscledata, muscles, angles, 'moment arm', 'moment arm')
                 elif 'phi' in typ:

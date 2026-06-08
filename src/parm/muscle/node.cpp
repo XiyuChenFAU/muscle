@@ -130,20 +130,41 @@ std::vector<double> node::get_gamma_node(){
 }
 
 std::vector<double> node::get_gamma_node(int node_step){
+    if(gammaall_node.empty()){
+        return {};
+    }
     if(node_step<0){
-        node_step=gammaall_node.size()+node_step;
-    } 
+        node_step=static_cast<int>(gammaall_node.size())+node_step;
+    }
+    if(node_step<0){
+        node_step=0;
+    }
+    if(node_step>=static_cast<int>(gammaall_node.size())){
+        node_step=static_cast<int>(gammaall_node.size())-1;
+    }
     return gammaall_node[node_step];
 }
 
 std::vector<double> node::get_eta_node(){
+    if(etaall_node.empty()){
+        return {};
+    }
     return etaall_node.back();
 }
 
 std::vector<double> node::get_eta_node(int node_step){
+    if(etaall_node.empty()){
+        return {};
+    }
     if(node_step<0){
-        node_step=etaall_node.size()+node_step;
-    } 
+        node_step=static_cast<int>(etaall_node.size())+node_step;
+    }
+    if(node_step<0){
+        node_step=0;
+    }
+    if(node_step>=static_cast<int>(etaall_node.size())){
+        node_step=static_cast<int>(etaall_node.size())-1;
+    }
     return etaall_node[node_step];
 }
 
@@ -215,6 +236,14 @@ void node::add_localtoglobal_gamma_node(const std::vector<double>& gammanew){
     std::vector<std::vector<double>> axis=ref_body->getbodybasic()->getaxis();
     std::vector<double> global_gamma=localtoglobal(position, axis, gammanew);
     gammaall_node.push_back(global_gamma);
+}
+
+void node::set_gamma_history(const std::vector<std::vector<double>>& gamma_history){
+    gammaall_node=gamma_history;
+}
+
+void node::set_eta_history(const std::vector<std::vector<double>>& eta_history){
+    etaall_node=eta_history;
 }
 
 std::vector<double> node::get_new_initial_guess(int mode_number){   

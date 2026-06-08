@@ -27,6 +27,7 @@ public:
     void writeanalyzeresultToFileAll(model* Model);
     void writejson(model* Model, int write_gamma, int currentstepnum);
     model* readmodel(const std::string& jsonfilename);
+    model* readmodelwithresultfolder(const std::string& resultfolder);
 
 private:
     void write2DvalueToFile(const std::vector<std::vector<double>>& value, std::ofstream& file, const std::string& name, const std::string& typenamevalue);
@@ -39,6 +40,7 @@ private:
     void writebody_stateToFile(model* Model);
     void writemomentarmnodeToFile(model* Model);
     void writemomentarmToFile(model* Model);
+    void writehillToFile(model* Model);
     void writerunningtimeToFile(model* Model);
     void writerefbodyToFile(model* Model);
     int write_precision=1;

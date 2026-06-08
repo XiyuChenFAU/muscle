@@ -173,8 +173,17 @@ std::vector<std::vector<double>> bodybasic::getq(){
 }
 
 std::vector<double> bodybasic::getq_step(int index){
+    if(q.empty()){
+        return {};
+    }
     if(index<0){
-        index=q.size()+index;
+        index=static_cast<int>(q.size())+index;
+    }
+    if(index<0){
+        index=0;
+    }
+    if(index>=static_cast<int>(q.size())){
+        index=static_cast<int>(q.size())-1;
     }
     return q[index];
 }
@@ -299,6 +308,26 @@ void bodybasic::addnewbodybasic(const std::vector<double>& newbodyposition, cons
     q.push_back(qnewall);
     setpoistionaxis(qnewall);
     axisangle_ref.push_back(matrix_to_axisangle_ref_fix_space());
+}
+
+void bodybasic::set_q_history(const std::vector<std::vector<double>>& q_history){
+    if(q_history.empty()){
+        return;
+    }
+    q.clear();
+    axisangle_ref.clear();
+    for(const auto& q_value : q_history){
+        if(q_value.size()<12){
+            continue;
+        }
+        q.push_back(q_value);
+        setpoistionaxis(q_value);
+        axisangle_ref.push_back(matrix_to_axisangle_ref_fix_space());
+    }
+    if(q.empty()){
+        return;
+    }
+    setpoistionaxis(q.back());
 }
 
 void bodybasic::setbody_temporary_update(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis){

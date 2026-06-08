@@ -25,6 +25,12 @@ public:
     void get_length_allmuscle(Parm* parm);
     std::vector<std::vector<double>> get_length_each_muscle(const std::vector<std::vector<double>>& gamma);
     std::vector<double> get_length_each_muscle_each_node(const std::vector<double>& gamma);
+    void get_hill_passive_force_allmuscle(Parm* parm);
+    std::vector<double> get_hill_passive_force_each_muscle(const std::vector<std::vector<double>>& gamma, const std::vector<double>& hill_par);
+    void get_hill_active_force_allmuscle(Parm* parm);
+    std::vector<double> get_hill_active_force_each_muscle(const std::vector<std::vector<double>>& gamma, const std::vector<double>& hill_par);
+    void get_hill_total_force_allmuscle(Parm* parm);
+    void get_hill_moment_allmuscle(Parm* parm);
     void getphiall(Parm* parm);
     std::vector<std::vector<double>> phi_shape_all(const std::vector<std::vector<double>>& gamma, body* Body);
     std::vector<double> phi_shape_allnode(const std::vector<double>& gamma, body* Body, int timenum);
@@ -38,6 +44,10 @@ public:
     std::vector<std::vector<std::vector<double>>> getforceallnode();
     std::vector<std::vector<double>> getmomentarmall();
     std::vector<std::vector<std::vector<double>>> getmomentarmnodeall();
+    std::vector<std::vector<double>> gethillpassiveforceall();
+    std::vector<std::vector<double>> gethillactiveforceall();
+    std::vector<std::vector<double>> gethilltotalforceall();
+    std::vector<std::vector<double>> gethillmomentall();
 
 private:
 
@@ -50,6 +60,10 @@ private:
     std::vector<std::vector<std::vector<double>>> forceallnode;
     std::vector<std::vector<double>> momentarmall;
     std::vector<std::vector<std::vector<double>>> momentarmnodeall;
+    std::vector<std::vector<double>> hillpassiveforceall;
+    std::vector<std::vector<double>> hillactiveforceall;
+    std::vector<std::vector<double>> hilltotalforceall;
+    std::vector<std::vector<double>> hillmomentall;
 
 };
 

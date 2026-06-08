@@ -129,6 +129,10 @@ std::vector<MX> constraintviapoint::constraintvia_phi_noeta(muscle* Muscle, cons
 }
 
 std::vector<MX> constraintviapoint::constraintvia_phi_eta(muscle* Muscle, const std::vector<std::vector<MX>>& gammaallnode, const std::vector<MX>& eta_via, int phi_eta_plus){
+    std::vector<viapoint*> via_points = Muscle->getvia_point_list();
+    if(via_points.empty()){
+        return {};
+    }
     std::vector<MX> constraintvia_phi_no_eta = constraintvia_phi_noeta(Muscle, gammaallnode);
     std::vector<MX> constraintvia_phi_eta;
     if(phi_eta_plus){

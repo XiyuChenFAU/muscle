@@ -43,6 +43,17 @@ void runmodel::setrunmodel(const std::string& jsonfile, int json){
     }
 }
 
+void runmodel::setrunmodelwithresultfolder(const std::string& resultfolder){
+    model* loadedModel=io->readmodelwithresultfolder(resultfolder);
+    if(loadedModel==nullptr){
+        return;
+    }
+    if(Model!=nullptr){
+        delete Model;
+    }
+    Model=loadedModel;
+}
+
 double runmodel::runprogramm(){
     io->writejson(Model,0,0);
 
@@ -80,9 +91,6 @@ IO* runmodel::getio(){
 model* runmodel::getModel(){
     return Model;
 }
-
-
-
 
 
 

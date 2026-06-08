@@ -58,10 +58,11 @@ void model::solve_signorini(){
     if(parm->get_run_total_step()==0){
         loopnum=0;
     }
+    int previous_step_num=parm->getbodyindex(-1)->getbodybasic()->getq().size()-1;
     for(int i=0;i<loopnum;i++){
         Solveeq->solvesignorinistep(parm, i);
         if(save_interval!=0){
-            if(i%save_interval==0){writejson(1,i+1);}
+            if(i%save_interval==0){writejson(1,previous_step_num+i+1);}
         }
     }
 }
@@ -192,6 +193,13 @@ void model::writejson(int write_gamma, int currentstepnum){
         muscleObject["rho_insertion"]=rhoi;
         muscleObject["insertion_relative_body"]=allmuscle[i]->getrhoi_bodyname();
         muscleObject["node_number"]=allmuscle[i]->getnodenum();
+        std::vector<double> hillPar = allmuscle[i]->get_hill_parameter();
+        hillPar.resize(3, 0.0);
+        Json::Value hillObject;
+        hillObject["Fmax"] = hillPar[0];
+        hillObject["Lopt"] = hillPar[1];
+        hillObject["L0"] = hillPar[2];
+        muscleObject["hill"] = hillObject;
 
         std::vector<viapoint*> all_via_point = allmuscle[i]->getvia_point_list();
         Json::Value viapoint_node_array(Json::arrayValue);

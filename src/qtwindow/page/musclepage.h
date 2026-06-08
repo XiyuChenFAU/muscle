@@ -73,6 +73,9 @@ private:
     QLineEdit *rhoiaxisxEdit=nullptr;
     QLineEdit *rhoiaxisyEdit=nullptr;
     QLineEdit *rhoiaxiszEdit=nullptr;
+    QLineEdit *hillFmaxEdit=nullptr;
+    QLineEdit *hillLoptEdit=nullptr;
+    QLineEdit *hillL0Edit=nullptr;
     QFrame* rectanglemain;
     std::vector<QRadioButton *> radioButtonso;
     QButtonGroup *buttonGroupo = nullptr;

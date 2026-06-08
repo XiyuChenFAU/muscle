@@ -27,6 +27,8 @@ public:
     void setmuscle(const std::vector<body*>& allbody, const std::vector<double>& rho_ovalue, const std::string& rhoo_bodynamevalue, const std::vector<double>& rho_ivalue, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue, const std::vector<double>& gammavalue, const std::vector<double>& etavalue, const std::vector<std::string>& consider_body_list_value);
     std::vector<std::vector<double>> getgammaall();
     std::vector<std::vector<double>> getetaall();
+    void set_gamma_history(const std::vector<std::vector<double>>& gamma_history);
+    void set_eta_history(const std::vector<std::vector<double>>& eta_history);
     std::vector<double> getgamma_step(int stepnum);
     std::vector<double> geteta_step(int stepnum);
     std::string getrhoo_bodyname();
@@ -41,6 +43,8 @@ public:
     std::vector<node*> get_allnodes();
     std::vector<std::string> get_consider_body_list();
     void set_read_muscle_value(int value);
+    void set_hill_parameter(const std::vector<double>& hill_value);
+    std::vector<double> get_hill_parameter();
     int get_read_muscle_value();
 
     void setnodenum(int nodenumvalue);
@@ -83,6 +87,7 @@ private:
     std::vector<std::string> consider_body_list={};
     std::vector<node*> all_nodes={};
     std::vector<viapoint*> via_point_list={};
+    std::vector<double> hill_par={0.0, 0.0, 0.0}; // Fmax, optimal length, minimum length
 };
 
 #endif // MUSCLE_H

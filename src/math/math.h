@@ -39,6 +39,7 @@ std::vector<std::vector<double>> matrixplus(const std::vector<std::vector<double
 std::vector<std::vector<double>> matrixminus(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2);
 std::vector<std::vector<double>> matrixtime(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2);
 std::vector<std::vector<double>> matrixtranspose(const std::vector<std::vector<double>>& matrix);
+std::vector<std::vector<int>> matrixtranspose(const std::vector<std::vector<int>>& matrix);
 std::vector<std::vector<double>> matrixeye(int length);
 std::vector<std::vector<double>> matrixtimeconstant(const std::vector<std::vector<double>>& matrix, double value);
 

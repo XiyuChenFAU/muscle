@@ -29,7 +29,9 @@ private:
     QPushButton *selectJsonButton=nullptr;
     QPushButton *runButton=nullptr;
     QPushButton *selectFolderButton=nullptr;
+    QPushButton *selectExistingResultFolderButton=nullptr;
     QTextEdit* jsonFolderPathLineEdit=nullptr;
+    QTextEdit* existingResultFolderPathLineEdit=nullptr;
     QTextEdit* jsonFilePathLineEdit=nullptr;
     QTextEdit* newmodelEdit=nullptr;
     setmodelwindow* setmodelWindow=nullptr;
@@ -39,6 +41,7 @@ private:
 private slots:
     void selectJsonFile();
     void selectFolder();
+    void selectExistingResultFolder();
     void runModel();
 };
 #endif // MAINWINDOW_H

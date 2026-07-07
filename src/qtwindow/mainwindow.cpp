@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent):
     QMainWindow(parent)
 {
     Runmodel=new runmodel();
-    setGeometry(100, 100, 800, 480);
+    setGeometry(100, 100, 800, 600);
     setStyleSheet("background-color: #CCCCCC;");
 
     jsonFilePathLineEdit = settextandlabel("Select exist model", "", 200, 40, 500, 60);
@@ -30,11 +30,18 @@ MainWindow::MainWindow(QWidget *parent):
     connect(selectFolderButton, SIGNAL(clicked()), this, SLOT(selectFolder()));
 
     setlabel("OR", 400, 270);
-    newmodelEdit = settextandlabel("Set new model", "", 200, 300, 400, 40);
+    existingResultFolderPathLineEdit = settextandlabel("Select folder with exist result", "", 200, 300, 500, 60);
+    selectExistingResultFolderButton = new QPushButton("Select result", this);
+    selectExistingResultFolderButton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
+    selectExistingResultFolderButton->setGeometry(610, 325, 100, 60);
+    connect(selectExistingResultFolderButton, SIGNAL(clicked()), this, SLOT(selectExistingResultFolder()));
+
+    setlabel("OR", 400, 400);
+    newmodelEdit = settextandlabel("Set new model", "", 200, 430, 400, 40);
 
     runButton = new QPushButton("Comfirm", this);
     runButton->setStyleSheet("QPushButton { color: black; background-color: grey;}");
-    runButton->setGeometry(350, 400, 100, 50);
+    runButton->setGeometry(350, 525, 100, 50);
     connect(runButton, SIGNAL(clicked()), this, SLOT(runModel()));
 }
 /*
@@ -68,9 +75,11 @@ MainWindow::~MainWindow()
     delete selectJsonButton;
     delete runButton;
     delete selectFolderButton;
+    delete selectExistingResultFolderButton;
     delete jsonFilePathLineEdit;
     delete newmodelEdit;
     delete jsonFolderPathLineEdit;
+    delete existingResultFolderPathLineEdit;
     for(int i=0;i<qlabels.size();i++){
         delete qlabels[i];
     }
@@ -88,15 +97,36 @@ void MainWindow::selectFolder() {
     }
 }
 
+void MainWindow::selectExistingResultFolder() {
+    QString folderPath = QFileDialog::getExistingDirectory(this, "Select Result Folder", "");
+    if (!folderPath.isEmpty()) {
+        existingResultFolderPathLineEdit->setText(folderPath);
+    }
+}
+
 void MainWindow::runModel() {
     QString jsonFilePath = jsonFilePathLineEdit->toPlainText();
     std::string jsonFilePathStdString = jsonFilePath.toStdString();
     QString jsonFolderPath = jsonFolderPathLineEdit->toPlainText();
     std::string jsonFolderPathstring = jsonFolderPath.toStdString();
+    QString existingResultFolderPath = existingResultFolderPathLineEdit->toPlainText();
+    std::string existingResultFolderPathString = existingResultFolderPath.toStdString();
     QString newmodelname = newmodelEdit->toPlainText();
     std::string newmodelnamestring = newmodelname.toStdString();
     if(jsonFilePathStdString!=""){
         Runmodel->setrunmodel(jsonFilePathStdString,1);
+        if(setmodelWindow!=nullptr){delete setmodelWindow;}
+        setmodelWindow=new setmodelwindow(Runmodel);
+        setmodelWindow->show();
+        this->close();
+    }
+
+    if(existingResultFolderPathString!=""){
+        Runmodel->setrunmodelwithresultfolder(existingResultFolderPathString);
+        if(Runmodel->getModel()==nullptr){
+            QMessageBox::warning(this, "load error", "Could not load result folder");
+            return;
+        }
         if(setmodelWindow!=nullptr){delete setmodelWindow;}
         setmodelWindow=new setmodelwindow(Runmodel);
         setmodelWindow->show();

@@ -8,6 +8,8 @@ Xiyu Chen
 
 #include "bodypage.h"
 #include "../setmodelwindow.h"
+#include <QScrollArea>
+#include <QScrollBar>
 
 
 bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
@@ -36,23 +38,51 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
     rectangle->setStyleSheet("background-color: #CCCCCC;");
 
     int bodynum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();
-    plusbutton= new QPushButton("+", this);
+    bodyButtonScrollArea = new QScrollArea(this);
+    bodyButtonScrollArea->setFrameShape(QFrame::NoFrame);
+    bodyButtonScrollArea->setGeometry(0, 50, 1400, 60);
+    bodyButtonScrollArea->setWidgetResizable(false);
+    bodyButtonScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    bodyButtonScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    bodyButtonScrollArea->setStyleSheet(
+        "QScrollArea { background: #CCCCCC; border: none; }"
+        "QScrollArea > QWidget > QWidget { background: #CCCCCC; }"
+        "QScrollBar:horizontal { height: 10px; background: #CCCCCC; }"
+        "QScrollBar::handle:horizontal { background: white; border-radius: 5px; }"
+        "QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0px; }"
+    );
+    bodyButtonScrollArea->viewport()->setStyleSheet("background: #CCCCCC;");
+    bodyButtonScrollArea->horizontalScrollBar()->setStyleSheet(
+    "QScrollBar:horizontal {"
+    "    height: 10px;"
+    "    background: #CCCCCC;"
+    "}"
+    "QScrollBar::handle:horizontal {"
+    "    background: white;"
+    "    border-radius: 8px;"
+    "}"
+    );
+    bodyButtonContent = new QWidget();
+    bodyButtonContent->setGeometry(0, 0, std::max(120, (bodynum + 2) * 70), 50);
+    bodyButtonScrollArea->setWidget(bodyButtonContent);
+
+    plusbutton= new QPushButton("+", bodyButtonContent);
     plusbutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
     connect(plusbutton, &QPushButton::clicked, this, &bodypage::plusbuttonsetting);
 
-    newbodybutton= new QPushButton("new", this);
+    newbodybutton= new QPushButton("new", bodyButtonContent);
     newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    newbodybutton->setGeometry(0, 50, 70, 50);
+    newbodybutton->setGeometry(0, 0, 70, 50);
     connect(newbodybutton, &QPushButton::clicked, this, &bodypage::newbodybuttonsetting);
 
     if(bodynum){ 
         for(int i=0;i<bodynum;i++){
-            QPushButton* bodybutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+            QPushButton* bodybutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), bodyButtonContent);
             bodybutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
-            bodybutton->setGeometry(i*70, 50, 70, 50);
+            bodybutton->setGeometry(i*70, 0, 70, 50);
             bodybuttons.push_back(bodybutton);
         }
-        plusbutton->setGeometry(bodynum*70, 50, 50, 50);
+        plusbutton->setGeometry(bodynum*70, 0, 50, 50);
         bodybuttons[0]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
         
         bodyname=setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(0)->getname();
@@ -80,7 +110,7 @@ bodypage::bodypage(setmodelwindow *setmodelwin,QWidget *parent):
         newbodybutton->setVisible(false);
     }
     else{
-        plusbutton->setGeometry(70, 50, 50, 50);
+        plusbutton->setGeometry(70, 0, 50, 50);
         
     }
 
@@ -201,6 +231,7 @@ bodypage::~bodypage(){
     delete lengthEdit;
     delete radiusEdit;
     delete rectangle;
+    delete bodyButtonScrollArea;
 }
 
 QLineEdit* bodypage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -281,8 +312,10 @@ void bodypage::plusbuttonsetting(){
     if(!newbodybutton->isVisible()){
         newbodybutton->setVisible(true);
         newbodybutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-        newbodybutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70, 50, 70, 50);
-        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70+70, 50, 50, 50);
+        int contentWidth = (setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies() + 2) * 70;
+        bodyButtonContent->resize(contentWidth, 50);
+        newbodybutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70, 0, 70, 50);
+        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()*70+70, 0, 50, 50);
         setalltextedit("", "fix_space", {0.0,0.0,0.0}, 0.0, {0.0,0.0,0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, "",-1);
         for(int i=0;i<bodybuttons.size();i++){
             bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
@@ -313,11 +346,12 @@ void bodypage::savebuttonsetting(){
                 bodybuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
             }
             std::string bodynewbuttonname=body_nameEdit->text().toStdString();
-            QPushButton* bodyaddnewbutton= new QPushButton(QString::fromStdString(bodynewbuttonname), this);
+            QPushButton* bodyaddnewbutton= new QPushButton(QString::fromStdString(bodynewbuttonname), bodyButtonContent);
             bodyaddnewbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-            bodyaddnewbutton->setGeometry(bodybuttons.size()*70, 50, 70, 50);
+            bodyaddnewbutton->setGeometry(bodybuttons.size()*70, 0, 70, 50);
             bodyaddnewbutton->setVisible(true);
-            plusbutton->setGeometry(bodybuttons.size()*70+70, 50, 70, 50);
+            plusbutton->setGeometry(bodybuttons.size()*70+70, 0, 70, 50);
+            bodyButtonContent->resize((bodybuttons.size()+2)*70, 50);
             bodybuttons.push_back(bodyaddnewbutton);
             int buttonsize=setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()-1;
                 connect(bodybuttons[buttonsize], &QPushButton::clicked, this, [this, buttonsize]() {
@@ -335,16 +369,16 @@ void bodypage::deletebuttonsetting(){
     }
     else{
         if(newbodybutton->isVisible()){
-            newbodybutton->setGeometry(parm->getn_bodies()*70, 50, 70, 50);
-            plusbutton->setGeometry(parm->getn_bodies()*70+70, 50, 50, 50);
+            newbodybutton->setGeometry(parm->getn_bodies()*70, 0, 70, 50);
+            plusbutton->setGeometry(parm->getn_bodies()*70+70, 0, 50, 50);
         }
         else{
-            plusbutton->setGeometry(parm->getn_bodies()*70, 50, 50, 50);
+            plusbutton->setGeometry(parm->getn_bodies()*70, 0, 50, 50);
         }
         delete bodybuttons[index];
         bodybuttons.erase(bodybuttons.begin() + index);
         for(int i=0;i<bodybuttons.size();i++){
-            bodybuttons[i]->setGeometry(i*70, 50, 70, 50);
+            bodybuttons[i]->setGeometry(i*70, 0, 70, 50);
             connect(bodybuttons[i], &QPushButton::clicked, this, [this, i]() {
             showbodysetting(i);
         });
@@ -354,9 +388,10 @@ void bodypage::deletebuttonsetting(){
         }
         else{
             newbodybutton->setVisible(true);
-            newbodybutton->setGeometry(0, 50, 70, 50);
-            plusbutton->setGeometry(70, 50, 50, 50);
+            newbodybutton->setGeometry(0, 0, 70, 50);
+            plusbutton->setGeometry(70, 0, 50, 50);
         }
+        bodyButtonContent->resize((parm->getn_bodies()+2)*70, 50);
                 
     }
 }

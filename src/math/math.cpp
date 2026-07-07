@@ -283,6 +283,18 @@ std::vector<std::vector<double>> matrixtranspose(const std::vector<std::vector<d
     return matrixnew;
 }
 
+std::vector<std::vector<int>> matrixtranspose(const std::vector<std::vector<int>>& matrix){
+    std::vector<std::vector<int>> matrixnew;
+    for(int i=0; i<matrix[0].size(); i++){
+        std::vector<int> matrixnew1;
+        matrixnew.push_back(matrixnew1);
+        for(int j=0; j<matrix.size(); j++){
+            matrixnew[i].push_back(matrix[j][i]);
+        }
+    }
+    return matrixnew;
+}
+
 std::vector<std::vector<double>> matrixeye(int length){
     std::vector<std::vector<double>> matrixnew;
     for(int i=0; i<length; i++){

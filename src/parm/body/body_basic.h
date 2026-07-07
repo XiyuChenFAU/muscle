@@ -47,6 +47,7 @@ public:
     void norotateaddvalue();
     void rotateaddvalue();
     void  addnewbodybasic(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis);
+    void set_q_history(const std::vector<std::vector<double>>& q_history);
     void setbody_temporary_update(const std::vector<double>& newbodyposition, const std::vector<std::vector<double>>& newbodyaxis);
     std::vector<double> getbody_temporary_update();
     void PrintParameters(const std::vector<double>& q0);

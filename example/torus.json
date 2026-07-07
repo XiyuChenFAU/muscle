@@ -54,10 +54,18 @@
 			}
 		}
 	],
+	"constraint" : 
+	{
+		"calculate_all_muscle_together" : 0,
+		"local_mode_number" : 1,
+		"local_select_bodyname" : "torus",
+		"use_phi_eta_inequality_constraint" : 0,
+		"use_phi_eta_plus_length" : 1
+	},
 	"initial_guess" : 
 	{
-		"collision_check" : 1,
-		"mode_number" : 0,
+		"collision_check" : 0,
+		"mode_number" : -1,
 		"select_body" : "fix_space"
 	},
 	"ipoptsetting" : 
@@ -65,7 +73,7 @@
 		"hessian_approximation" : "",
 		"linear_solver" : "mumps",
 		"max_iter" : 2000,
-		"print_level" : 0,
+		"print_level" : 5,
 		"tol" : 1e-08
 	},
 	"joint" : 
@@ -73,13 +81,14 @@
 		{
 			"joint_name" : "torus_joint",
 			"joint_type_name" : "revolute joint",
+			"move_all_bodys" : 0,
 			"move_setting" : 
 			[
 				[
 					[
 						0.0,
 						180.0,
-						180.0,
+						45.0,
 						0.0
 					]
 				],
@@ -104,6 +113,10 @@
 	"muscle" : 
 	[
 		{
+			"consider_body_list" : 
+			[
+				"torus"
+			],
 			"insertion_relative_body" : "ellipsoid",
 			"muscle_name" : "torus_muscle",
 			"node_number" : 40,
@@ -119,7 +132,8 @@
 				-4.0,
 				0.0,
 				0.29999999999999999
-			]
+			],
+			"viapoint_node" : []
 		}
 	],
 	"name" : "torus",
@@ -128,11 +142,10 @@
 		"length_constant" : 1000.0,
 		"solvercase" : 0
 	},
-	"output_path" : "/Users/xiyu/Desktop/",
 	"postprocessing" : 
 	{
 		"tol" : 0.001
 	},
 	"save_interval" : 10,
-	"use_phi_eta_plus_length": 0
+	"use_p_variable" : 0
 }

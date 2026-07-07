@@ -8,6 +8,8 @@ Xiyu Chen
 
 #include "jointpage.h"
 #include "../setmodelwindow.h"
+#include <QScrollArea>
+#include <QScrollBar>
 
 jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
     QWidget(parent),
@@ -28,23 +30,58 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
     rectangle->setStyleSheet("background-color: #CCCCCC;");
 
     int jointnum=setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints();
-    plusbutton= new QPushButton("+", this);
+    jointButtonScrollArea = new QScrollArea(this);
+    jointButtonScrollArea->setFrameShape(QFrame::NoFrame);
+    jointButtonScrollArea->setGeometry(0, 50, 1400, 60);
+    jointButtonScrollArea->setWidgetResizable(false);
+    jointButtonScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    jointButtonScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    jointButtonScrollArea->setStyleSheet(
+        "QScrollArea { background: #CCCCCC; border: none; }"
+        "QScrollArea > QWidget > QWidget { background: #CCCCCC; }"
+        "QScrollBar:horizontal { height: 10px; background: #CCCCCC; }"
+        "QScrollBar::handle:horizontal { background: white; border-radius: 5px; }"
+        "QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal { width: 0px; }"
+    );
+    jointButtonScrollArea->viewport()->setStyleSheet("background: #CCCCCC;");
+    jointButtonContent = new QWidget();
+    jointButtonContent->setGeometry(0, 0, std::max(120, (jointnum + 2) * 70), 50);
+    jointButtonScrollArea->setWidget(jointButtonContent);
+
+    bodyListScrollArea = new QScrollArea(this);
+    bodyListScrollArea->setGeometry(0, 430, 360, 290);
+    bodyListScrollArea->setWidgetResizable(false);
+    bodyListScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    bodyListScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    bodyListScrollArea->setStyleSheet(
+        "QScrollArea { background: #CCCCCC; border: none; }"
+        "QScrollArea > QWidget > QWidget { background: #CCCCCC; }"
+        "QScrollBar:vertical { width: 10px; background: #CCCCCC; }"
+        "QScrollBar::handle:vertical { background: white; border-radius: 5px; }"
+        "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; }"
+    );
+    bodyListScrollArea->viewport()->setStyleSheet("background: #CCCCCC;");
+    bodyListContent = new QWidget();
+    bodyListContent->setStyleSheet("background-color: #CCCCCC;");
+    bodyListScrollArea->setWidget(bodyListContent);
+
+    plusbutton= new QPushButton("+", jointButtonContent);
     plusbutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
     connect(plusbutton, &QPushButton::clicked, this, &jointpage::plusbuttonsetting);
 
-    newjointbutton= new QPushButton("new", this);
+    newjointbutton= new QPushButton("new", jointButtonContent);
     newjointbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-    newjointbutton->setGeometry(0, 50, 70, 50);
+    newjointbutton->setGeometry(0, 0, 70, 50);
     connect(newjointbutton, &QPushButton::clicked, this, &jointpage::newjointbuttonsetting);
 
     if(jointnum){ 
         for(int i=0;i<jointnum;i++){
-            QPushButton* jointbutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(i)->getname()), this);
+            QPushButton* jointbutton= new QPushButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(i)->getname()), jointButtonContent);
             jointbutton->setStyleSheet("QPushButton { color: black; background-color: white;}");
-            jointbutton->setGeometry(i*70, 50, 70, 50);
+            jointbutton->setGeometry(i*70, 0, 70, 50);
             jointbuttons.push_back(jointbutton);
         }
-        plusbutton->setGeometry(jointnum*70, 50, 50, 50);
+        plusbutton->setGeometry(jointnum*70, 0, 50, 50);
         jointbuttons[0]->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
 
         Joint=setmodelwin->getRunmodel()->getModel()->getparm()->getjointindex(0);
@@ -62,7 +99,7 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
         newjointbutton->setVisible(false);
     }
     else{
-        plusbutton->setGeometry(70, 50, 50, 50);
+        plusbutton->setGeometry(70, 0, 50, 50);
         
     }
 
@@ -108,9 +145,9 @@ jointpage::jointpage(setmodelwindow *setmodelwin, QWidget *parent):
     updatevalue();
 
 
-    setlabel("step number for all joints", 660, 110, allfontsize);
-    stepnumstringEdit=settext(stepnumstring, 850, 110, 260, 30 ,allfontsize);
-    setlabel("joint type", 660, 150, allfontsize);
+    setlabel("step number", 660, 120, allfontsize);
+    stepnumstringEdit=settext(stepnumstring, 820, 120, 260, 30 ,allfontsize);
+    setlabel("joint type", 660, 160, allfontsize);
 
     stackedWidget = new QStackedWidget(this);
 
@@ -203,6 +240,8 @@ jointpage::~jointpage(){
     delete Sphericaljointpage;
     delete Translationjointpage;
     delete stackedWidget;
+    delete jointButtonScrollArea;
+    delete bodyListScrollArea;
 }
 
 QLineEdit* jointpage::settext(const std::string& textdefault, int x, int y, int textwidth, int textheight ,int fontsize) {
@@ -312,23 +351,23 @@ void jointpage::updatevalue(){
     }
 
     buttonGroupbody = new QButtonGroup;
-    QRadioButton* radioButtonbodynull = new QRadioButton(QString::fromStdString("null"), this);
+    QRadioButton* radioButtonbodynull = new QRadioButton(QString::fromStdString("null"), bodyListContent);
     radioButtonbodynull->setVisible(false);
     radioButtonsbody.push_back(radioButtonbodynull);
     buttonGroupbody->addButton(radioButtonsbody[0], -1);
 
-    QRadioButton* radioButtonfix = new QRadioButton(QString::fromStdString("fix_space"), this);
+    QRadioButton* radioButtonfix = new QRadioButton(QString::fromStdString("fix_space"), bodyListContent);
     radioButtonsbody.push_back(radioButtonfix);
     radioButtonsbody[1]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-    radioButtonsbody[1]->setGeometry(10, 430, 340, 30);
+    radioButtonsbody[1]->setGeometry(10, 0, 340, 30);
     radioButtonsbody[1]->show();
     buttonGroupbody->addButton(radioButtonsbody[1], 0);
 
     for(int i=0;i<setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies();i++){
-        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), this);
+        QRadioButton* radioButton = new QRadioButton(QString::fromStdString(setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(i)->getname()), bodyListContent);
         radioButtonsbody.push_back(radioButton);
         radioButtonsbody[i+2]->setStyleSheet("QRadioButton { color: black; background-color: #CCCCCC;}");
-        radioButtonsbody[i+2]->setGeometry(10, 430+(i+1)*40, 340, 30);
+        radioButtonsbody[i+2]->setGeometry(10, (i+1)*40, 340, 30);
         radioButtonsbody[i+2]->show();
         buttonGroupbody->addButton(radioButtonsbody[i+2], i+1);
     }
@@ -340,6 +379,7 @@ void jointpage::updatevalue(){
         rectangle->update();
         rectangle->show();
     }
+    bodyListContent->resize(340, std::max(260, (setmodelwin->getRunmodel()->getModel()->getparm()->getn_bodies()+1)*40));
     this->update();
 }
 
@@ -358,37 +398,22 @@ void jointpage::savesetting(){
         if(selectedValuetype==0){
             std::vector<QLineEdit *> alleditsrevo=Revolutejointpage->getqedits();
             std::vector<double> axisvectorvalue={alleditsrevo[0]->text().toDouble(),alleditsrevo[1]->text().toDouble(),alleditsrevo[2]->text().toDouble()};
-            double initialanglevalue=alleditsrevo[3]->text().toDouble();
-            double anglevalue=alleditsrevo[4]->text().toDouble();
-            std::vector<std::vector<std::vector<double>>> move_setting_value={{{initialanglevalue,anglevalue,stepnum_value,0.0}},{},{}};
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, move_setting_value, {},selectedValuerotateallbody);
+            std::vector<std::vector<std::vector<double>>> move_setting_value=Revolutejointpage->getMoveSettingValue(stepnum_value);
+            std::vector<std::vector<double>> movement_value=Revolutejointpage->getMovementValue();
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue,  axisvectorvalue, move_setting_value, movement_value,selectedValuerotateallbody);
         }
         if(selectedValuetype==1){
-            
-            std::vector<QLineEdit *> alleditsspher=Sphericaljointpage->getqedits();
-            double initialangle1value=alleditsspher[0]->text().toDouble();
-            double initialangle2value=alleditsspher[1]->text().toDouble(); 
-            double initialangle3value=alleditsspher[2]->text().toDouble();
-            double angle1value=alleditsspher[3]->text().toDouble();
-            double angle2value=alleditsspher[4]->text().toDouble(); 
-            double angle3value=alleditsspher[5]->text().toDouble();
             std::vector<double> axisvectorvalue={0,0,0};
-            std::vector<std::vector<std::vector<double>>> move_setting_value={{{initialangle1value,angle1value,stepnum_value,0.0}},{{initialangle2value,angle2value,stepnum_value,0.0}},{{initialangle3value,angle3value,stepnum_value,0.0}}};
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, axisvectorvalue, move_setting_value, {},selectedValuerotateallbody);
+            std::vector<std::vector<std::vector<double>>> move_setting_value=Sphericaljointpage->getMoveSettingValue(stepnum_value);
+            std::vector<std::vector<double>> movement_value=Sphericaljointpage->getMovementValue();
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, axisvectorvalue, move_setting_value, movement_value,selectedValuerotateallbody);
         }
         if(selectedValuetype==2){
-            
-            std::vector<QLineEdit *> alleditsspher=Translationjointpage->getqedits();
-            double initialtranslation1value=alleditsspher[0]->text().toDouble();
-            double initialtranslation2value=alleditsspher[1]->text().toDouble(); 
-            double initialtranslation3value=alleditsspher[2]->text().toDouble();
-            double translation1value=alleditsspher[3]->text().toDouble();
-            double translation2value=alleditsspher[4]->text().toDouble(); 
-            double translation3value=alleditsspher[5]->text().toDouble();
             relative_posvalue={0,0,0};
             std::vector<double> axisvectorvalue={0,0,0};
-            std::vector<std::vector<std::vector<double>>> move_setting_value={{{initialtranslation1value,translation1value,stepnum_value,0.0}},{{initialtranslation2value,translation2value,stepnum_value,0.0}},{{initialtranslation3value,translation3value,stepnum_value,0.0}}};
-            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, axisvectorvalue, move_setting_value, {},selectedValuerotateallbody);
+            std::vector<std::vector<std::vector<double>>> move_setting_value=Translationjointpage->getMoveSettingValue(stepnum_value);
+            std::vector<std::vector<double>> movement_value=Translationjointpage->getMovementValue();
+            setmodelwin->getRunmodel()->getModel()->getparm()->addjoint(jointnameEdit->text().toStdString(), setmodelwin->getRunmodel()->getModel()->getparm()->getbodyindex(selectedValuebody-1)->getname(), joint::alljoint_type[selectedValuetype], relative_posvalue, axisvectorvalue, move_setting_value, movement_value,selectedValuerotateallbody);
         }
 
         if(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()>jointbuttons.size()){
@@ -397,11 +422,12 @@ void jointpage::savesetting(){
                 jointbuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");
             }
             std::string jointnewbuttonname=jointnameEdit->text().toStdString();
-            QPushButton* jointaddnewbutton= new QPushButton(QString::fromStdString(jointnewbuttonname), this);
+            QPushButton* jointaddnewbutton= new QPushButton(QString::fromStdString(jointnewbuttonname), jointButtonContent);
             jointaddnewbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-            jointaddnewbutton->setGeometry(jointbuttons.size()*70, 50, 70, 50);
+            jointaddnewbutton->setGeometry(jointbuttons.size()*70, 0, 70, 50);
             jointaddnewbutton->setVisible(true);
-            plusbutton->setGeometry(jointbuttons.size()*70+70, 50, 70, 50);
+            plusbutton->setGeometry(jointbuttons.size()*70+70, 0, 70, 50);
+            jointButtonContent->resize((jointbuttons.size()+2)*70, 50);
             jointbuttons.push_back(jointaddnewbutton);
             int buttonsize=setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()-1;
             connect(jointbuttons[buttonsize], &QPushButton::clicked, this, [this, buttonsize]() {
@@ -419,16 +445,16 @@ void jointpage::deletesetting(){
     }
     else{
         if(newjointbutton->isVisible()){
-            newjointbutton->setGeometry(parm->getn_joints()*70, 50, 70, 50);
-            plusbutton->setGeometry(parm->getn_joints()*70+70, 50, 50, 50);
+            newjointbutton->setGeometry(parm->getn_joints()*70, 0, 70, 50);
+            plusbutton->setGeometry(parm->getn_joints()*70+70, 0, 50, 50);
         }
         else{
-            plusbutton->setGeometry(parm->getn_joints()*70, 50, 50, 50);
+            plusbutton->setGeometry(parm->getn_joints()*70, 0, 50, 50);
         }
         delete jointbuttons[index];
         jointbuttons.erase(jointbuttons.begin() + index);
         for(int i=0;i<jointbuttons.size();i++){
-            jointbuttons[i]->setGeometry(i*70, 50, 70, 50);
+            jointbuttons[i]->setGeometry(i*70, 0, 70, 50);
             connect(jointbuttons[i], &QPushButton::clicked, this, [this, i]() {
             showjointsetting(i);
         });
@@ -438,9 +464,10 @@ void jointpage::deletesetting(){
         }
         else{
             newjointbutton->setVisible(true);
-            newjointbutton->setGeometry(0, 50, 70, 50);
-            plusbutton->setGeometry(70, 50, 50, 50);
+            newjointbutton->setGeometry(0, 0, 70, 50);
+            plusbutton->setGeometry(70, 0, 50, 50);
         }
+        jointButtonContent->resize((parm->getn_joints()+2)*70, 50);
                 
     }
 }
@@ -449,8 +476,9 @@ void jointpage::plusbuttonsetting(){
     if(!newjointbutton->isVisible()){
         newjointbutton->setVisible(true);
         newjointbutton->setStyleSheet("QPushButton { color: black; background-color: #CCCCCC;font-weight: bold; border: 2px solid #CCCCCC;}");
-        newjointbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()*70, 50, 70, 50);
-        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()*70+70, 50, 50, 50);
+        jointButtonContent->resize((setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()+2)*70, 50);
+        newjointbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()*70, 0, 70, 50);
+        plusbutton->setGeometry(setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints()*70+70, 0, 50, 50);
         setalltextedit("", "", "", {0.0,0.0,0.0}, setmodelwin->getRunmodel()->getModel()->getparm()->getn_joints(),0,0);
         for(int i=0;i<jointbuttons.size();i++){
             jointbuttons[i]->setStyleSheet("QPushButton { color: black; background-color: white;}");

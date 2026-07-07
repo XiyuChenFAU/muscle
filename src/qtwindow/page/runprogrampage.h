@@ -16,7 +16,11 @@ Xiyu Chen
 #include <QPushButton>
 #include "../../run_model.h"
 #include <QSlider>
+#include <QPoint>
 
+class QTimer;
+class QCheckBox;
+class QScrollArea;
 
 #include <Qt3DCore/QEntity>
 #include <Qt3DExtras/QSphereMesh>
@@ -61,7 +65,18 @@ public:
 private:
     setmodelwindow *setmodelwin=nullptr;
     QPushButton *runButton=nullptr;
+    QPushButton *continueButton=nullptr;
     QPushButton *exportbutton=nullptr;
+    QScrollArea *bodyVisibilityScrollArea=nullptr;
+    QWidget *bodyVisibilityContent=nullptr;
+    QScrollArea *muscleVisibilityScrollArea=nullptr;
+    QWidget *muscleVisibilityContent=nullptr;
+    std::vector<QCheckBox*> bodyVisibilityChecks;
+    std::vector<QCheckBox*> muscleVisibilityChecks;
+    QCheckBox *allBodyVisibilityCheck=nullptr;
+    QCheckBox *allMuscleVisibilityCheck=nullptr;
+    std::vector<bool> bodyVisible;
+    std::vector<bool> muscleVisible;
 
     QLineEdit *save_intervalEdit=nullptr;
 
@@ -78,20 +93,34 @@ private:
     std::vector<Qt3DCore::QEntity*> allmuscleentities;
     QLabel* runtimelabel = nullptr;
     QWidget *container = nullptr;
+    QTimer *redrawTimer = nullptr;
     std::vector<QLabel *> genrallabels;
     Qt3DRender::QCamera *cameraEntity = nullptr;
     Qt3DExtras::Qt3DWindow *view = nullptr;
 
     std::vector<QColor*> colors;
     double zoomsize=5.0;
+    double viewZoom=1.0;
+    float cameraDistance=10.0f;
+    int currentRotationIndex = 0;
+    QVector3D cameraPan = QVector3D(0.0f, 0.0f, 0.0f);
 
     float camYaw = 0.0f;
     float camPitch = 0.0f;
+    bool rotatingWithMouse = false;
+    QPoint lastMousePos;
     int labelIdxCamYaw;
     int labelIdxCamPitch;
     QSlider* sliderCamPitch;
     QSlider* sliderCamYaw;
 
+    void applyViewZoom();
+    void applyCameraRotation();
+    void redrawCurrentFrame();
+    void rebuildVisibilityControls();
+    int availableStepMax() const;
+    void updateStepSliderRange();
+    void scheduleEntityDeletion(Qt3DCore::QEntity *&entity);
     void rotateCameraYaw(int value);
     void rotateCameraPitch(int value);
     void setRotationDefault();
@@ -105,9 +134,13 @@ private:
 
 private slots:
     void runModelFunction();
+    void continueModelFunction();
     void saveModel();
     void updateSquareSize(int size);
     void setscale();
+
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
 #endif // RUNPROGRAMPAGE_H

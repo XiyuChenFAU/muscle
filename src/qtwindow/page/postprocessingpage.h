@@ -17,6 +17,7 @@ Xiyu Chen
 #include "../../run_model.h"
 
 class setmodelwindow;
+class MuscleLengthChart;
 
 class postprocessingpage : public QWidget
 {
@@ -25,10 +26,13 @@ class postprocessingpage : public QWidget
 public:
     postprocessingpage(setmodelwindow *setmodelwin, QWidget *parent = nullptr);
     ~postprocessingpage();
+    void updatevalue();
 
 private:
     setmodelwindow *setmodelwin=nullptr;
     QFrame* rectangle=nullptr;
+    QLabel* titleLabel=nullptr;
+    MuscleLengthChart* lengthChart=nullptr;
 };
 
 #endif // POSTPROCESSINGPAGE_H

@@ -64,7 +64,9 @@ void solveeq::solvesignorinirotate(Parm* parm){
     
     std::vector<muscle*> allmuscle=parm->getallmuscle();
     std::vector<body*> allbody=parm->getallbody();
-    int variablenumall=parm->getvariable();
+    int variablenumall_sig=parm->getvariable();
+    int variablenumall_via=parm->get_muscle_viapoint_node_num();
+    int variablenumall=variablenumall_sig+variablenumall_via;
     Constraint->set_dict_constraint_all({});
     int bodynum=parm->getn_bodies();
     if(all_muscle_together){
@@ -80,10 +82,13 @@ void solveeq::solvesignorinirotate(Parm* parm){
         //minimum
         MX f = 0;
         int start_index_x=0;
+        int start_index_via_x=0;
         int current_muscle_node_index=0;
         for(int i=0;i<parm->getn_muscles();i++){
             int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
             MX x_single= x(Slice(start_index_x, start_index_x + variablenum));
+            int variablenum_via=allmuscle[i]->via_point_num();
+            MX x_single_via = x(Slice(start_index_via_x + variablenumall_sig, start_index_via_x + variablenumall_sig + variablenum_via));
             std::vector<MX> p_gamma_previous;
             std::vector<MX> p_mass_matrix;
             if(use_p_variable){
@@ -93,10 +98,11 @@ void solveeq::solvesignorinirotate(Parm* parm){
                 }
                 current_muscle_node_index=current_muscle_node_index+allmuscle[i]->getnodenum()*3;
             }
-            f = f + Objective->getobjective(parm, x_single,jointnaxisall,i, use_p_variable, p_gamma_previous, p_mass_matrix);
+            f = f + Objective->getobjective(parm, x_single,jointnaxisall,i, Constraint->get_local_mode_number(), use_p_variable, p_gamma_previous, p_mass_matrix);
             //constraints.
-            std::vector<MX> singlemuscleconstraint=Constraint->constraints(parm,x_single,i, use_p_variable, p_var);
+            std::vector<MX> singlemuscleconstraint=Constraint->constraints(parm,x_single, x_single_via, i, use_p_variable, p_var);
             start_index_x=start_index_x+variablenum;
+            start_index_via_x=start_index_via_x+variablenum_via;
         }
         std::vector<MX> allconstraint = Constraint->put_constraints_together();
         MX g = vertcat(allconstraint);
@@ -120,6 +126,8 @@ void solveeq::solvesignorinirotate(Parm* parm){
             std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
             x0.insert(x0.end(), initial.begin(), initial.end());
         }
+        std::vector<double> initial_via_point_eta=parm->get_all_via_point_eta(-1);
+        x0.insert(x0.end(), initial_via_point_eta.begin(), initial_via_point_eta.end());
         if(g_enable_print){
             std::cout<<"x0 size: "<<x0.size() <<std::endl;
         }
@@ -151,11 +159,16 @@ void solveeq::solvesignorinirotate(Parm* parm){
         }
         //add solution to each muscle
         int start_index=0;
+        int start_index_via=0;
         for(int i=0;i<parm->getn_muscles();i++){
             int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
             std::vector<double> singlemusclesolution(solution.begin()+start_index,solution.begin()+start_index+variablenum);
             allmuscle[i]->addmuscleparm(singlemusclesolution, Constraint->get_local_mode_number());
             start_index=start_index+variablenum;
+            int variablenum_via=allmuscle[i]->via_point_num();
+            std::vector<double> singlemuscle_via_solution(solution.begin()+variablenumall_sig+start_index_via,solution.begin()+variablenumall_sig+start_index_via+variablenum_via);
+            allmuscle[i]->update_via_point_eta(singlemuscle_via_solution);
+            start_index_via=start_index_via+variablenum_via;
         }
     }
     else{
@@ -164,8 +177,12 @@ void solveeq::solvesignorinirotate(Parm* parm){
                 std::cout<<"calculate muscle: "<<  allmuscle[i]->getname() <<std::endl;
             }
             //variable
-            int variablenum=allmuscle[i]->getvariablenum(parm->getn_bodies());
+            int variablenum_sig=allmuscle[i]->getvariablenum(parm->getn_bodies());
+            int variablenum_via=allmuscle[i]->via_point_num();
+            int variablenum=variablenum_sig+variablenum_via;
             MX x = MX::sym("x", variablenum);
+            MX x_single_sig= x(Slice(0, variablenum_sig));
+            MX x_single_via = x(Slice(variablenum_sig, variablenum_sig + variablenum_via));
             //p_variable
             int p_var_num=bodynum*12+3*allmuscle[i]->getnodenum()*2;
             MX p_var = MX::sym("p_var", p_var_num);
@@ -178,9 +195,9 @@ void solveeq::solvesignorinirotate(Parm* parm){
                     p_mass_matrix.push_back(p_var(bodynum*12 + 3*allmuscle[i]->getnodenum() + j));
                 }
             }
-            MX f = Objective->getobjective(parm, x,jointnaxisall,i, use_p_variable, p_gamma_previous, p_mass_matrix);
+            MX f = Objective->getobjective(parm, x,jointnaxisall,i, Constraint->get_local_mode_number(), use_p_variable, p_gamma_previous, p_mass_matrix);
             //constraints
-            std::vector<MX> allconstraint=Constraint->constraints(parm,x,i, use_p_variable, p_var);
+            std::vector<MX> allconstraint=Constraint->constraints(parm,x_single_sig, x_single_via, i, use_p_variable, p_var);
             MX g = vertcat(allconstraint);
             //set ipopt nlp
             MXDict nlp;
@@ -200,6 +217,8 @@ void solveeq::solvesignorinirotate(Parm* parm){
             std::vector<double> x0;
             std::vector<double> initial=Initialguess->get_initialguessvalueindex(i);
             x0.insert(x0.end(), initial.begin(), initial.end());
+            std::vector<double> initial_muscle_via_point_eta=allmuscle[i]->getvia_point_eta(-1);
+            x0.insert(x0.end(), initial_muscle_via_point_eta.begin(), initial_muscle_via_point_eta.end());
             if(g_enable_print){
                 std::cout<<"x0 size: "<<x0.size() <<std::endl;
             }
@@ -223,10 +242,16 @@ void solveeq::solvesignorinirotate(Parm* parm){
             // Solve the NLP
             res = solver(arg);
             vector<double> solution;
+            vector<double> solution_via;
             for (int i = 0; i < x0.size(); i++) {
-                solution.push_back(static_cast<double>(res.at("x")(i)));
+                if(i<variablenum_sig){
+                    solution.push_back(static_cast<double>(res.at("x")(i)));
+                } else {
+                    solution_via.push_back(static_cast<double>(res.at("x")(i)));
+                }
             }
             allmuscle[i]->addmuscleparm(solution, Constraint->get_local_mode_number());
+            allmuscle[i]->update_via_point_eta(solution_via);
         }
     }
 }
@@ -234,9 +259,15 @@ void solveeq::solvesignorinirotate(Parm* parm){
 void solveeq::solvesignorinistep(Parm* parm, int stepnum){
     if(stepnum==0){parm->set_node_partition(Constraint->get_local_mode_number(), Constraint->get_local_select_bodyname(), Initialguess->getmode_nr(), Initialguess->getselect_bodyname(), 1);}
     if(g_enable_print){parm->set_body_R_initial();}
+    // I want to write a sentence that if Constraint->get_local_mode_number()!=4, then set variable node_partition_before = 1 otherwise node_partition_before=0
+    int node_partition_after = (Constraint->get_local_mode_number() == 4 || Initialguess->getmode_nr() == 4) ? 1 : 0;
+    if(!node_partition_after){
+        parm->set_node_partition(Constraint->get_local_mode_number(), Constraint->get_local_select_bodyname(), Initialguess->getmode_nr(), Initialguess->getselect_bodyname(), 0);
+    }
     parm->rotatebodyupdate(stepnum);
     if(g_enable_print){parm->check_body_R();}
-    parm->set_node_partition(Constraint->get_local_mode_number(), Constraint->get_local_select_bodyname(), Initialguess->getmode_nr(), Initialguess->getselect_bodyname(), 0);
+    if(node_partition_after){parm->set_node_partition(Constraint->get_local_mode_number(), Constraint->get_local_select_bodyname(), Initialguess->getmode_nr(), Initialguess->getselect_bodyname(), 0);}
+    parm->update_all_via_point_gamma();
     if(stepnum==0){
         parm->setallmuscleinitialeta_gamma();
         Initialguess->set_initialguessvalue(parm, 1);
@@ -257,7 +288,7 @@ void solveeq::set_all_muscle_together(int value){
 void solveeq::set_local_parameter(int selectedValue_localmode, int selectedValue_mode, const std::string&  selectedValue_body, int selectedValue_cons_mode, const std::string&  selectedValue_cons_body, int check_collision_Value){
     if(selectedValue_localmode){ //use local frame
         Initialguess->setcollision_check(0);
-        Initialguess->setmode_nr(4);
+        Initialguess->setmode_nr(-1);
         Initialguess->setselect_bodyname(selectedValue_body);
         Constraint->set_local_mode_number(selectedValue_cons_mode);
         Constraint->set_local_select_bodyname(selectedValue_cons_body);
@@ -269,4 +300,3 @@ void solveeq::set_local_parameter(int selectedValue_localmode, int selectedValue
         Constraint->set_local_select_bodyname(selectedValue_cons_body);
     }
 }
-

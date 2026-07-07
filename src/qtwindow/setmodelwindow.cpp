@@ -105,6 +105,12 @@ void setmodelwindow::addleftbutton(QPushButton * button){
 }
 
 void setmodelwindow::showpage(int index){
+    if(stackedWidget->currentIndex()==1 && index!=1){
+        musclepage *page = qobject_cast<musclepage *>(stackedWidget->currentWidget());
+        if(page && !page->confirmViaPointChanges()){
+            return;
+        }
+    }
     stackedWidget->setCurrentIndex(index);
     changebuttonstyle(index);
 
@@ -135,6 +141,14 @@ void setmodelwindow::showpage(int index){
     if (index == 4) {
         QWidget *currentPage = stackedWidget->currentWidget();
         runprogrampage *page = qobject_cast<runprogrampage *>(currentPage);
+        if (page) {
+            page->updatevalue();
+        }
+    }
+
+    if (index == 5) {
+        QWidget *currentPage = stackedWidget->currentWidget();
+        postprocessingpage *page = qobject_cast<postprocessingpage *>(currentPage);
         if (page) {
             page->updatevalue();
         }

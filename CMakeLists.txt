@@ -16,11 +16,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_TOOLCHAIN_FILE "/Users/xiyuchen/vcpkg/scripts/buildsystems/vcpkg.cmake")
 #cmake .. -DCMAKE_TOOLCHAIN_FILE=/Users/xiyuchen/vcpkg/scripts/buildsystems/vcpkg.cmake
 
-#qt5 path need change
-set(Qt5_DIR /Users/xiyu/Documents/Qt5.14.2/5.14.2/clang_64/lib/cmake/Qt5)
-#casadi path need change
-set(CasADi_INCLUDE_DIRS /usr/local/include)
-set(CasADi_LIBRARIES /usr/local/lib/libcasadi.dylib)
+#qt5 path can be overridden with -DQt5_DIR=...
+set(Qt5_DIR "/Users/xiyu/Documents/Qt5.14.2/5.14.2/clang_64/lib/cmake/Qt5" CACHE PATH "Qt5 CMake package directory")
+#casadi path can be overridden with -DCasADi_INCLUDE_DIRS=... -DCasADi_LIBRARIES=...
+set(CasADi_INCLUDE_DIRS "/usr/local/include" CACHE PATH "CasADi include directory")
+set(CasADi_LIBRARIES "/usr/local/lib/libcasadi.dylib" CACHE FILEPATH "CasADi library")
 
 find_package(CasADi REQUIRED)
 find_package(Qt5 COMPONENTS Widgets OpenGL 3DCore 3DExtras REQUIRED)
@@ -68,6 +68,8 @@ file(GLOB SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/qtwindow/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/qtwindow/page/*.h"
     "${PROJECT_SOURCE_DIR}/src/qtwindow/page/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/qtwindow/page/viapointsetting/*.h"
+    "${PROJECT_SOURCE_DIR}/src/qtwindow/page/viapointsetting/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/qtwindow/page/jointtype/*.h"
     "${PROJECT_SOURCE_DIR}/src/qtwindow/page/jointtype/*.cpp")
 

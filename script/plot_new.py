@@ -206,12 +206,22 @@ class Plot2D:
                 if title == 'moment arm':
                     if linename[i].split("-")[0] in allmusclname:
                         idx = allmusclname.index(linename[i].split("-")[0])
-                        plt.plot(x, data[i][0], label=linename[i], color=colors[idx % len(colors)])
+                        y = np.asarray(data[i][0], dtype=float).reshape(-1)
+                        count = min(len(x), len(y))
+                        plt.plot(x[:count], y[:count], label=linename[i], color=colors[idx % len(colors)])
                     else:
                         allmusclname.append(linename[i].split("-")[0])
-                        plt.plot(x, data[i][0], label=linename[i], color=colors[i % len(colors)])
+                        y = np.asarray(data[i][0], dtype=float).reshape(-1)
+                        count = min(len(x), len(y))
+                        plt.plot(x[:count], y[:count], label=linename[i], color=colors[i % len(colors)])
                 else:
-                    plt.plot(x, data[i], label=linename[i], color=colors[i % len(colors)])
+                    y = np.asarray(data[i], dtype=float)
+                    if y.ndim == 2 and y.shape[0] == 1:
+                        y = y[0]
+                    else:
+                        y = y.reshape(-1)
+                    count = min(len(x), len(y))
+                    plt.plot(x[:count], y[:count], label=linename[i], color=colors[i % len(colors)])
 
         plt.gca().xaxis.set_major_locator(MultipleLocator(120))
         plt.gca().xaxis.set_minor_locator(AutoLocator())
@@ -319,13 +329,13 @@ class Postprocessor:
             base = 12 * i
             ax.quiver(self.bodyvalue[base][index], self.bodyvalue[base + 1][index], self.bodyvalue[base + 2][index],
                       self.bodyvalue[base + 3][index], self.bodyvalue[base + 4][index], self.bodyvalue[base + 5][index],
-                      length=0.1, normalize=True, color=colors[0])
+                      length=self.scale/2.0, normalize=True, color=colors[0])
             ax.quiver(self.bodyvalue[base][index], self.bodyvalue[base + 1][index], self.bodyvalue[base + 2][index],
                       self.bodyvalue[base + 6][index], self.bodyvalue[base + 7][index], self.bodyvalue[base + 8][index],
-                      length=0.1, normalize=True, color=colors[1])
+                      length=self.scale/2.0, normalize=True, color=colors[1])
             ax.quiver(self.bodyvalue[base][index], self.bodyvalue[base + 1][index], self.bodyvalue[base + 2][index],
                       self.bodyvalue[base + 9][index], self.bodyvalue[base + 10][index], self.bodyvalue[base + 11][index],
-                      length=0.1, normalize=True, color=colors[2])
+                      length=self.scale/2.0, normalize=True, color=colors[2])
 
     def gatherdataandplot(self, data, another):
         allpenatration = []
@@ -444,7 +454,10 @@ class Postprocessor:
     def postprocessingresult(self):
         self.checkbody()
         prefix = f"{self.modelname}_"
-        types = ['length', 'forcenode', 'phi', 'totalforce', 'bodystate', 'momentarm']
+        types = [
+            'length', 'forcenode', 'phi', 'totalforce', 'bodystate', 'momentarm',
+            'hill_passive_force', 'hill_active_force', 'hill_total_force', 'hill_moment'
+        ]
 
         for typ in types:
             filename = prefix + typ + '_result.txt'
@@ -471,6 +484,8 @@ class Postprocessor:
                     Plot2D.normalfig(allmuscledata, muscles, angles, 'total length', 'total length')
                     arr = np.array(allmuscledata)
                     Plot2D.normalfig((arr[:, :, 1:] - arr[:, :, :-1]) / (angles[1] - angles[0]), muscles, angles[1:], 'muscle length rate', 'muscle length rate')
+                elif typ in ['hill_passive_force', 'hill_active_force', 'hill_total_force', 'hill_moment']:
+                    Plot2D.normalfig(allmuscledata, muscles, angles, typ.replace('_', ' '), typ.replace('_', ' '))
                 elif 'momentarm' in typ:
                     Plot2D.normalfig(allmuscledata, muscles, angles, 'moment arm', 'moment arm')
                 elif 'phi' in typ:

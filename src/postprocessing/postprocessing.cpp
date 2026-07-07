@@ -1,4 +1,6 @@
 #include "postprocessing.h"
+#include <algorithm>
+#include <numeric>
 
 postprocessing::postprocessing(){
 
@@ -11,6 +13,10 @@ postprocessing::~postprocessing(){
 void postprocessing::do_postprocessingall(Parm* parm){
     get_force_allmuscle(parm);
     get_momentarmall(parm);
+    get_hill_passive_force_allmuscle(parm);
+    get_hill_active_force_allmuscle(parm);
+    get_hill_total_force_allmuscle(parm);
+    get_hill_moment_allmuscle(parm);
 }
 
 void postprocessing::get_momentarmall(Parm* parm){
@@ -25,6 +31,10 @@ void postprocessing::get_momentarmall(Parm* parm){
                 momentarmallnoderes.push_back(gammaall);
                 std::vector<double> moment_re;
                 for(int k=0;k<gammaall.size();k++){
+                    if(gammaall[k].empty()){
+                        moment_re.push_back(0.0);
+                        continue;
+                    }
                     double minimum_abs=fabs(gammaall[k][0]);
                     double minimum_no_abs=gammaall[k][0];
                     for(int l=1;l<gammaall[k].size();l++){
@@ -55,6 +65,28 @@ std::vector<std::vector<double>> postprocessing::get_momentarm_per_muscle(const 
 std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<double>& gamma, joint* Joint, int step){
     int gammasize=gamma.size()/3;
     std::vector<double> gammaallnode;
+    if(gammasize<=0 || Joint==nullptr){
+        return gammaallnode;
+    }
+    std::vector<std::vector<double>> movement_each_value=Joint->get_movement_per_step();
+    std::vector<std::vector<double>> joint_absolute_axisvector=Joint->getabsolute_axisvector();
+    std::vector<std::vector<double>> joint_absolute_pos=Joint->getabsolute_pos();
+    if(joint_absolute_axisvector.empty() || joint_absolute_pos.empty()){
+        return std::vector<double>(gammasize, 0.0);
+    }
+    int maxStep=std::min(static_cast<int>(joint_absolute_axisvector.size()), static_cast<int>(joint_absolute_pos.size()))-1;
+    if(maxStep<0){
+        return std::vector<double>(gammasize, 0.0);
+    }
+    if(step<0){
+        step=0;
+    }
+    if(step>maxStep){
+        step=maxStep;
+    }
+    if(joint_absolute_axisvector[step].size()<3 || joint_absolute_pos[step].size()<3){
+        return std::vector<double>(gammasize, 0.0);
+    }
     for(int i=0;i<gammasize;i++){
         std::vector<double> forcedir;
         if(i==0){
@@ -67,22 +99,26 @@ std::vector<double> postprocessing::get_momentarm_per_node(const std::vector<dou
             forcedir=vector3minus({gamma[3*(i+1)],gamma[3*(i+1)+1],gamma[3*(i+1)+2]}, {gamma[3*(i-1)],gamma[3*(i-1)+1],gamma[3*(i-1)+2]});
         }
         double forcedir_value=-1.0*std::sqrt(vectortime1(forcedir,forcedir)); //-1.0 direction from insertion to origin
+        if(std::abs(forcedir_value)<1e-12){
+            gammaallnode.push_back(0.0);
+            continue;
+        }
         std::vector<double> forcedir_unit=vector3timeconstant(forcedir,1.0/forcedir_value);
 
-        std::vector<std::vector<double>> movement_value=Joint->get_movement();
-        std::vector<std::vector<double>> movement_each_value=Joint->get_movement_per_step();
-
-        int movement_each_value_size=movement_each_value[0].size();
-        if(step>movement_each_value_size-1){step=movement_each_value_size;}
         double angle_vhange_value=1.0;
-        if(movement_each_value.size()<2 && movement_each_value[0][step]<0){
-            angle_vhange_value=-1.0;
+        if(!movement_each_value.empty() && !movement_each_value[0].empty()){
+            int movementStep=std::min(step, static_cast<int>(movement_each_value[0].size())-1);
+            if(movement_each_value.size()<2 && movement_each_value[0][movementStep]<0){
+                angle_vhange_value=-1.0;
+            }
         }
 
-        std::vector<std::vector<double>> joint_absolute_axisvector=Joint->getabsolute_axisvector();
         double axis_value=angle_vhange_value*std::sqrt(vectortime1(joint_absolute_axisvector[step],joint_absolute_axisvector[step]));
+        if(std::abs(axis_value)<1e-12){
+            gammaallnode.push_back(0.0);
+            continue;
+        }
         std::vector<double> axis_unit=vector3timeconstant(joint_absolute_axisvector[step],1.0/axis_value);
-        std::vector<std::vector<double>> joint_absolute_pos=Joint->getabsolute_pos();
         std::vector<double> r_cross_F=crossProduct(vector3minus({gamma[3*i],gamma[3*i+1],gamma[3*i+2]}, joint_absolute_pos[step]),forcedir_unit);
 
         double gamma_one_node_res=vectortime1(r_cross_F,axis_unit);
@@ -231,6 +267,114 @@ std::vector<double> postprocessing::get_length_each_muscle_each_node(const std::
     return lengthallvalue;
 }
 
+void postprocessing::get_hill_passive_force_allmuscle(Parm* parm){
+    hillpassiveforceall.clear();
+    std::vector<muscle*> allmuscle=parm->getallmuscle();
+    for(muscle* Muscle : allmuscle){
+        std::vector<double> hillPar = Muscle->get_hill_parameter();
+        hillPar.resize(3, 0.0);
+        if(hillPar[0]!=0.0 && hillPar[1]!=0.0 && hillPar[2]!=0.0){
+            hillpassiveforceall.push_back(get_hill_passive_force_each_muscle(Muscle->getgammaall(), hillPar));
+        } else{
+            hillpassiveforceall.push_back({});
+        }
+    }
+}
+
+std::vector<double> postprocessing::get_hill_passive_force_each_muscle(const std::vector<std::vector<double>>& gamma, const std::vector<double>& hill_par){
+    std::vector<double> force;
+    const double Fmax = hill_par[0];
+    const double Lopt = hill_par[1];
+    const double k = 6.0;
+    const double denominator = std::exp(k) - 1.0;
+    std::vector<std::vector<double>> lengthValue = get_length_each_muscle(gamma);
+    for(const std::vector<double>& lengthStep : lengthValue){
+        const double l = std::accumulate(lengthStep.begin(), lengthStep.end(), 0.0);
+        double force_value = Fmax * (std::exp(k * (l - Lopt) / Lopt) - 1.0) / denominator;
+        if(force_value < 0.0){
+            force_value = 0.0;
+        }
+        force.push_back(force_value);
+    }
+    return force;
+}
+
+void postprocessing::get_hill_active_force_allmuscle(Parm* parm){
+    hillactiveforceall.clear();
+    std::vector<muscle*> allmuscle=parm->getallmuscle();
+    for(muscle* Muscle : allmuscle){
+        std::vector<double> hillPar = Muscle->get_hill_parameter();
+        hillPar.resize(3, 0.0);
+        if(hillPar[0]!=0.0 && hillPar[1]!=0.0 && hillPar[2]!=0.0){
+            hillactiveforceall.push_back(get_hill_active_force_each_muscle(Muscle->getgammaall(), hillPar));
+        } else{
+            hillactiveforceall.push_back({});
+        }
+    }
+}
+
+std::vector<double> postprocessing::get_hill_active_force_each_muscle(const std::vector<std::vector<double>>& gamma, const std::vector<double>& hill_par){
+    std::vector<double> force;
+    const double Fmax = hill_par[0];
+    const double Lopt = hill_par[1];
+    const double L0 = hill_par[2];
+    const double width = Lopt - L0;
+    if(width == 0.0){
+        return force;
+    }
+    const double fv = 1.0; // v=0 and u=1
+    const double u = 1.0;
+    std::vector<std::vector<double>> lengthValue = get_length_each_muscle(gamma);
+    for(const std::vector<double>& lengthStep : lengthValue){
+        const double l = std::accumulate(lengthStep.begin(), lengthStep.end(), 0.0);
+        double fl = 1.0 - ((l - Lopt) * (l - Lopt)) / (width * width);
+        if (fl < 0.0) {
+            fl = 0.0;
+        }
+        force.push_back(Fmax * fl * fv * u);
+    }
+    return force;
+}
+
+void postprocessing::get_hill_total_force_allmuscle(Parm* parm){
+    hilltotalforceall.clear();
+    const int musclenum = parm->getn_muscles();
+    for(int i=0;i<musclenum;i++){
+        if(i >= static_cast<int>(hillpassiveforceall.size()) || i >= static_cast<int>(hillactiveforceall.size()) || hillpassiveforceall[i].empty() || hillactiveforceall[i].empty()){
+            hilltotalforceall.push_back({});
+            continue;
+        }
+        std::vector<double> total;
+        const int stepCount = std::min(hillpassiveforceall[i].size(), hillactiveforceall[i].size());
+        for(int j=0;j<stepCount;j++){
+            total.push_back(hillpassiveforceall[i][j] + hillactiveforceall[i][j]);
+        }
+        hilltotalforceall.push_back(total);
+    }
+}
+
+void postprocessing::get_hill_moment_allmuscle(Parm* parm){
+    hillmomentall.clear();
+    const int writeMomentJointCount = std::max(1, parm->get_write_moment_joints());
+    for(int i=0;i<static_cast<int>(hilltotalforceall.size());i++){
+        if(hilltotalforceall[i].empty()){
+            hillmomentall.push_back({});
+            continue;
+        }
+        const int momentIndex = i * writeMomentJointCount;
+        if(momentIndex >= static_cast<int>(momentarmall.size()) || momentarmall[momentIndex].empty()){
+            hillmomentall.push_back({});
+            continue;
+        }
+        std::vector<double> moment;
+        const int stepCount = std::min(hilltotalforceall[i].size(), momentarmall[momentIndex].size());
+        for(int j=0;j<stepCount;j++){
+            moment.push_back(hilltotalforceall[i][j] * momentarmall[momentIndex][j]);
+        }
+        hillmomentall.push_back(moment);
+    }
+}
+
 void postprocessing::getphiall(Parm* parm){
     std::vector<body*> allbody=parm->getallbody();
     std::vector<muscle*> allmuscle=parm->getallmuscle();
@@ -297,4 +441,20 @@ std::vector<std::vector<double>> postprocessing::getmomentarmall(){
 
 std::vector<std::vector<std::vector<double>>> postprocessing::getmomentarmnodeall(){
     return momentarmnodeall;
+}
+
+std::vector<std::vector<double>> postprocessing::gethillpassiveforceall(){
+    return hillpassiveforceall;
+}
+
+std::vector<std::vector<double>> postprocessing::gethillactiveforceall(){
+    return hillactiveforceall;
+}
+
+std::vector<std::vector<double>> postprocessing::gethilltotalforceall(){
+    return hilltotalforceall;
+}
+
+std::vector<std::vector<double>> postprocessing::gethillmomentall(){
+    return hillmomentall;
 }

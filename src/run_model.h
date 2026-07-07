@@ -19,6 +19,7 @@ public:
     runmodel(const std::string& jsonfile, int json);
     void setrunmodel(const std::string& modelname);
     void setrunmodel(const std::string& jsonfile, int json);
+    void setrunmodelwithresultfolder(const std::string& resultfolder);
     double runprogramm();
     void savemodel();
     ~runmodel();
@@ -31,4 +32,3 @@ private:
 };
 
 #endif // RUN_MODEL_H
-

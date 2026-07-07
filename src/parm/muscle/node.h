@@ -47,6 +47,8 @@ public:
     void add_eta_node(int node_step, const std::vector<double>& etanew);
     void add_global_gamma_node(const std::vector<double>& gammanew);
     void add_localtoglobal_gamma_node(const std::vector<double>& gammanew);
+    void set_gamma_history(const std::vector<std::vector<double>>& gamma_history);
+    void set_eta_history(const std::vector<std::vector<double>>& eta_history);
 
     std::vector<double> get_new_initial_guess(int mode_number);
 
@@ -63,6 +65,7 @@ private:
     std::vector<body*> ref_body_init_list={};
     std::vector<std::vector<double>> gammaall_node;
     std::vector<std::vector<double>> etaall_node;
+    std::vector<double> rho_initial={0.0, 0.0, 0.0};
 };
 
 #endif // NODE_H

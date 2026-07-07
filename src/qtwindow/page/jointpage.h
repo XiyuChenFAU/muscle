@@ -22,6 +22,9 @@ Xiyu Chen
 #include <QRadioButton>
 #include <QButtonGroup>
 #include <QStackedWidget>
+#include <QScrollBar>
+
+class QScrollArea;
 
 class setmodelwindow;
 
@@ -65,6 +68,10 @@ private:
     QPushButton *plusbutton=nullptr;
     QPushButton *newjointbutton=nullptr;
     std::vector<QPushButton*> jointbuttons;
+    QScrollArea* jointButtonScrollArea=nullptr;
+    QWidget* jointButtonContent=nullptr;
+    QScrollArea* bodyListScrollArea=nullptr;
+    QWidget* bodyListContent=nullptr;
 
     QStackedWidget *stackedWidget=nullptr;
     revolutejointpage *Revolutejointpage = nullptr;

@@ -10,6 +10,7 @@ Xiyu Chen
 #define MUSCLE_H
 
 #include "node.h"
+#include "viapoint.h"
 
 class muscle {
 public:
@@ -26,6 +27,8 @@ public:
     void setmuscle(const std::vector<body*>& allbody, const std::vector<double>& rho_ovalue, const std::string& rhoo_bodynamevalue, const std::vector<double>& rho_ivalue, const std::string& rhoi_bodynamevalue, const std::string& namevalue, int nodenumvalue, const std::vector<double>& gammavalue, const std::vector<double>& etavalue, const std::vector<std::string>& consider_body_list_value);
     std::vector<std::vector<double>> getgammaall();
     std::vector<std::vector<double>> getetaall();
+    void set_gamma_history(const std::vector<std::vector<double>>& gamma_history);
+    void set_eta_history(const std::vector<std::vector<double>>& eta_history);
     std::vector<double> getgamma_step(int stepnum);
     std::vector<double> geteta_step(int stepnum);
     std::string getrhoo_bodyname();
@@ -34,20 +37,28 @@ public:
     std::vector<double> getrho_i();
     std::vector<double> getrho_o_position();
     std::vector<double> getrho_i_position();
+    std::vector<double> get_fix_point_global_position(int index);
     body* getrhoo_body();
     body* getrhoi_body();
     std::vector<node*> get_allnodes();
     std::vector<std::string> get_consider_body_list();
     void set_read_muscle_value(int value);
+    void set_hill_parameter(const std::vector<double>& hill_value);
+    std::vector<double> get_hill_parameter();
     int get_read_muscle_value();
 
     void setnodenum(int nodenumvalue);
     void set_node_partition(const std::vector<body*>& allbody, int constraint_local_mode_number, const std::string& constraint_local_select_bodyname, int init_mode_nr, const std::string& init_select_bodyname, int first_step_index);
     void addmuscleparm(const std::vector<double>& muscleparmnew, int local_mode_number);
 
-    void setvia_point_list(const std::vector<body*>& allbody, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_value);
-    std::vector<node*> getvia_point_list();
-    void addvia_point_list(node* viapoint_node);
+    
+    std::vector<viapoint*> getvia_point_list();
+    int via_point_num();
+    std::vector<double> getvia_point_eta(int index);
+    void addvia_point_list(const std::vector<body*>& allbody, const std::vector<double>& gamma_value, const std::string& rho_bodynamevalue, const std::vector<double>& eta_via={0.0}, int global = 0);
+    void update_via_point_gamma();
+    void update_via_point_eta(const std::vector<double>& eta_value);
+    void delete_single_via_point_list(int index);
     void deletevia_point_list();
     void delete_eta_node();
 
@@ -64,6 +75,7 @@ public:
     void resetforrecalc();
     int getvariablenum(int n_bodies);
     int get_consider_bodynum(int n_bodies);
+    std::vector<std::vector<int>> getrefbody_all(const std::vector<body*>& allbody, int constraint_mode_nr, int initial_mode_nr);
     void deleteallnodes();
 
 
@@ -74,7 +86,8 @@ private:
     int delete_eta=0;
     std::vector<std::string> consider_body_list={};
     std::vector<node*> all_nodes={};
-    std::vector<node*> via_point_list={};
+    std::vector<viapoint*> via_point_list={};
+    std::vector<double> hill_par={0.0, 0.0, 0.0}; // Fmax, optimal length, minimum length
 };
 
 #endif // MUSCLE_H

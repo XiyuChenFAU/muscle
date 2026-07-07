@@ -297,20 +297,93 @@ void Parm::set_single_read_muscle_value(const std::string& name, int read_muscle
     }
 }
 
+void Parm::set_hillpar(const std::string& musclename, const std::vector<double>& hill_value){
+    for(int i=0;i<allmuscle.size();i++){
+        if(allmuscle[i]->getname()==musclename){
+            allmuscle[i]->set_hill_parameter(hill_value);
+            break;
+        }
+    }
+}
+
 void Parm::set_node_partition(int constraint_local_mode_number, const std::string& constraint_local_select_bodyname, int init_mode_nr, const std::string& init_select_bodyname, int first_step_index){
     for(int i=0;i<allmuscle.size();i++){
         allmuscle[i]->set_node_partition(allbody, constraint_local_mode_number, constraint_local_select_bodyname, init_mode_nr, init_select_bodyname, first_step_index);
     }
 }
 
-void Parm::set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value){
+void Parm::set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value, const std::vector<std::vector<double>>& rho_via_point_eta, const std::vector<double>& via_point_alpha, const std::vector<double>& via_point_cutoff, int global){
     for(int i=0;i<allmuscle.size();i++){
         if(allmuscle[i]->getname()==musclename){
             allmuscle[i]->deletevia_point_list();
-            allmuscle[i]->setvia_point_list(allbody, rho_via_point_bodyname, rho_via_point_value);
+            for(int j=0;j<rho_via_point_bodyname.size();j++){
+                if(global){
+                    allmuscle[i]->addvia_point_list(allbody, rho_via_point_value[j], rho_via_point_bodyname[j], rho_via_point_eta[j], global);
+                    allmuscle[i]->getvia_point_list().back()->set_alpha_value(via_point_alpha[j]);
+                    allmuscle[i]->getvia_point_list().back()->set_cutoff(via_point_cutoff[j]);
+                }
+                else{
+                    allmuscle[i]->addvia_point_list(allbody, rho_via_point_value[j], rho_via_point_bodyname[j], rho_via_point_eta[j]);
+                    allmuscle[i]->getvia_point_list().back()->set_alpha_value(via_point_alpha[j]);
+                    allmuscle[i]->getvia_point_list().back()->set_cutoff(via_point_cutoff[j]);
+                }
+            }
             break;
         }
     }
+}
+
+void Parm::set_muscle_viapoint_node(const std::string& musclename, const std::vector<std::string>& rho_via_point_bodyname, const std::vector<std::vector<double>>& rho_via_point_value, const std::vector<std::vector<double>>& rho_via_point_eta, const std::vector<double>& via_point_alpha, const std::vector<double>& via_point_cutoff, const std::vector<int>& global_list){
+    for(int i=0;i<allmuscle.size();i++){
+        if(allmuscle[i]->getname()==musclename){
+            allmuscle[i]->deletevia_point_list();
+            for(int j=0;j<rho_via_point_bodyname.size();j++){
+                if(global_list[j]){
+                    allmuscle[i]->addvia_point_list(allbody, rho_via_point_value[j], rho_via_point_bodyname[j], rho_via_point_eta[j], 1);
+                    allmuscle[i]->getvia_point_list().back()->set_alpha_value(via_point_alpha[j]);
+                    allmuscle[i]->getvia_point_list().back()->set_cutoff(via_point_cutoff[j]);
+                }
+                else{
+                    allmuscle[i]->addvia_point_list(allbody, rho_via_point_value[j], rho_via_point_bodyname[j], rho_via_point_eta[j]);
+                    allmuscle[i]->getvia_point_list().back()->set_alpha_value(via_point_alpha[j]);
+                    allmuscle[i]->getvia_point_list().back()->set_cutoff(via_point_cutoff[j]);
+                }
+            }
+            break;
+        }
+    }
+}
+
+int Parm::get_muscle_viapoint_node_num(){
+    int num=0;
+    for(int i=0;i<allmuscle.size();i++){
+        num=num+allmuscle[i]->via_point_num();
+    }
+    return num;
+}
+
+void Parm::update_all_via_point_gamma(){
+    for(int i=0;i<allmuscle.size();i++){
+        allmuscle[i]->update_via_point_gamma();
+    }
+}
+
+void Parm::update_all_via_point_eta(const std::vector<double>& eta_value){
+    int count=0;
+    for(int i=0;i<allmuscle.size();i++){
+        int via_pointnum=allmuscle[i]->via_point_num();
+        std::vector<double> eta_value_muscle(eta_value.begin()+count, eta_value.begin()+count+via_pointnum);
+        allmuscle[i]->update_via_point_eta(eta_value_muscle);
+        count=count+via_pointnum;
+    }
+}
+
+std::vector<double> Parm::get_all_via_point_eta(int index){
+    std::vector<double> eta_values;
+    for(int i=0;i<allmuscle.size();i++){
+        eta_values.insert(eta_values.end(), allmuscle[i]->getvia_point_eta(index).begin(), allmuscle[i]->getvia_point_eta(index).end());
+    }
+    return eta_values;
 }
 
 void Parm::delete_muscle_eta(){
@@ -392,7 +465,7 @@ void Parm::rotatebodyupdate(int currentstepnum){
 int Parm::getvariable(){
     int vari=0;
     for(int i=0;i<n_muscles;i++){
-        vari=vari+allmuscle[i]->getnodenum()*3+(allmuscle[i]->getnodenum()-2)*n_bodies;
+        vari=vari+allmuscle[i]->getnodenum()*3+(allmuscle[i]->getnodenum()-2)*allmuscle[i]->get_consider_bodynum(n_bodies);
     }
     variablenum=vari;
     return vari;

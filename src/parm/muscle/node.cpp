@@ -19,6 +19,20 @@ node::node(std::vector<double> gamma, body* ref_body){
     ref_body_list.push_back(ref_body);
     ref_body_init_list.push_back(ref_body);
     fixpoint=1;
+
+    std::vector<std::vector<double>> q_all=ref_body->getbodybasic()->getq();
+    std::vector<double> q_current=q_all[0];
+    std::vector<double> position;
+    std::vector<std::vector<double>> axis;
+    for(int i=0; i<3; i++){
+        position.push_back(q_current[i]);
+        std::vector<double> axis1;
+        for (int j = 3+i*3; j < 6+i*3 ; j++) {
+            axis1.push_back(q_current[j]);
+        }
+        axis.push_back(axis1);
+    }
+    rho_initial = globaltolocal(position, axis, gamma);
 }
 
 node::node(std::vector<double> gamma, body* ref_body, int endpoint_setting){
@@ -27,6 +41,20 @@ node::node(std::vector<double> gamma, body* ref_body, int endpoint_setting){
     ref_body_init_list.push_back(ref_body);
     endpoint=endpoint_setting;
     fixpoint=1;
+
+    std::vector<std::vector<double>> q_all=ref_body->getbodybasic()->getq();
+    std::vector<double> q_current=q_all[0];
+    std::vector<double> position;
+    std::vector<std::vector<double>> axis;
+    for(int i=0; i<3; i++){
+        position.push_back(q_current[i]);
+        std::vector<double> axis1;
+        for (int j = 3+i*3; j < 6+i*3 ; j++) {
+            axis1.push_back(q_current[j]);
+        }
+        axis.push_back(axis1);
+    }
+    rho_initial = globaltolocal(position, axis, gamma);
 }
 
 node::node(std::vector<double> rho, int local, body* ref_body){
@@ -47,6 +75,7 @@ node::node(std::vector<double> rho, int local, body* ref_body){
     std::vector<double> global_gamma=localtoglobal(position, axis, rho);
     gammaall_node.push_back(global_gamma);
     fixpoint=1;
+    rho_initial=rho;
 }
 
 node::node(std::vector<double> rho, int local, body* ref_body, int endpoint_setting){
@@ -68,6 +97,7 @@ node::node(std::vector<double> rho, int local, body* ref_body, int endpoint_sett
     gammaall_node.push_back(global_gamma);
     endpoint=endpoint_setting;
     fixpoint=1;
+    rho_initial=rho;
 }
 
 node::~node(){
@@ -92,20 +122,7 @@ std::vector<std::vector<double>> node::get_etaall_node(){
 
 // get initial setting rho in local coordinate of the reference body
 std::vector<double> node::get_rho(){
-    body* ref_body=ref_body_list[0];
-    std::vector<std::vector<double>> q_all=ref_body->getbodybasic()->getq();
-    std::vector<double> q_current=q_all[0];
-    std::vector<double> position;
-    std::vector<std::vector<double>> axis;
-    for(int i=0; i<3; i++){
-        position.push_back(q_current[i]);
-        std::vector<double> axis1;
-        for (int j = 3+i*3; j < 6+i*3 ; j++) {
-            axis1.push_back(q_current[j]);
-        }
-        axis.push_back(axis1);
-    }
-    return globaltolocal(position, axis, gammaall_node[0]);
+    return rho_initial;
 }
 
 std::vector<double> node::get_gamma_node(){
@@ -113,20 +130,41 @@ std::vector<double> node::get_gamma_node(){
 }
 
 std::vector<double> node::get_gamma_node(int node_step){
+    if(gammaall_node.empty()){
+        return {};
+    }
     if(node_step<0){
-        node_step=gammaall_node.size()+node_step;
-    } 
+        node_step=static_cast<int>(gammaall_node.size())+node_step;
+    }
+    if(node_step<0){
+        node_step=0;
+    }
+    if(node_step>=static_cast<int>(gammaall_node.size())){
+        node_step=static_cast<int>(gammaall_node.size())-1;
+    }
     return gammaall_node[node_step];
 }
 
 std::vector<double> node::get_eta_node(){
+    if(etaall_node.empty()){
+        return {};
+    }
     return etaall_node.back();
 }
 
 std::vector<double> node::get_eta_node(int node_step){
+    if(etaall_node.empty()){
+        return {};
+    }
     if(node_step<0){
-        node_step=etaall_node.size()+node_step;
-    } 
+        node_step=static_cast<int>(etaall_node.size())+node_step;
+    }
+    if(node_step<0){
+        node_step=0;
+    }
+    if(node_step>=static_cast<int>(etaall_node.size())){
+        node_step=static_cast<int>(etaall_node.size())-1;
+    }
     return etaall_node[node_step];
 }
 
@@ -200,6 +238,14 @@ void node::add_localtoglobal_gamma_node(const std::vector<double>& gammanew){
     gammaall_node.push_back(global_gamma);
 }
 
+void node::set_gamma_history(const std::vector<std::vector<double>>& gamma_history){
+    gammaall_node=gamma_history;
+}
+
+void node::set_eta_history(const std::vector<std::vector<double>>& eta_history){
+    etaall_node=eta_history;
+}
+
 std::vector<double> node::get_new_initial_guess(int mode_number){   
     std::vector<double>old_q=ref_body_init_list.back()->getbodybasic()->getq_step(-2);
     std::vector<double> positionold;
@@ -213,7 +259,7 @@ std::vector<double> node::get_new_initial_guess(int mode_number){
         axisold.push_back(axisold1);
     }
     std::vector<double> vector_local_diff=globaltolocal(positionold, axisold, gammaall_node.back());
-    if(mode_number==4){
+    if(mode_number==-1){
         return vector_local_diff; //constraint local parameterization
     } else{
         vector_local_diff=localtoglobal(ref_body_init_list.back()->getbodybasic()->getposition(),ref_body_init_list.back()->getbodybasic()->getaxis(), vector_local_diff);
@@ -263,7 +309,7 @@ void node::set_single_node_partition(const std::vector<body*>& allbody, int cons
             } else{
                 constraint_ref_body = ref_body_list.back();
             }
-        } else{
+        } else if(constraint_local_mode_number==3 || constraint_local_mode_number==4){
             constraint_ref_body = allbody[body_index];
         }
 
@@ -278,7 +324,7 @@ void node::set_single_node_partition(const std::vector<body*>& allbody, int cons
             } else{
                 init_ref_body = ref_body_init_list.back();
             }
-        } else if(init_mode_nr==3){
+        } else if(init_mode_nr==3 || init_mode_nr==4){
             init_ref_body = allbody[body_index];
         } else{// constraint local parameterization
             init_ref_body = constraint_ref_body;

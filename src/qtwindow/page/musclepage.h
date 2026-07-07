@@ -18,6 +18,10 @@ Xiyu Chen
 #include "../../run_model.h"
 #include <QRadioButton>
 #include <QButtonGroup>
+#include "viapointsetting/viapointsetting.h"
+#include <QScrollBar>
+
+class QScrollArea;
 
 class setmodelwindow;
 
@@ -39,14 +43,20 @@ public:
     void setalltextedit(const std::vector<double>& rho_o, const std::string& rhoo_bodyname, const std::vector<double>& rho_i, const std::string& rhoi_bodyname, const std::string& name, int nodenum, int localglobal, const std::vector<std::string>& selectedBodies_value);
     void setlocalglobal();
     void updatevalue();
+    bool confirmViaPointChanges();
 
 private:
     std::vector<QLabel*> qlabels;
     std::vector<QPushButton*> musclebuttons;
+    QScrollArea* muscleButtonScrollArea=nullptr;
+    QWidget* muscleButtonContent=nullptr;
+    QScrollArea* bodyListScrollArea=nullptr;
+    QWidget* bodyListContent=nullptr;
     QPushButton* savebutton=nullptr;
     QPushButton* deletebutton=nullptr;
     QPushButton* newmusclebutton=nullptr;
     QPushButton* plusbutton=nullptr;
+    QPushButton* viapointbutton=nullptr;
     setmodelwindow *setmodelwin=nullptr;
     QLineEdit *musclenameEdit=nullptr;
     QLineEdit *nodenumEdit=nullptr;
@@ -63,6 +73,9 @@ private:
     QLineEdit *rhoiaxisxEdit=nullptr;
     QLineEdit *rhoiaxisyEdit=nullptr;
     QLineEdit *rhoiaxiszEdit=nullptr;
+    QLineEdit *hillFmaxEdit=nullptr;
+    QLineEdit *hillLoptEdit=nullptr;
+    QLineEdit *hillL0Edit=nullptr;
     QFrame* rectanglemain;
     std::vector<QRadioButton *> radioButtonso;
     QButtonGroup *buttonGroupo = nullptr;
@@ -78,6 +91,11 @@ private:
 
     std::vector<QCheckBox*> checkBoxes_body;
     std::vector<int> selectedBodies;
+    std::vector<ViapointDraft> pendingViaPoints;
+    bool viaPointDirty=false;
+
+    void loadViaPointsFromMuscle();
+    void applyPendingViaPointsToMuscle();
 
 private slots:
     void plusbuttonsetting();
@@ -89,6 +107,7 @@ private slots:
     void handleButtonClickedi(QAbstractButton* button);
     void handleButtonClickedtype(QAbstractButton* button);
     void handleCheckBoxChanged_body(int state);
+    void openViaPointSetting();
 };
 
 #endif // MUSCLEPAGE_H

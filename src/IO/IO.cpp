@@ -7,6 +7,9 @@ Xiyu Chen
 */
 
 #include "IO.h"
+#include <algorithm>
+#include <map>
+#include <utility>
 
 IO::IO(){
     
@@ -35,6 +38,24 @@ void IO::write2DvalueToFile(const std::vector<std::vector<double>>& value, std::
     }
 }
 
+void IO::write2DintvalueToFile(const std::vector<std::vector<int>>& value, std::ofstream& file, const std::string& name, const std::string& typenamevalue){
+    int rownum=1;
+    if (file.is_open()) {
+        for (int i=0;i<value[0].size();i++) {
+            file << name << "\t";
+            file << typenamevalue << "\t";
+            file << rownum << "\t";
+            for (int j=0;j<value.size();j++) {
+                file << value[j][i] << "\t";
+            }
+            file << "\n";
+            rownum++;
+        }
+    } else {
+        std::cerr << "can not open file" << std::endl;
+    }
+}
+
 void IO::writemusclebodyresultToFileAll(model* Model){
 
     //create folder
@@ -46,7 +67,9 @@ void IO::writemusclebodyresultToFileAll(model* Model){
 
     std::vector<body*> allbody=Model->getparm()->getallbody();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
     
     //writebody
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_body_result.txt";
@@ -99,7 +122,9 @@ void IO::writeanalyzeresultToFileAll(model* Model){
     writebody_stateToFile(Model);
     writemomentarmnodeToFile(Model);
     writemomentarmToFile(Model);
+    writehillToFile(Model);
     writerunningtimeToFile(Model);
+    writerefbodyToFile(Model);
 }
 
 void IO::writephiToFile(model* Model){
@@ -114,7 +139,9 @@ void IO::writephiToFile(model* Model){
     std::vector<std::vector<std::vector<double>>> phiall = Model->getPostprocessing()->getphiall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<body*> allbody=Model->getparm()->getallbody();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
     
 
     //phiall
@@ -144,7 +171,9 @@ void IO::writelengthToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> lengthall = Model->getPostprocessing()->getlengthall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
 
     //lengthall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_length_result.txt";
@@ -171,7 +200,9 @@ void IO::writelengthallToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> lengthall = Model->getPostprocessing()->getlengthall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
 
     //lengthall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_length_total_result.txt";
@@ -207,7 +238,9 @@ void IO::writeforcenodeToFile(model* Model){
 
     std::vector<std::vector<std::vector<double>>> forceallnode = Model->getPostprocessing()->getforceallnode();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
 
     //forceallnode
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_forcenode_result.txt";
@@ -234,7 +267,9 @@ void IO::writetotalforceToFile(model* Model){
 
     std::vector<std::vector<double>> totalforceall = Model->getPostprocessing()->gettotalforceall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
 
     //totalforceall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_totalforce_result.txt";
@@ -268,7 +303,9 @@ void IO::writebody_stateToFile(model* Model){
     }
 
     std::vector<body*> allbody=Model->getparm()->getallbody();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
 
     //body_state
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_bodystate_result.txt";
@@ -352,7 +389,9 @@ void IO::writemomentarmnodeToFile(model* Model){
     std::vector<std::vector<std::vector<double>>> momentarmnodeall = Model->getPostprocessing()->getmomentarmnodeall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
 
     //phiall
     std::string filename = folderoutput+"/"+Model->getmodelname()+"_momentarmnode_result.txt";
@@ -385,7 +424,9 @@ void IO::writemomentarmToFile(model* Model){
     std::vector<std::vector<double>> momentarmall = Model->getPostprocessing()->getmomentarmall();
     std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
     std::vector<joint*> alljoint=Model->getparm()->getalljoint();
-    std::vector<int> rotation=Model->getparm()->getallstep();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
     
 
     //phiall
@@ -413,6 +454,57 @@ void IO::writemomentarmToFile(model* Model){
     file7.close();
 }
 
+void IO::writehillToFile(model* Model){
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
+    std::vector<std::pair<std::string, std::vector<std::vector<double>>>> hillFiles = {
+        {"hill_passive_force", Model->getPostprocessing()->gethillpassiveforceall()},
+        {"hill_active_force", Model->getPostprocessing()->gethillactiveforceall()},
+        {"hill_total_force", Model->getPostprocessing()->gethilltotalforceall()},
+        {"hill_moment", Model->getPostprocessing()->gethillmomentall()}
+    };
+
+    for(const auto &hillFile : hillFiles){
+        bool hasValue = false;
+        for(const auto &line : hillFile.second){
+            if(!line.empty()){
+                hasValue = true;
+                break;
+            }
+        }
+        if(!hasValue){
+            continue;
+        }
+
+        std::string filename = folderoutput+"/"+Model->getmodelname()+"_"+hillFile.first+"_result.txt";
+        std::ofstream file(filename);
+        file << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+        for(int i=0;i<rotation.size();i++){file << rotation[i] << "\t";}
+        file << "\n";
+
+        for(int i=0;i<static_cast<int>(hillFile.second.size()) && i<static_cast<int>(allmuscle.size());i++){
+            if(hillFile.second[i].empty()){
+                continue;
+            }
+            file << allmuscle[i]->getname() << "\t" << hillFile.first << "\t" << 1 << "\t";
+            for(double value : hillFile.second[i]){
+                if(write_precision){file << std::setprecision(17) << value << "\t";}
+                else {file << value << "\t";}
+            }
+            file << "\n";
+        }
+        file.close();
+    }
+}
+
 void IO::writerunningtimeToFile(model* Model){
     //create folder
     std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
@@ -427,6 +519,34 @@ void IO::writerunningtimeToFile(model* Model){
     if(write_precision){file8 << "run_time" << std::setprecision(17) << Model->get_elapsed_time() <<"\n";} 
     else {file8 << "run_time" << Model->get_elapsed_time() <<"\n";}
     file8.close();
+}
+
+void IO::writerefbodyToFile(model* Model){
+    //create folder
+    std::string folderoutput=Model->getfolderpath()+"output_"+Model->getmodelname();
+    if (!std::filesystem::exists(folderoutput)) {
+        std::filesystem::create_directory(folderoutput);
+        std::cout << "save result to folder " << folderoutput << std::endl;
+    }
+
+    std::vector<muscle*> allmuscle=Model->getparm()->getallmuscle();
+    std::vector<body*> allbody=Model->getparm()->getallbody();
+    std::vector<int> rotation={};
+    int num_steps = Model->getparm()->getbodyindex(-1)->getbodybasic()->getq().size()-1;
+    for(int i=0;i<num_steps;i++){rotation.push_back(i);}
+
+    //lengthall
+    std::string filename = folderoutput+"/"+Model->getmodelname()+"_ref_body_result.txt";
+    std::ofstream file9(filename);
+    //write titel
+    file9 << "rotation_angle" << "\t"<<" "<<"\t"<<" "<<"\t"<<"initial"<<"\t";
+    for(int i=0;i<rotation.size();i++){file9 << rotation[i] << "\t";}
+    file9 << "\n";
+    //writevalue
+    for(int i =0;i<Model->getparm()->getn_muscles();i++){
+        write2DintvalueToFile(matrixtranspose(allmuscle[i]->getrefbody_all(allbody, Model->getSolveeq()->getConstraint()->get_local_mode_number(), Model->getSolveeq()->getInitialguess()->getmode_nr())),file9,allmuscle[i]->getname(),"ref_body");
+    }
+    file9.close();
 }
 
 void IO::writejson(model* Model, int write_gamma, int currentstepnum){
@@ -511,6 +631,13 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
         muscleObject["rho_insertion"]=rhoi;
         muscleObject["insertion_relative_body"]=allmuscle[i]->getrhoi_bodyname();
         muscleObject["node_number"]=allmuscle[i]->getnodenum();
+        std::vector<double> hillPar = allmuscle[i]->get_hill_parameter();
+        hillPar.resize(3, 0.0);
+        Json::Value hillObject;
+        hillObject["Fmax"] = hillPar[0];
+        hillObject["Lopt"] = hillPar[1];
+        hillObject["L0"] = hillPar[2];
+        muscleObject["hill"] = hillObject;
 
         if(write_gamma){
             std::vector<std::vector<double>> gammaall = allmuscle[i]->getgammaall();
@@ -623,6 +750,154 @@ void IO::writejson(model* Model, int write_gamma, int currentstepnum){
     */
 }
 
+namespace {
+std::map<std::string, std::vector<std::vector<double>>> readResultTable(const std::filesystem::path& filename){
+    std::map<std::string, std::vector<std::vector<double>>> componentRows;
+    std::ifstream file(filename);
+    if(!file.is_open()){
+        return {};
+    }
+    std::string line;
+    std::getline(file, line);
+    while(std::getline(file, line)){
+        if(line.empty()){
+            continue;
+        }
+        std::stringstream ss(line);
+        std::string name;
+        std::string type;
+        int rownum=0;
+        ss >> name >> type >> rownum;
+        if(name.empty()){
+            continue;
+        }
+        std::vector<double> values;
+        double value=0.0;
+        while(ss >> value){
+            values.push_back(value);
+        }
+        if(!values.empty()){
+            componentRows[name].push_back(values);
+        }
+    }
+
+    std::map<std::string, std::vector<std::vector<double>>> result;
+    for(const auto& item : componentRows){
+        int componentCount=static_cast<int>(item.second.size());
+        int stepCount=0;
+        for(const auto& row : item.second){
+            stepCount=std::max(stepCount, static_cast<int>(row.size()));
+        }
+        std::vector<std::vector<double>> history(stepCount, std::vector<double>(componentCount, 0.0));
+        for(int component=0; component<componentCount; component++){
+            for(int step=0; step<item.second[component].size(); step++){
+                history[step][component]=item.second[component][step];
+            }
+        }
+        result[item.first]=history;
+    }
+    return result;
+}
+
+void rebuildJointAbsoluteHistory(model* Model, int historySize){
+    if(Model==nullptr || historySize<=0){
+        return;
+    }
+    std::vector<body*> allbody=Model->getparm()->getallbody();
+    std::vector<joint*> alljoint=Model->getparm()->getalljoint();
+    for(joint* Joint : alljoint){
+        Joint->resetforrecalc();
+    }
+    for(int step=0; step<historySize; step++){
+        for(body* Body : allbody){
+            std::vector<std::vector<double>> qHistory=Body->getbodybasic()->getq();
+            if(step<static_cast<int>(qHistory.size()) && qHistory[step].size()>=12){
+                Body->getbodybasic()->setpoistionaxis(qHistory[step]);
+            }
+        }
+        for(joint* Joint : alljoint){
+            Joint->absolute_pos_axis_update(step);
+        }
+    }
+    const int lastStep=historySize-1;
+    for(body* Body : allbody){
+        std::vector<std::vector<double>> qHistory=Body->getbodybasic()->getq();
+        if(lastStep<static_cast<int>(qHistory.size()) && qHistory[lastStep].size()>=12){
+            Body->getbodybasic()->setpoistionaxis(qHistory[lastStep]);
+        }
+    }
+}
+}
+
+model* IO::readmodelwithresultfolder(const std::string& resultfolder){
+    std::filesystem::path folder(resultfolder);
+    if(folder.empty()){
+        return nullptr;
+    }
+    if(std::filesystem::is_regular_file(folder)){
+        folder=folder.parent_path();
+    }
+    if(!std::filesystem::exists(folder) || !std::filesystem::is_directory(folder)){
+        std::cerr << "Result folder does not exist: " << folder << std::endl;
+        return nullptr;
+    }
+
+    std::string file = folder.filename().string();
+
+    const std::string prefix = "output_";
+    if(file.rfind(prefix, 0) == 0){
+        file.erase(0, prefix.size());
+    }
+
+    file += ".json";
+
+    std::filesystem::path jsonPath = folder / file;
+
+    if(jsonPath.empty()){
+        std::cerr << "Failed to find model json in result folder: " << folder << std::endl;
+        return nullptr;
+    }
+
+    model* Model=readmodel(jsonPath.string());
+    if(Model==nullptr){
+        return nullptr;
+    }
+    std::string modelname=Model->getmodelname();
+    std::filesystem::path parentFolder=folder.parent_path();
+    Model->setfolderpath(parentFolder.empty() ? "." : parentFolder.string());
+
+    int loadedHistorySize=0;
+    auto bodyResult=readResultTable(folder/(modelname+"_body_result.txt"));
+    for(body* Body : Model->getparm()->getallbody()){
+        auto it=bodyResult.find(Body->getname());
+        if(it!=bodyResult.end()){
+            Body->getbodybasic()->set_q_history(it->second);
+            loadedHistorySize=std::max(loadedHistorySize, static_cast<int>(it->second.size()));
+        }
+    }
+
+    auto gammaResult=readResultTable(folder/(modelname+"_muscle_gamma_result.txt"));
+    auto etaResult=readResultTable(folder/(modelname+"_muscle_eta_result.txt"));
+    for(muscle* Muscle : Model->getparm()->getallmuscle()){
+        auto gammaIt=gammaResult.find(Muscle->getname());
+        if(gammaIt!=gammaResult.end()){
+            Muscle->set_gamma_history(gammaIt->second);
+            loadedHistorySize=std::max(loadedHistorySize, static_cast<int>(gammaIt->second.size()));
+        }
+        auto etaIt=etaResult.find(Muscle->getname());
+        if(etaIt!=etaResult.end()){
+            Muscle->set_eta_history(etaIt->second);
+        }
+    }
+
+    if(loadedHistorySize>0){
+        //Model->getparm()->set_run_total_step(std::max(0, loadedHistorySize-2));
+        //rebuildJointAbsoluteHistory(Model, loadedHistorySize);
+        Model->do_postprocessing(0.0);
+    }
+    return Model;
+}
+
 model* IO::readmodel(const std::string&  jsonfilename){
 
     std::cout<<jsonfilename<<std::endl;
@@ -665,7 +940,11 @@ model* IO::readmodel(const std::string&  jsonfilename){
         double length = Shape["length"].asDouble();
         double radius = Shape["radius"].asDouble();
         std::string shapename = Shape["shape_name"].asString();
-        Model->getparm()->addbody(bodyname,parentname,n_axis,rotationangle,rho_body,a,b,c,length,radius,shapename,0);
+        int global=0;
+        if (bodyObject.isMember("global")) {
+            global = bodyObject["global"].asInt();
+        }
+        Model->getparm()->addbody(bodyname,parentname,n_axis,rotationangle,rho_body,a,b,c,length,radius,shapename,global);
     }
 
     //muscle
@@ -726,19 +1005,60 @@ model* IO::readmodel(const std::string&  jsonfilename){
             }
             Model->getparm()->set_single_read_muscle_value(musclename, read_muscle_value);
         }
+        std::vector<double> hillValue = {0.0, 0.0, 0.0};
+        if (muscleObject.isMember("hill")) {
+            const Json::Value& hillObject = muscleObject["hill"];
+            if (hillObject.isMember("Fmax")) {
+                hillValue[0] = hillObject["Fmax"].asDouble();
+            }
+            if (hillObject.isMember("Lopt")) {
+                hillValue[1] = hillObject["Lopt"].asDouble();
+            }
+            if (hillObject.isMember("L0")) {
+                hillValue[2] = hillObject["L0"].asDouble();
+            }
+        }
+        Model->getparm()->set_hillpar(musclename, hillValue);
         std::vector<std::string> rho_via_point_bodyname={};
         std::vector<std::vector<double>> rho_via_point_value={};
+        std::vector<std::vector<double>> rho_via_point_eta={};
+        std::vector<double> via_point_alpha={};
+        std::vector<double> via_point_cutoff={};
         if (muscleObject.isMember("viapoint_node")) {
             const Json::Value& viapointArray = muscleObject["viapoint_node"];
             for (const Json::Value& viapoint_value : viapointArray) {
                 std::string rho_bodyname = viapoint_value["relative_body"].asString();
+                rho_via_point_bodyname.push_back(rho_bodyname);
                 std::vector<double> rho_via;
                 const Json::Value& rho_viaArray = viapoint_value["rho_via"];
                 for (const Json::Value& rho_viaArray_value : rho_viaArray) {
                     rho_via.push_back(rho_viaArray_value.asDouble());
                 }
+                rho_via_point_value.push_back(rho_via);
+                std::vector<double> eta_via;
+                if(viapoint_value.isMember("eta_via")){
+                    const Json::Value& eta_viaArray = viapoint_value["eta_via"];
+                    for (const Json::Value& eta_viaArray_value : eta_viaArray) {
+                        eta_via.push_back(eta_viaArray_value.asDouble());
+                    }
+                } else{
+                    eta_via.push_back(0.0); 
+                }
+
+                rho_via_point_eta.push_back(eta_via);
+                if(viapoint_value.isMember("via_alpha")){
+                    via_point_alpha.push_back(viapoint_value["via_alpha"].asDouble());
+                } else{
+                    via_point_alpha.push_back(100.0);
+                }
+
+                if(viapoint_value.isMember("via_cutoff")){
+                    via_point_cutoff.push_back(viapoint_value["via_cutoff"].asDouble());
+                } else{
+                    via_point_cutoff.push_back(0.05);
+                }
             }
-            Model->getparm()->set_muscle_viapoint_node(musclename, rho_via_point_bodyname, rho_via_point_value);
+            Model->getparm()->set_muscle_viapoint_node(musclename, rho_via_point_bodyname, rho_via_point_value, rho_via_point_eta, via_point_alpha, via_point_cutoff);
         }
     }
     //joint
@@ -842,11 +1162,18 @@ model* IO::readmodel(const std::string&  jsonfilename){
     } else{ //for milimeter cases!!!
         Model->getSolveeq()->getConstraint()->set_phi_eta_plus(0);
     }
+    if (constraint.isMember("use_phi_eta_inequality_constraint")) {
+        int use_phi_eta_inequality = constraint["use_phi_eta_inequality_constraint"].asInt();
+        Model->getSolveeq()->getConstraint()->set_phi_eta_inequality(use_phi_eta_inequality);
+    } else{ //increase stability
+        Model->getSolveeq()->getConstraint()->set_phi_eta_inequality(0);
+    }
+
     std::string local_select_bodyname=constraint["local_select_bodyname"].asString();
     Model->getSolveeq()->getConstraint()->set_local_select_bodyname(local_select_bodyname);
     int local_mode_number=constraint["local_mode_number"].asInt();
     Model->getSolveeq()->getConstraint()->set_local_mode_number(local_mode_number);
-    if(local_mode_number>0){Model->getSolveeq()->getInitialguess()->setmode_nr(4);}
+    if(local_mode_number>0){Model->getSolveeq()->getInitialguess()->setmode_nr(-1);}
 
     if (constraint.isMember("calculate_all_muscle_together")) {
         int all_muscle_together_value = constraint["calculate_all_muscle_together"].asInt();
